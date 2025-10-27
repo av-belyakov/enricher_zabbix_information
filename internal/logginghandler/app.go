@@ -3,7 +3,7 @@ package logginghandler
 import (
 	"context"
 
-	"github.com/av-belyakov/application_template/interfaces"
+	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
 )
 
 // New конструктор обработки логов

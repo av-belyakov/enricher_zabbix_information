@@ -1,7 +1,11 @@
-Service:
-  host: localhost
+Zabbix:
+  host: 192.168.9.45
   port: 80
-  user: user-name
+  user: 803.p.vishnitsky@avz-center.ru
+NetBox:
+  host: localhost
+  port: 4455
+  user: someuser
 WriteLogDataBase:
   host: database.cloud.example
   port: 9200

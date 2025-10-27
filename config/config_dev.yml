@@ -1,7 +1,11 @@
-Service:
-  host: localhost.dev
-  port: 88
-  user: user-name.dev
+Zabbix:
+  host: 192.168.9.45
+  port: 80
+  user: 803.p.vishnitsky@avz-center.ru
+NetBox:
+  host: localhost
+  port: 4455
+  user: someuser
 WriteLogDataBase:
   host: database.cloud.example.dev
   port: 9202

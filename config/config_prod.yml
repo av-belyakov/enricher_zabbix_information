@@ -1,7 +1,11 @@
-ZabbiService:
-  host: localhost.prod
-  port: 888
-  user: user-name.prod
+Zabbix:
+  host: 192.168.9.45
+  port: 80
+  user: 803.p.vishnitsky@avz-center.ru
+NetBox:
+  host: localhost
+  port: 4455
+  user: someuser
 WriteLogDataBase:
   host: database.cloud.example.prod
   port: 9200

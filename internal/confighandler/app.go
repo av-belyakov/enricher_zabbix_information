@@ -10,9 +10,9 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
 
-	"github.com/av-belyakov/application_template/constants"
-	"github.com/av-belyakov/application_template/internal/supportingfunctions"
-	"github.com/av-belyakov/application_template/internal/wrappers"
+	"github.com/av-belyakov/enricher_zabbix_information/constants"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
 )
 
 func New(rootDir string) (*ConfigApp, error) {
@@ -78,15 +78,26 @@ func New(rootDir string) (*ConfigApp, error) {
 			return err
 		}
 
-		// Настройки для модуля подключения к некоторому сервису
-		if viper.IsSet("Service.host") {
-			conf.Service.Host = viper.GetString("Service.host")
+		// Настройки для модуля подключения к Zabbix
+		if viper.IsSet("Zabbix.host") {
+			conf.Zabbix.Host = viper.GetString("Zabbix.host")
 		}
-		if viper.IsSet("Service.port") {
-			conf.Service.Port = viper.GetInt("Service.port")
+		if viper.IsSet("Zabbix.port") {
+			conf.Zabbix.Port = viper.GetInt("Zabbix.port")
 		}
-		if viper.IsSet("Service.user") {
-			conf.Service.User = viper.GetString("Service.user")
+		if viper.IsSet("Zabbix.user") {
+			conf.Zabbix.User = viper.GetString("Zabbix.user")
+		}
+
+		// Настройки для модуля подключения к NetBox
+		if viper.IsSet("NetBox.host") {
+			conf.NetBox.Host = viper.GetString("NetBox.host")
+		}
+		if viper.IsSet("NetBox.port") {
+			conf.NetBox.Port = viper.GetInt("NetBox.port")
+		}
+		if viper.IsSet("NetBox.user") {
+			conf.NetBox.User = viper.GetString("NetBox.user")
 		}
 
 		// Настройки доступа к БД в которую будут записыватся логи

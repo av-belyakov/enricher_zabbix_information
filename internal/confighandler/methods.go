@@ -17,9 +17,14 @@ func (c *ConfigApp) GetListLogs() []*LogSet {
 	return c.Common.Logs
 }
 
-// GetService настройки взаимодействия с некоторым сервисом
-func (c *ConfigApp) GetService() *CfgService {
-	return &c.Service
+// GetZabbix настройки взаимодействия с сервисом Zabbix
+func (c *ConfigApp) GetZabbix() *CfgZabbix {
+	return &c.Zabbix
+}
+
+// GetNetBox настройки взаимодействия с сервисом NetBox
+func (c *ConfigApp) GetNetBox() *CfgNetBox {
+	return &c.NetBox
 }
 
 // GetAuthenticationData авторизационные данные

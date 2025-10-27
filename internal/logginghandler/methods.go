@@ -1,7 +1,7 @@
 package logginghandler
 
 import (
-	"github.com/av-belyakov/application_template/interfaces"
+	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
 )
 
 func (l *LoggingChan) GetChan() <-chan interfaces.Messager {

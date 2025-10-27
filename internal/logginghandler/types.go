@@ -1,6 +1,6 @@
 package logginghandler
 
-import "github.com/av-belyakov/application_template/interfaces"
+import "github.com/av-belyakov/enricher_zabbix_information/interfaces"
 
 type LoggingChan struct {
 	dataWriter           interfaces.WriterLoggingData

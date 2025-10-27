@@ -6,10 +6,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/av-belyakov/application_template/constants"
-	"github.com/av-belyakov/application_template/internal/appname"
-	"github.com/av-belyakov/application_template/internal/appversion"
-	"github.com/av-belyakov/application_template/internal/confighandler"
+	"github.com/av-belyakov/enricher_zabbix_information/constants"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/appname"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/appversion"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/confighandler"
 )
 
 func getInformationMessage(conf *confighandler.ConfigApp) string {

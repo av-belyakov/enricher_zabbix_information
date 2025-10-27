@@ -8,8 +8,8 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/av-belyakov/application_template/constants"
-	"github.com/av-belyakov/application_template/internal/confighandler"
+	"github.com/av-belyakov/enricher_zabbix_information/constants"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/confighandler"
 )
 
 var (

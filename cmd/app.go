@@ -7,12 +7,12 @@ import (
 
 	"github.com/av-belyakov/simplelogger"
 
-	"github.com/av-belyakov/application_template/constants"
-	"github.com/av-belyakov/application_template/internal/confighandler"
-	"github.com/av-belyakov/application_template/internal/elasticsearchapi"
-	"github.com/av-belyakov/application_template/internal/logginghandler"
-	"github.com/av-belyakov/application_template/internal/supportingfunctions"
-	"github.com/av-belyakov/application_template/internal/wrappers"
+	"github.com/av-belyakov/enricher_zabbix_information/constants"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/confighandler"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/elasticsearchapi"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/logginghandler"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
 )
 
 func app(ctx context.Context) {

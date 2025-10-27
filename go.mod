@@ -1,4 +1,4 @@
-module github.com/av-belyakov/application_template
+module github.com/av-belyakov/enricher_zabbix_information
 
 go 1.25.3
 

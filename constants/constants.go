@@ -1,9 +1,9 @@
 package constants
 
 const (
-	Root_Dir = "application_template"
+	Root_Dir = "enricher_zabbix_information"
 
-	Application_Name = "APPLICATIONTEMPLATE"
+	Application_Name = "ENRICHERZI"
 
 	Ansi_Reset                 = "\033[0m"
 	Ansi_White                 = "\033[97m"
