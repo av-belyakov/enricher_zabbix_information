@@ -19,19 +19,23 @@
 
 - 'GO_ENRICHERZI_MAIN'
 
+#### Переменные окружения отвечающие за авторизацию
+
+- 'GO_ENRICHERZI_ZPASSWD' - пароль для доступа к Zabbix
+- 'GO_ENRICHERZI_NBPASSWD' - пароль для доступа к NetBox
+- 'GO_ENRICHERZI_DBWLOGPASSWD' - пароль для доступа к БД логирования
+
 #### Переменные окружения отвечающие за доступ к Zabbix
 
 - 'GO_ENRICHERZI_ZHOST' - доменное имя или ip
 - 'GO_ENRICHERZI_ZPORT' - сетевой порт
 - 'GO_ENRICHERZI_ZUSER' - имя пользователя для авторизации
-- 'GO_ENRICHERZI_ZPASSWD' - пароль
 
 #### Переменные окружения отвечающие за доступ к NetBox
 
 - 'GO_ENRICHERZI_NBHOST' - доменное имя или ip
 - 'GO_ENRICHERZI_NBPORT' - сетевой порт
 - 'GO_ENRICHERZI_NBUSER' - имя пользователя для авторизации
-- 'GO_ENRICHERZI_NBPASSWD' - пароль
 
 #### Переменные окружения отвечающие за настройку доступа к БД применяемой для хранения логов
 
@@ -39,7 +43,6 @@
 - 'GO_ENRICHERZI_DBWLOGPORT' - сетевой порт
 - 'GO_ENRICHERZI_DBWLOGNAME' - наименование БД (при необходимости)
 - 'GO_ENRICHERZI_DBWLOGUSER' - пользователь
-- 'GO_ENRICHERZI_DBWLOGPASSWD' - пароль
 - 'GO_ENRICHERZI_DBWLOGSTORAGENAME' - наименование объекта хранения логов (таблица, документ, индекс и т.д. зависит от типа БД)
 
 Настройки логирования данных в БД не являются обязательными и необходимы только если пользователь приложения желает хранить логи в базе данных.
