@@ -6,6 +6,8 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/av-belyakov/enricher_zabbix_information/internal/appname"
 )
 
 func main() {
@@ -14,7 +16,7 @@ func main() {
 	go func() {
 		<-ctx.Done()
 
-		fmt.Println("Enricher_zin module is stop")
+		fmt.Printf("Module '%s' is stop", appname.GetName())
 
 		stop()
 	}()
