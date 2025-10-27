@@ -35,15 +35,27 @@ func getInformationMessage(conf *confighandler.ConfigApp) string {
 		constants.Ansi_Reset,
 	)
 	fmt.Printf(
-		"%vConnect to some Service with address %v%s:%d%v%v, user %v'%s'%v\n",
+		"%vConnect to NetBox with address %v%s:%d%v%v, user %v'%s'%v\n",
 		constants.Ansi_Bright_Green,
 		constants.Ansi_Dark_Gray,
-		conf.Service.Host,
-		conf.Service.Port,
+		conf.NetBox.Host,
+		conf.NetBox.Port,
 		constants.Ansi_Reset,
 		constants.Ansi_Bright_Green,
 		constants.Ansi_Dark_Gray,
-		conf.Service.User,
+		conf.NetBox.User,
+		constants.Ansi_Reset,
+	)
+	fmt.Printf(
+		"%vConnect to Zabbix with address %v%s:%d%v%v, user %v'%s'%v\n",
+		constants.Ansi_Bright_Green,
+		constants.Ansi_Dark_Gray,
+		conf.Zabbix.Host,
+		conf.Zabbix.Port,
+		constants.Ansi_Reset,
+		constants.Ansi_Bright_Green,
+		constants.Ansi_Dark_Gray,
+		conf.Zabbix.User,
 		constants.Ansi_Reset,
 	)
 

@@ -11,4 +11,4 @@ WriteLogDataBase:
   port: 9200
   user: log_writer.prod
   namedb:
-  storage_name_db: application_template_db.prod
+  storage_name_db: enricher_zabbix_information

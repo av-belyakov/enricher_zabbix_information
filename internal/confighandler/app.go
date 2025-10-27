@@ -24,14 +24,19 @@ func New(rootDir string) (*ConfigApp, error) {
 			"GO_" + constants.Application_Name + "_MAIN": "",
 
 			// Получение авторизационных данных
-			"GO_" + constants.Application_Name + "_TOKEN":        "",
-			"GO_" + constants.Application_Name + "_PASSWD":       "",
+			"GO_" + constants.Application_Name + "_NBPASSWD":     "",
+			"GO_" + constants.Application_Name + "_ZPASSWD":      "",
 			"GO_" + constants.Application_Name + "_DBWLOGPASSWD": "",
 
-			// Подключение к некоторому сервису Service
-			"GO_" + constants.Application_Name + "_SHOST": "",
-			"GO_" + constants.Application_Name + "_SPORT": "",
-			"GO_" + constants.Application_Name + "_SUSER": "",
+			// Подключение к некоторому сервису NetBox
+			"GO_" + constants.Application_Name + "_NBHOST": "",
+			"GO_" + constants.Application_Name + "_NBPORT": "",
+			"GO_" + constants.Application_Name + "_NBUSER": "",
+
+			// Подключение к некоторому сервису Zabbix
+			"GO_" + constants.Application_Name + "_ZHOST": "",
+			"GO_" + constants.Application_Name + "_ZPORT": "",
+			"GO_" + constants.Application_Name + "_ZUSER": "",
 
 			// Настройки доступа к БД в которую будут записыватся логи
 			"GO_" + constants.Application_Name + "_DBWLOGHOST":        "",
@@ -176,27 +181,43 @@ func New(rootDir string) (*ConfigApp, error) {
 	}
 
 	// Настройки получения авторизационной информации
-	if envList["GO_"+constants.Application_Name+"_TOKEN"] != "" {
-		conf.AuthenticationData.SomeToken = envList["GO_"+constants.Application_Name+"_TOKEN"]
+	//для Netbox
+	if envList["GO_"+constants.Application_Name+"_NBPASSWD"] != "" {
+		conf.AuthenticationData.NetBoxPasswd = envList["GO_"+constants.Application_Name+"_NBPASSWD"]
 	}
-	if envList["GO_"+constants.Application_Name+"_PASSWD"] != "" {
-		conf.AuthenticationData.ServicePasswd = envList["GO_"+constants.Application_Name+"_PASSWD"]
+	//для Zabbix
+	if envList["GO_"+constants.Application_Name+"_ZPASSWD"] != "" {
+		conf.AuthenticationData.ZabbixPasswd = envList["GO_"+constants.Application_Name+"_ZPASSWD"]
 	}
+	//для БД логирования
 	if envList["GO_"+constants.Application_Name+"_DBWLOGPASSWD"] != "" {
 		conf.AuthenticationData.WriteLogBDPasswd = envList["GO_"+constants.Application_Name+"_DBWLOGPASSWD"]
 	}
 
-	// Настройки для модуля подключения к некоторому сервису Service
-	if envList["GO_"+constants.Application_Name+"_SHOST"] != "" {
-		conf.Service.Host = envList["GO_"+constants.Application_Name+"_SHOST"]
+	// Настройки для модуля подключения к некоторому сервису NetBox
+	if envList["GO_"+constants.Application_Name+"_NBHOST"] != "" {
+		conf.NetBox.Host = envList["GO_"+constants.Application_Name+"_NBHOST"]
 	}
-	if envList["GO_"+constants.Application_Name+"_SPORT"] != "" {
-		if p, err := strconv.Atoi(envList["GO_"+constants.Application_Name+"_SPORT"]); err == nil {
-			conf.Service.Port = p
+	if envList["GO_"+constants.Application_Name+"_NBPORT"] != "" {
+		if p, err := strconv.Atoi(envList["GO_"+constants.Application_Name+"_NBPORT"]); err == nil {
+			conf.NetBox.Port = p
 		}
 	}
-	if envList["GO_"+constants.Application_Name+"_SUSER"] != "" {
-		conf.Service.User = envList["GO_"+constants.Application_Name+"_SUSER"]
+	if envList["GO_"+constants.Application_Name+"_NBUSER"] != "" {
+		conf.NetBox.User = envList["GO_"+constants.Application_Name+"_NBUSER"]
+	}
+
+	// Настройки для модуля подключения к некоторому сервису Zabbix
+	if envList["GO_"+constants.Application_Name+"_ZHOST"] != "" {
+		conf.Zabbix.Host = envList["GO_"+constants.Application_Name+"_ZHOST"]
+	}
+	if envList["GO_"+constants.Application_Name+"_ZPORT"] != "" {
+		if p, err := strconv.Atoi(envList["GO_"+constants.Application_Name+"_ZPORT"]); err == nil {
+			conf.Zabbix.Port = p
+		}
+	}
+	if envList["GO_"+constants.Application_Name+"_ZUSER"] != "" {
+		conf.Zabbix.User = envList["GO_"+constants.Application_Name+"_ZUSER"]
 	}
 
 	// Настройки доступа к БД в которую будут записыватся логи

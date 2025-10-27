@@ -39,18 +39,24 @@ func TestMain(m *testing.M) {
 func TestReadConfigHandler(t *testing.T) {
 	t.Run("Тест чтения конфигурационного файла", func(t *testing.T) {
 		t.Run("Тест 1. Проверка аутентификационных данных", func(t *testing.T) {
-			assert.Equal(t, conf.GetAuthenticationData().SomeToken, "yoursometoken")
-			assert.Equal(t, conf.GetAuthenticationData().ServicePasswd, "yoursomepassword")
-			assert.Equal(t, conf.GetAuthenticationData().WriteLogBDPasswd, "yoursomepasswordfordatabase")
+			assert.NotEmpty(t, conf.GetAuthenticationData().NetBoxPasswd)
+			assert.NotEmpty(t, conf.GetAuthenticationData().ZabbixPasswd)
+			assert.NotEmpty(t, conf.GetAuthenticationData().WriteLogBDPasswd)
 		})
 
-		t.Run("Тест 2. Проверка настройки Service из файла config_test.yml", func(t *testing.T) {
-			assert.Equal(t, conf.GetService().Host, "localhost")
-			assert.Equal(t, conf.GetService().Port, 80)
-			assert.Equal(t, conf.GetService().User, "user-name")
+		t.Run("Тест 2. Проверка настройки NetBox", func(t *testing.T) {
+			assert.Equal(t, conf.GetNetBox().Host, "localhost")
+			assert.Equal(t, conf.GetNetBox().Port, 4455)
+			assert.Equal(t, conf.GetNetBox().User, "someuser")
 		})
 
-		t.Run("Тест 3. Проверка настройки WriteLogDataBase из файла config_dev.yml", func(t *testing.T) {
+		t.Run("Тест 3. Проверка настройки Zabbix", func(t *testing.T) {
+			assert.Equal(t, conf.GetZabbix().Host, "192.168.9.45")
+			assert.Equal(t, conf.GetZabbix().Port, 80)
+			assert.Equal(t, conf.GetZabbix().User, "803.p.vishnitsky@avz-center.ru")
+		})
+
+		t.Run("Тест 4. Проверка настройки WriteLogDataBase", func(t *testing.T) {
 			assert.Equal(t, conf.GetLogDB().Host, "database.cloud.example")
 			assert.Equal(t, conf.GetLogDB().Port, 9200)
 			assert.Equal(t, conf.GetLogDB().User, "log_writer")
@@ -61,36 +67,49 @@ func TestReadConfigHandler(t *testing.T) {
 
 	t.Run("Тест чтения переменных окружения", func(t *testing.T) {
 		t.Run("Тест 0. Проверка аутентификационных данных", func(t *testing.T) {
-			token := "c8wyfihi8fdy9r8feguf82ry2r23"
-			password := "superStrongPassWd"
-			passwdForDb := "superStrongPassWdForDatabAse"
+			passwdNetBox := "c8wyfihi8fdy9r8feguf82ry2r23"
+			passwdZabbix := "superStrongPassWd"
+			passwdForLogDb := "superStrongPassWdForDatabAse"
 
-			os.Setenv("GO_"+constants.Application_Name+"_TOKEN", token)
-			os.Setenv("GO_"+constants.Application_Name+"_PASSWD", password)
-			os.Setenv("GO_"+constants.Application_Name+"_DBWLOGPASSWD", passwdForDb)
-
-			conf, err := confighandler.New(constants.Root_Dir)
-			assert.NoError(t, err)
-
-			assert.Equal(t, conf.GetAuthenticationData().SomeToken, token)
-			assert.Equal(t, conf.GetAuthenticationData().ServicePasswd, password)
-			assert.Equal(t, conf.GetAuthenticationData().WriteLogBDPasswd, passwdForDb)
-		})
-
-		t.Run("Тест 2. Проверка настройки некоторого сервиса", func(t *testing.T) {
-			os.Setenv("GO_"+constants.Application_Name+"_SHOST", "127.0.0.1")
-			os.Setenv("GO_"+constants.Application_Name+"_SPORT", "4242")
-			os.Setenv("GO_"+constants.Application_Name+"_SUSER", "some_user_service")
+			os.Setenv("GO_"+constants.Application_Name+"_NBPASSWD", passwdNetBox)
+			os.Setenv("GO_"+constants.Application_Name+"_ZPASSWD", passwdZabbix)
+			os.Setenv("GO_"+constants.Application_Name+"_DBWLOGPASSWD", passwdForLogDb)
 
 			conf, err := confighandler.New(constants.Root_Dir)
 			assert.NoError(t, err)
 
-			assert.Equal(t, conf.GetService().Host, "127.0.0.1")
-			assert.Equal(t, conf.GetService().Port, 4242)
-			assert.Equal(t, conf.GetService().User, "some_user_service")
+			assert.Equal(t, conf.GetAuthenticationData().NetBoxPasswd, passwdNetBox)
+			assert.Equal(t, conf.GetAuthenticationData().ZabbixPasswd, passwdZabbix)
+			assert.Equal(t, conf.GetAuthenticationData().WriteLogBDPasswd, passwdForLogDb)
 		})
 
-		t.Run("Тест 3. Проверка настройки WriteLogDataBase", func(t *testing.T) {
+		t.Run("Тест 2. Проверка настройки сервиса NetBox", func(t *testing.T) {
+			os.Setenv("GO_"+constants.Application_Name+"_NBHOST", "127.0.0.1")
+			os.Setenv("GO_"+constants.Application_Name+"_NBPORT", "4242")
+			os.Setenv("GO_"+constants.Application_Name+"_NBUSER", "some_user_service")
+
+			conf, err := confighandler.New(constants.Root_Dir)
+			assert.NoError(t, err)
+
+			assert.Equal(t, conf.GetNetBox().Host, "127.0.0.1")
+			assert.Equal(t, conf.GetNetBox().Port, 4242)
+			assert.Equal(t, conf.GetNetBox().User, "some_user_service")
+		})
+
+		t.Run("Тест 3. Проверка настройки сервиса Zabbix", func(t *testing.T) {
+			os.Setenv("GO_"+constants.Application_Name+"_ZHOST", "127.0.0.1")
+			os.Setenv("GO_"+constants.Application_Name+"_ZPORT", "4242")
+			os.Setenv("GO_"+constants.Application_Name+"_ZUSER", "some_user_service")
+
+			conf, err := confighandler.New(constants.Root_Dir)
+			assert.NoError(t, err)
+
+			assert.Equal(t, conf.GetZabbix().Host, "127.0.0.1")
+			assert.Equal(t, conf.GetZabbix().Port, 4242)
+			assert.Equal(t, conf.GetZabbix().User, "some_user_service")
+		})
+
+		t.Run("Тест 4. Проверка настройки WriteLogDataBase", func(t *testing.T) {
 			os.Setenv("GO_"+constants.Application_Name+"_DBWLOGHOST", "domaniname.database.cm")
 			os.Setenv("GO_"+constants.Application_Name+"_DBWLOGPORT", "8989")
 			os.Setenv("GO_"+constants.Application_Name+"_DBWLOGUSER", "somebody_user")
@@ -117,10 +136,15 @@ func unSetEnviroment() {
 	// Тип запуска приложения
 	os.Unsetenv("GO_" + constants.Application_Name + "_MAIN")
 
-	// Подключение к некоторому сервису Service
-	os.Unsetenv("GO_" + constants.Application_Name + "_SHOST")
-	os.Unsetenv("GO_" + constants.Application_Name + "_SPORT")
-	os.Unsetenv("GO_" + constants.Application_Name + "_SUSER")
+	// Подключение к NetBox
+	os.Unsetenv("GO_" + constants.Application_Name + "_NBHOST")
+	os.Unsetenv("GO_" + constants.Application_Name + "_NBPORT")
+	os.Unsetenv("GO_" + constants.Application_Name + "_NBUSER")
+
+	// Подключение к Zabbix
+	os.Unsetenv("GO_" + constants.Application_Name + "_ZHOST")
+	os.Unsetenv("GO_" + constants.Application_Name + "_ZPORT")
+	os.Unsetenv("GO_" + constants.Application_Name + "_ZUSER")
 
 	// Настройки доступа к БД в которую будут записыватся логи
 	os.Unsetenv("GO_" + constants.Application_Name + "_DBWLOGHOST")
@@ -130,7 +154,7 @@ func unSetEnviroment() {
 	os.Unsetenv("GO_" + constants.Application_Name + "_DBWLOGSTORAGENAME")
 
 	// Авторизационные данные
-	os.Unsetenv("GO_" + constants.Application_Name + "_TOKEN")
-	os.Unsetenv("GO_" + constants.Application_Name + "_PASSWD")
+	os.Unsetenv("GO_" + constants.Application_Name + "_NBPASSWD")
+	os.Unsetenv("GO_" + constants.Application_Name + "_ZPASSWD")
 	os.Unsetenv("GO_" + constants.Application_Name + "_DBWLOGPASSWD")
 }

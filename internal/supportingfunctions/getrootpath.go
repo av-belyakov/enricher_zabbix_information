@@ -14,8 +14,6 @@ func GetRootPath(rootDir string) (string, error) {
 		return "", err
 	}
 
-	fmt.Println("func 'GetRootPath', currentDir:", currentDir, ", rootDir:", rootDir)
-
 	beforeStr, _, ok := strings.Cut(currentDir, rootDir)
 	if !ok {
 		return "", fmt.Errorf("it is impossible to get a prefix from a string '%s'", currentDir)

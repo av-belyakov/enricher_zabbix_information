@@ -7,8 +7,8 @@ NetBox:
   port: 4455
   user: someuser
 WriteLogDataBase:
-  host: database.cloud.example.dev
+  host: datahook.cloud.gcm
   port: 9202
   user: log_writer.dev
   namedb:
-  storage_name_db: application_template_db.dev
+  storage_name_db: enricher_zabbix_information
