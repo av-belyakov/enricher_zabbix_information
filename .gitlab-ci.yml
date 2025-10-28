@@ -155,6 +155,7 @@ deploy-test:
     - >
       APPLICATION_NAME=$APPLICATION_NAME \
       TYPE_EXECUTION=test \
+      TYPE_IMAGE=test \
       docker-compose -f $CI_PROJECT_DIR/docker-compose.yml up -d --force-recreate --build
 
 #развёртывание основной сборки (GCM)
@@ -181,4 +182,5 @@ deploy-prod-gcm:
     - >
       APPLICATION_NAME=$APPLICATION_NAME \
       TYPE_EXECUTION=prod \
+      TYPE_IMAGE=latest \
       docker-compose -f $CI_PROJECT_DIR/docker-compose.yml up -d --force-recreate --build

@@ -1,6 +1,9 @@
 # Что бы передать переменные при запуске docker-compose.yml файда нужно
-# выполнить 
-# APPLICATION_NAME=some_name TYPE_EXECUTION=some_type_exec docker-compose -f docker-compose.example.yml up -d
+# выполнить:
+# TYPE_IMAGE=latest \  
+# TYPE_EXECUTION=some_type_exec \ 
+# APPLICATION_NAME=some_name \
+# docker-compose -f docker-compose.example.yml up -d
 
 services:
   app:
@@ -13,7 +16,7 @@ services:
       GO_APPLICATIONTEMPLATE_PASSWD: $GO_APPLICATIONTEMPLATE_PASSWD
       GO_APPLICATIONTEMPLATE_TOKEN: $GO_APPLICATIONTEMPLATE_TOKEN
     # меняем путь к образу на путь к образу будущего приложения
-    image: gitlab.cloud.gcm:5050/a.belyakov/${APPLICATION_NAME:-application_template}:latest
+    image: gitlab.cloud.gcm:5050/a.belyakov/${APPLICATION_NAME:-application_template}:${TYPE_IMAGE:-latest}
     restart: unless-stopped
     # пробрасываем user ID для корректной записи в логов
     user: root
