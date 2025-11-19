@@ -1,0 +1,28 @@
+dictionaries:
+  # Группы сайтов для мониторинга (websites_group_monitoring)
+  # Структура данных:
+  # - name: "Название группы"
+  #   description: "Описание группы"
+  #   urls: ["Список сайтов"]
+  websites_group_monitoring:
+    - name: "Сайты ГЦМ/ 3.1 Критические"
+      description: ""
+      urls:
+    - name: "Сайты ГЦМ/ 3.2 ОГВ Российской Федерации"
+      description: ""
+      urls:
+    - name: "Сайты ГЦМ/ 3.3 ОГВ ЦФО"
+      description: ""
+      urls:
+    - name: "Сайты ГЦМ/ 3.4 СМИ"
+      description: ""
+      urls:
+    - name: "Сайты ГЦМ/ 3.5 ЦИК России"
+      description: ""
+      urls:
+    - name: "Сайты ГЦМ/ 3.6 Предприятия"
+      description: ""
+      urls:
+    - name: "Сайты ГЦМ/ 3.7 Россельхознадзора"
+      description: ""
+      urls:

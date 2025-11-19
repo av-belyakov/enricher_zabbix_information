@@ -1,5 +1,9 @@
 package interfaces
 
+type StructConstraint interface {
+	~struct{}
+}
+
 //**************** счётчик *****************
 
 type Counter interface {
