@@ -1,4 +1,5 @@
 dictionaries:
+  version: "1.0"
   # Группы сайтов для мониторинга (websites_group_monitoring)
   # Структура данных:
   # - name: "Название группы"
@@ -6,23 +7,23 @@ dictionaries:
   #   urls: ["Список сайтов"]
   websites_group_monitoring:
     - name: "Сайты ГЦМ/ 3.1 Критические"
-      description: ""
+      description:
       urls:
     - name: "Сайты ГЦМ/ 3.2 ОГВ Российской Федерации"
-      description: ""
+      description:
       urls:
     - name: "Сайты ГЦМ/ 3.3 ОГВ ЦФО"
-      description: ""
+      description:
       urls:
     - name: "Сайты ГЦМ/ 3.4 СМИ"
-      description: ""
+      description:
       urls:
     - name: "Сайты ГЦМ/ 3.5 ЦИК России"
-      description: ""
+      description:
       urls:
     - name: "Сайты ГЦМ/ 3.6 Предприятия"
-      description: ""
+      description:
       urls:
     - name: "Сайты ГЦМ/ 3.7 Россельхознадзора"
-      description: ""
+      description:
       urls:
