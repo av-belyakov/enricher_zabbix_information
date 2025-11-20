@@ -1,15 +1,16 @@
 package dictionarieshandler
 
-// Dictionaries словари
-type Dictionaries struct {
-	WebSiteGroupMonitoring WebSiteGroupMonitoring `yaml:"websites_group_monitoring"`
+// ListDictionaries список словарей
+type ListDictionaries struct {
+	Dictionaries Dictionaries `yaml:"dictionaries"`
 }
 
-// WebSiteGroupMonitoring информацию о группах сайтов предназначенных для мониторинга
-type WebSiteGroupMonitoring struct {
-	GroupMonitoring []struct {
+// Dictionaries словари
+type Dictionaries struct {
+	WebSiteGroupMonitoring []struct {
 		URLs        []string `yaml:"urls"`
 		Name        string   `yaml:"name"`
 		Description string   `yaml:"description"`
-	} `yaml:"group_monitoring"`
+	} `mapstructure:"websites_group_monitoring"`
+	Version string `yaml:"version"`
 }
