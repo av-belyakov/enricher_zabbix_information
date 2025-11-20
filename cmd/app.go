@@ -11,6 +11,7 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/constants"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appname"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/confighandler"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/dictionarieshandler"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/elasticsearchapi"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/logginghandler"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
@@ -65,6 +66,15 @@ func app(ctx context.Context) {
 		//подключение логирования в БД
 		simpleLogger.SetDataBaseInteraction(esc)
 	}
+
+	// ****************************************************************
+	// ************* инициализация модуля чтения словарей *************
+	dicts, err := dictionarieshandler.Read("config/dictionary.yml")
+	if err != nil {
+		log.Fatalf("error module 'dictionarieshandler': %v", err)
+	}
+
+	fmt.Println("Dictionaries:", dicts)
 
 	// ***************************************************************************
 	// ************* инициализация модуля взаимодействия с Service 1 *************
