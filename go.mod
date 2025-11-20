@@ -1,6 +1,6 @@
 module github.com/av-belyakov/enricher_zabbix_information
 
-go 1.25.3
+go 1.25.4
 
 require (
 	github.com/av-belyakov/simplelogger v0.0.0-20250924090323-6ab0607b4a4b
@@ -12,6 +12,7 @@ require (
 )
 
 require (
+	github.com/av-belyakov/zabbixapicommunicator/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/elastic/elastic-transport-go/v8 v8.7.0 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
