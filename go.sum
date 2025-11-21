@@ -1,7 +1,7 @@
 github.com/av-belyakov/simplelogger v0.0.0-20250924090323-6ab0607b4a4b h1:axOJ0ObU1iTsHz6Q9GHeX2WRVeQ06skXNw1WcosKXyw=
 github.com/av-belyakov/simplelogger v0.0.0-20250924090323-6ab0607b4a4b/go.mod h1:yW2ev3nXPP3WY8svBWJpg4PQRl67MTGIaaiXJ0ULRZ8=
-github.com/av-belyakov/zabbixapicommunicator/v2 v2.3.0 h1:O7JujwUoDoRKno/nifhzdbUcUIGgeeq5xk1QlMoSbN8=
-github.com/av-belyakov/zabbixapicommunicator/v2 v2.3.0/go.mod h1:RCRL0wh7Jk227ZJL+VetL//duYCdEGHkTON4IBFVWqs=
+github.com/av-belyakov/zabbixapicommunicator/v2 v2.3.1 h1:+1O9gW3WL7rWliwA5UMl9EOoAcK8/LKQTZBwp/zSTdE=
+github.com/av-belyakov/zabbixapicommunicator/v2 v2.3.1/go.mod h1:RCRL0wh7Jk227ZJL+VetL//duYCdEGHkTON4IBFVWqs=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/elastic/elastic-transport-go/v8 v8.7.0 h1:OgTneVuXP2uip4BA658Xi6Hfw+PeIOod2rY3GVMGoVE=

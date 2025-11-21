@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/av-belyakov/simplelogger"
+	"github.com/av-belyakov/zabbixapicommunicator/v2/cmd/connectionjsonrpc"
 
 	"github.com/av-belyakov/enricher_zabbix_information/constants"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appname"
@@ -78,6 +79,13 @@ func app(ctx context.Context) {
 
 	// ***************************************************************************
 	// ************* инициализация модуля взаимодействия с Service 1 *************
+	zabbixConn, err := connectionjsonrpc.NewConnect(
+		connectionjsonrpc.WithHost(),
+		connectionjsonrpc.WithPort(),
+		connectionjsonrpc.WithLogin(),
+		connectionjsonrpc.WithPasswd(),
+		connectionjsonrpc.WithConnectionTimeout(),
+	)
 
 	// ***************************************************************************
 	// ************* инициализация модуля взаимодействия с Service 2 *************
