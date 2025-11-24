@@ -3,13 +3,13 @@ package schedule
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
-	"strconv"
-	"strings"
 	"testing"
 	"time"
 
 	"github.com/go-co-op/gocron/v2"
+	"github.com/stretchr/testify/assert"
 	"github.com/subosito/gotenv"
 
 	"github.com/av-belyakov/enricher_zabbix_information/constants"
@@ -31,9 +31,26 @@ func NewScheduleHandler(opts ...ScheduleOptions) (*ScheduleWrapper, error) {
 
 	for _, opt := range opts {
 		if err := opt(sw); err != nil {
-			return nil, err
+			return sw, err
 		}
 	}
+
+	/*
+		if len(sw.DailyJob) > 0 {
+			var dailyJobs []gocron.AtTime
+			for _, v := range sw.DailyJob {
+				t, err := time.Parse(time.TimeOnly, v)
+				if err != nil {
+					return sw, errors.New("the time format is incorrect")
+				}
+
+				fmt.Printf("Only test:\nhour:'%d',\nminute:'%d',\nsecond:'%d'\n", t.Hour(), t.Minute(), t.Second())
+
+				//dailyJobs = append(dailyJobs, gocron.NewAtTime(uint(hour), uint(minute), uint(second)))
+				dailyJobs = append(dailyJobs, gocron.NewAtTime(uint(t.Hour()), uint(t.Minute()), uint(t.Second())))
+			}
+		}
+	*/
 
 	return sw, nil
 }
@@ -50,6 +67,7 @@ func (sw *ScheduleWrapper) Start(ctx context.Context, f func() error) error {
 		s.Shutdown()
 	}(ctx, s)
 
+	//используем таймер
 	if len(sw.DailyJob) == 0 {
 		_, err := s.NewJob(
 			gocron.DurationJob(time.Minute*sw.TimerJob),
@@ -65,28 +83,13 @@ func (sw *ScheduleWrapper) Start(ctx context.Context, f func() error) error {
 	}
 
 	var dailyJobs []gocron.AtTime
-	for _, t := range sw.DailyJob {
-		tmp := strings.Split(t, ":")
-		if len(tmp) != 3 {
+	for _, v := range sw.DailyJob {
+		t, err := time.Parse(time.TimeOnly, v)
+		if err != nil {
 			return errors.New("the time format is incorrect")
 		}
 
-		hour, err := strconv.Atoi(tmp[0])
-		if err != nil {
-			return errors.New("incorrect time, the value of 'hour' is invalid")
-		}
-
-		minute, err := strconv.Atoi(tmp[1])
-		if err != nil {
-			return errors.New("incorrect time, the value of 'minute' is invalid")
-		}
-
-		second, err := strconv.Atoi(tmp[2])
-		if err != nil {
-			return errors.New("incorrect time, the value of 'second' is invalid")
-		}
-
-		dailyJobs = append(dailyJobs, gocron.NewAtTime(uint(hour), uint(minute), uint(second)))
+		dailyJobs = append(dailyJobs, gocron.NewAtTime(uint(t.Hour()), uint(t.Minute()), uint(t.Second())))
 	}
 
 	ats := gocron.NewAtTimes(dailyJobs[0])
@@ -114,7 +117,7 @@ func WithTimerJob(timerJob int) ScheduleOptions {
 			return errors.New("the task launch frequency in minutes cannot be less than '1'")
 		}
 
-		sw.TimerJob = time.Duration(timerJob)
+		sw.TimerJob = time.Duration(timerJob) * time.Minute
 
 		return nil
 	}
@@ -129,6 +132,8 @@ func WithDailyJob(dailyJob []string) ScheduleOptions {
 }
 
 func TestScheduleHandler(t *testing.T) {
+	os.Setenv("GO_ENRICHERZI_MAIN", "test")
+
 	if err := gotenv.Load(".env"); err != nil {
 		t.Fatalf("Не удалось загрузить переменные окружения из файла .env: %v", err)
 	}
@@ -138,17 +143,23 @@ func TestScheduleHandler(t *testing.T) {
 		t.Fatalf("Не удалось получить корневую директорию: %v", err)
 	}
 
-	/*conf*/
-	_, err = confighandler.New(rootPath)
+	conf, err := confighandler.New(rootPath)
 	if err != nil {
 		t.Fatalf("Не удалось прочитать конфигурационный файл: %v", err)
 	}
 
 	t.Run("Тест 1. Инициализация обработчика задач по рассписанию или по таймеру", func(t *testing.T) {
+		sw, err := NewScheduleHandler(
+			WithTimerJob(conf.Schedule.TimerJob),
+			WithDailyJob(conf.GetSchedule().DailyJob),
+		)
+		assert.NoError(t, err)
 
+		fmt.Println("ScheduleWrapper:", sw)
 	})
 
 	t.Cleanup(func() {
+		os.Unsetenv("GO_ENRICHERZI_MAIN")
 		os.Unsetenv("GO_ENRICHERZI_ZPASSWD")
 		os.Unsetenv("GO_ENRICHERZI_NBPASSWD")
 		os.Unsetenv("GO_ENRICHERZI_DBWLOGPASSWD")
