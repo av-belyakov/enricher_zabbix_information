@@ -18,7 +18,8 @@ import (
 )
 
 type ScheduleWrapper struct {
-	DailyJob []string
+	//DailyJob []string
+	DailyJob []gocron.AtTime
 	TimerJob time.Duration
 }
 
@@ -34,23 +35,6 @@ func NewScheduleHandler(opts ...ScheduleOptions) (*ScheduleWrapper, error) {
 			return sw, err
 		}
 	}
-
-	/*
-		if len(sw.DailyJob) > 0 {
-			var dailyJobs []gocron.AtTime
-			for _, v := range sw.DailyJob {
-				t, err := time.Parse(time.TimeOnly, v)
-				if err != nil {
-					return sw, errors.New("the time format is incorrect")
-				}
-
-				fmt.Printf("Only test:\nhour:'%d',\nminute:'%d',\nsecond:'%d'\n", t.Hour(), t.Minute(), t.Second())
-
-				//dailyJobs = append(dailyJobs, gocron.NewAtTime(uint(hour), uint(minute), uint(second)))
-				dailyJobs = append(dailyJobs, gocron.NewAtTime(uint(t.Hour()), uint(t.Minute()), uint(t.Second())))
-			}
-		}
-	*/
 
 	return sw, nil
 }
@@ -69,40 +53,24 @@ func (sw *ScheduleWrapper) Start(ctx context.Context, f func() error) error {
 
 	//используем таймер
 	if len(sw.DailyJob) == 0 {
-		_, err := s.NewJob(
+		if _, err := s.NewJob(
 			gocron.DurationJob(time.Minute*sw.TimerJob),
 			gocron.NewTask(f),
-		)
-		if err != nil {
+		); err != nil {
 			return err
 		}
-
-		s.Start()
-
-		return nil
-	}
-
-	var dailyJobs []gocron.AtTime
-	for _, v := range sw.DailyJob {
-		t, err := time.Parse(time.TimeOnly, v)
-		if err != nil {
-			return errors.New("the time format is incorrect")
+	} else {
+		ats := gocron.NewAtTimes(sw.DailyJob[0])
+		if len(sw.DailyJob) > 1 {
+			ats = gocron.NewAtTimes(sw.DailyJob[0], sw.DailyJob...)
 		}
 
-		dailyJobs = append(dailyJobs, gocron.NewAtTime(uint(t.Hour()), uint(t.Minute()), uint(t.Second())))
-	}
-
-	ats := gocron.NewAtTimes(dailyJobs[0])
-	if len(dailyJobs) > 1 {
-		ats = gocron.NewAtTimes(dailyJobs[0], dailyJobs...)
-	}
-
-	_, err = s.NewJob(
-		gocron.DailyJob(1, ats),
-		gocron.NewTask(f),
-	)
-	if err != nil {
-		return err
+		if _, err = s.NewJob(
+			gocron.DailyJob(1, ats),
+			gocron.NewTask(f),
+		); err != nil {
+			return err
+		}
 	}
 
 	s.Start()
@@ -123,10 +91,24 @@ func WithTimerJob(timerJob int) ScheduleOptions {
 	}
 }
 
-// WithDailyJob список времени запуска задачи в формате HH:MM
+// WithDailyJob список времени запуска задачи в формате HH:MM:SS
 func WithDailyJob(dailyJob []string) ScheduleOptions {
 	return func(sw *ScheduleWrapper) error {
-		sw.DailyJob = dailyJob
+		if len(sw.DailyJob) == 0 {
+			return nil
+		}
+
+		for _, v := range dailyJob {
+			t, err := time.Parse(time.TimeOnly, v)
+			if err != nil {
+				return errors.New("the time format is incorrect")
+			}
+
+			fmt.Printf("Only test:\nhour:'%d',\nminute:'%d',\nsecond:'%d'\n", t.Hour(), t.Minute(), t.Second())
+
+			sw.DailyJob = append(sw.DailyJob, gocron.NewAtTime(uint(t.Hour()), uint(t.Minute()), uint(t.Second())))
+		}
+
 		return nil
 	}
 }
