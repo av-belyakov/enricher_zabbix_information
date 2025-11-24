@@ -4,9 +4,10 @@ package confighandler
 type ConfigApp struct {
 	Common             CfgCommon
 	LogDB              CfgWriteLogDB
+	AuthenticationData CfgAuthenticationData
+	Schedule           CfgSchedule
 	NetBox             CfgNetBox
 	Zabbix             CfgZabbix
-	AuthenticationData CfgAuthenticationData
 }
 
 // CfgCommon общие настройки
@@ -26,6 +27,12 @@ type LogSet struct {
 	WritingStdout bool   `validate:"required" yaml:"writingStdout"`
 	WritingFile   bool   `validate:"required" yaml:"writingFile"`
 	WritingDB     bool   `validate:"required" yaml:"writingDB"`
+}
+
+// CfgSchedule настройки планирования запуска сервиса
+type CfgSchedule struct {
+	DailyJob []string `yaml:"dailyJob"`                     //рассписание в формате HH:MM
+	TimerJob int      `validate:"lte=1439" yaml:"timerJob"` //таймер в формате минут
 }
 
 // CfgWriteLogDB настройки записи данных в БД

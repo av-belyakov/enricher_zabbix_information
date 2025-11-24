@@ -3,6 +3,7 @@ package confighandler_test
 import (
 	"log"
 	"os"
+	"slices"
 	"testing"
 
 	"github.com/joho/godotenv"
@@ -22,7 +23,7 @@ func TestMain(m *testing.M) {
 	unSetEnviroment()
 
 	//загружаем ключи и пароли
-	if err := godotenv.Load("../../.env"); err != nil {
+	if err := godotenv.Load(".env"); err != nil {
 		log.Fatalln(err)
 	}
 
@@ -44,19 +45,29 @@ func TestReadConfigHandler(t *testing.T) {
 			assert.NotEmpty(t, conf.GetAuthenticationData().WriteLogBDPasswd)
 		})
 
-		t.Run("Тест 2. Проверка настройки NetBox", func(t *testing.T) {
+		t.Run("Тест 2. Проверка настроек рассписания работы сервиса", func(t *testing.T) {
+			assert.Equal(t, conf.GetSchedule().TimerJob, 10)
+			assert.Equal(t, len(conf.GetSchedule().DailyJob), 3)
+
+			listTime := []string{"00:00", "06:00", "12:00"}
+			for _, v := range conf.GetSchedule().DailyJob {
+				assert.True(t, slices.Contains(listTime, v))
+			}
+		})
+
+		t.Run("Тест 3. Проверка настройки NetBox", func(t *testing.T) {
 			assert.Equal(t, conf.GetNetBox().Host, "localhost")
 			assert.Equal(t, conf.GetNetBox().Port, 4455)
 			assert.Equal(t, conf.GetNetBox().User, "someuser")
 		})
 
-		t.Run("Тест 3. Проверка настройки Zabbix", func(t *testing.T) {
+		t.Run("Тест 4. Проверка настройки Zabbix", func(t *testing.T) {
 			assert.Equal(t, conf.GetZabbix().Host, "192.168.9.45")
 			assert.Equal(t, conf.GetZabbix().Port, 80)
 			assert.Equal(t, conf.GetZabbix().User, "803.p.vishnitsky@avz-center.ru")
 		})
 
-		t.Run("Тест 4. Проверка настройки WriteLogDataBase", func(t *testing.T) {
+		t.Run("Тест 5. Проверка настройки WriteLogDataBase", func(t *testing.T) {
 			assert.Equal(t, conf.GetLogDB().Host, "database.cloud.example")
 			assert.Equal(t, conf.GetLogDB().Port, 9200)
 			assert.Equal(t, conf.GetLogDB().User, "log_writer")

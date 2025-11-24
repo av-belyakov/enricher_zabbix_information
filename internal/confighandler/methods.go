@@ -27,6 +27,11 @@ func (c *ConfigApp) GetNetBox() *CfgNetBox {
 	return &c.NetBox
 }
 
+// GetSchedule настройки рассписания запуска задачи
+func (c *ConfigApp) GetSchedule() *CfgSchedule {
+	return &c.Schedule
+}
+
 // GetAuthenticationData авторизационные данные
 func (c *ConfigApp) GetAuthenticationData() *CfgAuthenticationData {
 	return &c.AuthenticationData

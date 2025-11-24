@@ -83,6 +83,14 @@ func New(rootDir string) (*ConfigApp, error) {
 			return err
 		}
 
+		// Настройки рассписания работы сервиса
+		if viper.IsSet("Schedule.timerJob") {
+			conf.Schedule.TimerJob = viper.GetInt("Schedule.timerJob")
+		}
+		if viper.IsSet("Schedule.dailyJob") {
+			conf.Schedule.DailyJob = viper.GetStringSlice("Schedule.dailyJob")
+		}
+
 		// Настройки для модуля подключения к Zabbix
 		if viper.IsSet("Zabbix.host") {
 			conf.Zabbix.Host = viper.GetString("Zabbix.host")
