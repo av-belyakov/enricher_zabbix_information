@@ -1,6 +1,9 @@
 package confighandler
 
-import "errors"
+import (
+	"errors"
+	"regexp"
+)
 
 // GetCommon общие настройки
 func (c *ConfigApp) GetCommon() *CfgCommon {
@@ -107,4 +110,15 @@ func (l *LogSet) GetWritingFile() bool {
 // GetWritingDB запись логов  в БД
 func (l *LogSet) GetWritingDB() bool {
 	return l.WritingDB
+}
+
+func (dj DailyJobOptions) Validate() error {
+	reg := regexp.MustCompile(`^\d{2}:\d{2}:\d{2}$`)
+	for _, v := range dj {
+		if !reg.MatchString(v) {
+			return errors.New("the value 'DailyJob' must be in the format HH:MM:SS")
+		}
+	}
+
+	return nil
 }
