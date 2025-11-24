@@ -49,7 +49,7 @@ func TestReadConfigHandler(t *testing.T) {
 			assert.Equal(t, conf.GetSchedule().TimerJob, 10)
 			assert.Equal(t, len(conf.GetSchedule().DailyJob), 3)
 
-			listTime := []string{"00:00", "06:00", "12:00"}
+			listTime := []string{"00:00:00", "06:45:00", "12:01:23"}
 			for _, v := range conf.GetSchedule().DailyJob {
 				assert.True(t, slices.Contains(listTime, v))
 			}
