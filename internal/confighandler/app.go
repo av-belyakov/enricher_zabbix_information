@@ -101,6 +101,9 @@ func New(rootDir string) (*ConfigApp, error) {
 		if viper.IsSet("Zabbix.user") {
 			conf.Zabbix.User = viper.GetString("Zabbix.user")
 		}
+		if viper.IsSet("Zabbix.timeout") {
+			conf.Zabbix.Timeout = viper.GetInt("Zabbix.timeout")
+		}
 
 		// Настройки для модуля подключения к NetBox
 		if viper.IsSet("NetBox.host") {

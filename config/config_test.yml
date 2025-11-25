@@ -1,7 +1,5 @@
 # Рассписание выполнения задачи.
 Schedule:
-  #timerJob: # Частота запуска задачи в минутах
-  #dailyJob: # Время запуска задачи в формате HH:MM
   timerJob: 10 # Частота запуска задачи в минутах
   dailyJob: # Время запуска задачи в формате HH:MM
     - 00:00:00
@@ -15,6 +13,7 @@ Zabbix:
   host: 192.168.9.45
   port: 80
   user: 803.p.vishnitsky@avz-center.ru
+  timeout: 30
 # Настройки подключения к NetBox
 NetBox:
   host: localhost

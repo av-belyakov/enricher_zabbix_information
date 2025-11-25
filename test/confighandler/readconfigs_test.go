@@ -71,6 +71,7 @@ func TestReadConfigHandler(t *testing.T) {
 		t.Run("Тест 4. Проверка настройки Zabbix", func(t *testing.T) {
 			assert.Equal(t, conf.GetZabbix().Host, "192.168.9.45")
 			assert.Equal(t, conf.GetZabbix().Port, 80)
+			assert.Equal(t, conf.GetZabbix().Timeout, 30)
 			assert.Equal(t, conf.GetZabbix().User, "803.p.vishnitsky@avz-center.ru")
 		})
 

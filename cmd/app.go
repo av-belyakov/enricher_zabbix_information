@@ -1,13 +1,14 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"log"
 	"os"
 
 	"github.com/av-belyakov/simplelogger"
-	"github.com/av-belyakov/zabbixapicommunicator/v2/cmd/connectionjsonrpc"
+	zconnection "github.com/av-belyakov/zabbixapicommunicator/v2/cmd/connectionjsonrpc"
 
 	"github.com/av-belyakov/enricher_zabbix_information/constants"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appname"
@@ -77,15 +78,21 @@ func app(ctx context.Context) {
 
 	fmt.Println("Dictionaries:", dicts)
 
-	// ***************************************************************************
-	// ************* инициализация модуля взаимодействия с Service 1 *************
-	zabbixConn, err := connectionjsonrpc.NewConnect(
-		connectionjsonrpc.WithHost(),
-		connectionjsonrpc.WithPort(),
-		connectionjsonrpc.WithLogin(),
-		connectionjsonrpc.WithPasswd(),
-		connectionjsonrpc.WithConnectionTimeout(),
+	// проверка доступности Zabbix
+	zabbixConn, err := zconnection.NewConnect(
+		zconnection.WithHost(conf.GetZabbix().Host),
+		zconnection.WithPort(conf.GetZabbix().Port),
+		zconnection.WithLogin(conf.GetZabbix().User),
+		zconnection.WithPasswd(conf.GetAuthenticationData().ZabbixPasswd),
+		zconnection.WithConnectionTimeout(cmp.Or(conf.GetZabbix().Timeout, 10)),
 	)
+	if err != nil {
+		log.Fatalf("error zabbix connection: %v", err)
+	}
+	b, err := zabbixConn.GetAPIInfo(ctx)
+	if err != nil {
+		log.Fatalf("error zabbix connection: %v", err)
+	}
 
 	// ***************************************************************************
 	// ************* инициализация модуля взаимодействия с Service 2 *************

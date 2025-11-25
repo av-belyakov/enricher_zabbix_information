@@ -3,13 +3,17 @@ Schedule:
   timerJob: 10 # Частота запуска задачи в минутах
   dailyJob: # Время запуска задачи в формате HH:MM
     - 00:00:00
-    - 06:00:00
-    - 12:00:00
+    - 06:45:00
+    - 12:01:23
+    - 19:59:03
+    - 21:13:13
+    - 22:47:03
 # Настройки подключения к Zabbix
 Zabbix:
   host: 192.168.9.45
   port: 80
   user: 803.p.vishnitsky@avz-center.ru
+  timeout: 30
 # Настройки подключения к NetBox
 NetBox:
   host: localhost
