@@ -47,9 +47,9 @@ func TestReadConfigHandler(t *testing.T) {
 
 		t.Run("Тест 2. Проверка настроек рассписания работы сервиса", func(t *testing.T) {
 			assert.Equal(t, conf.GetSchedule().TimerJob, 10)
-			assert.Equal(t, len(conf.GetSchedule().DailyJob), 3)
+			assert.Equal(t, len(conf.GetSchedule().DailyJob), 4)
 
-			listTime := []string{"00:00:00", "06:45:00", "12:01:23"}
+			listTime := []string{"00:00:00", "06:45:00", "12:01:23", "22:47:03"}
 			for _, v := range conf.GetSchedule().DailyJob {
 				assert.True(t, slices.Contains(listTime, v))
 			}

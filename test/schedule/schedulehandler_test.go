@@ -5,10 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/go-co-op/gocron/v2"
+	"github.com/jonboulle/clockwork"
 	"github.com/stretchr/testify/assert"
 	"github.com/subosito/gotenv"
 
@@ -18,9 +20,9 @@ import (
 )
 
 type ScheduleWrapper struct {
-	//DailyJob []string
-	DailyJob []gocron.AtTime
-	TimerJob time.Duration
+	DailyJob  []gocron.AtTime
+	TimerJob  time.Duration
+	ClockWork *clockwork.FakeClock
 }
 
 type ScheduleOptions func(*ScheduleWrapper) error
@@ -41,7 +43,13 @@ func NewScheduleHandler(opts ...ScheduleOptions) (*ScheduleWrapper, error) {
 
 // Start запуск обработчика задачи
 func (sw *ScheduleWrapper) Start(ctx context.Context, f func() error) error {
-	s, err := gocron.NewScheduler()
+	withClock := gocron.WithClock(clockwork.NewRealClock())
+
+	if os.Getenv("GO_ENRICHERZI_MAIN") == "test" && sw.ClockWork != nil {
+		withClock = gocron.WithClock(sw.ClockWork)
+	}
+
+	s, err := gocron.NewScheduler(withClock)
 	if err != nil {
 		return err
 	}
@@ -54,7 +62,7 @@ func (sw *ScheduleWrapper) Start(ctx context.Context, f func() error) error {
 	//используем таймер
 	if len(sw.DailyJob) == 0 {
 		if _, err := s.NewJob(
-			gocron.DurationJob(time.Minute*sw.TimerJob),
+			gocron.DurationJob(sw.TimerJob),
 			gocron.NewTask(f),
 		); err != nil {
 			return err
@@ -94,7 +102,7 @@ func WithTimerJob(timerJob int) ScheduleOptions {
 // WithDailyJob список времени запуска задачи в формате HH:MM:SS
 func WithDailyJob(dailyJob []string) ScheduleOptions {
 	return func(sw *ScheduleWrapper) error {
-		if len(sw.DailyJob) == 0 {
+		if len(dailyJob) == 0 {
 			return nil
 		}
 
@@ -104,10 +112,17 @@ func WithDailyJob(dailyJob []string) ScheduleOptions {
 				return errors.New("the time format is incorrect")
 			}
 
-			fmt.Printf("Only test:\nhour:'%d',\nminute:'%d',\nsecond:'%d'\n", t.Hour(), t.Minute(), t.Second())
-
 			sw.DailyJob = append(sw.DailyJob, gocron.NewAtTime(uint(t.Hour()), uint(t.Minute()), uint(t.Second())))
 		}
+
+		return nil
+	}
+}
+
+// WithFakeClock использование фейкового времени (исключительно для тестирования)
+func WithFakeClock(clock *clockwork.FakeClock) ScheduleOptions {
+	return func(sw *ScheduleWrapper) error {
+		sw.ClockWork = clock
 
 		return nil
 	}
@@ -130,17 +145,76 @@ func TestScheduleHandler(t *testing.T) {
 		t.Fatalf("Не удалось прочитать конфигурационный файл: %v", err)
 	}
 
-	t.Run("Тест 1. Инициализация обработчика задач по рассписанию или по таймеру", func(t *testing.T) {
+	t.Run("Тест 1. Инициализация обработчика задач по рассписанию", func(t *testing.T) {
+		location, err := time.LoadLocation("Europe/Moscow")
+		assert.NoError(t, err)
+		year, month, day := time.Now().Date()
+		// тест будет выпонятся коректно только если текущее время будет меньше 22:47:03
+		baseTime := time.Date(year, month, day, 22, 47, 3, 0, location)
+
+		fakeClock := clockwork.NewFakeClock()
+		td := fakeClock.Until(baseTime)
+
 		sw, err := NewScheduleHandler(
-			WithTimerJob(conf.Schedule.TimerJob),
+			WithTimerJob(conf.GetSchedule().TimerJob),
 			WithDailyJob(conf.GetSchedule().DailyJob),
+			WithFakeClock(fakeClock),
 		)
 		assert.NoError(t, err)
 
-		fmt.Println("ScheduleWrapper:", sw)
+		var wg sync.WaitGroup
+		wg.Add(1)
+		sw.Start(t.Context(), func() error {
+			fmt.Println("Start worker 'DailyJob', fakeClock:", sw.ClockWork.Now())
+			fmt.Println("Really date:", time.Now())
+
+			assert.True(t, time.Now().Add(td).After(sw.ClockWork.Now()))
+
+			wg.Done()
+
+			return nil
+		})
+
+		err = fakeClock.BlockUntilContext(context.Background(), 1)
+		assert.NoError(t, err)
+		fakeClock.Advance(td)
+
+		wg.Wait()
+	})
+
+	t.Run("Тест 2. Инициализация обработчика задач по таймеру", func(t *testing.T) {
+		fakeClock := clockwork.NewFakeClock()
+		sw, err := NewScheduleHandler(
+			WithTimerJob(conf.GetSchedule().TimerJob),
+			WithFakeClock(fakeClock),
+		)
+		assert.NoError(t, err)
+
+		var wg sync.WaitGroup
+		wg.Add(1)
+		sw.Start(t.Context(), func() error {
+			fmt.Println("Start worker 'DurationJob', fakeClock:", sw.ClockWork.Now())
+			fmt.Println("Really date:", time.Now())
+
+			assert.True(t, time.Now().Add(sw.TimerJob).After(sw.ClockWork.Now()))
+
+			wg.Done()
+
+			return nil
+		})
+
+		err = fakeClock.BlockUntilContext(context.Background(), 1)
+		assert.NoError(t, err)
+
+		// запуск по таймеру
+		fakeClock.Advance(sw.TimerJob)
+
+		wg.Wait()
 	})
 
 	t.Cleanup(func() {
+		os.Unsetenv("GO_ENRICHERZI_MAIN")
+
 		os.Unsetenv("GO_ENRICHERZI_MAIN")
 		os.Unsetenv("GO_ENRICHERZI_ZPASSWD")
 		os.Unsetenv("GO_ENRICHERZI_NBPASSWD")
