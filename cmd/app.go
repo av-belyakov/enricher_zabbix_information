@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/av-belyakov/simplelogger"
 	zconnection "github.com/av-belyakov/zabbixapicommunicator/v2/cmd/connectionjsonrpc"
@@ -16,6 +17,7 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dictionarieshandler"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/elasticsearchapi"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/logginghandler"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/schedulehandler"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
 )
@@ -81,6 +83,8 @@ func app(ctx context.Context) {
 	//*********************************************************************************
 	//***************** инициализация модуля-обёртки соединения с Zabbix **************
 	zabbixConn, err := zconnection.NewConnect(
+		zconnection.WithTLS(),
+		zconnection.WithInsecureSkipVerify(),
 		zconnection.WithHost(conf.GetZabbix().Host),
 		zconnection.WithPort(conf.GetZabbix().Port),
 		zconnection.WithLogin(conf.GetZabbix().User),
@@ -103,6 +107,27 @@ func app(ctx context.Context) {
 
 	//******************************************************************
 	//************** инициализация маршрутизатора данных ***************
+	sw, err := schedulehandler.NewScheduleHandler(
+		schedulehandler.WithTimerJob(conf.Schedule.TimerJob),
+		schedulehandler.WithDailyJob(conf.Schedule.DailyJob),
+	)
+	if err != nil {
+		log.Fatalf("error module 'schedulehandler': '%v'", err)
+	}
+	if err = sw.Start(
+		ctx,
+		func() error {
+			/*
+
+			   тут надо добавить обработчик который запускается по рассписанию
+
+			*/
+			fmt.Println("START worker to 'schedule', current time:", time.Now())
+
+			return nil
+		}); err != nil {
+		log.Fatalf("error start module 'schedulehandler': %v", err)
+	}
 
 	// получаем дополнительную информацию о Zabbix
 	b, err := zabbixConn.GetAPIInfo(ctx)
@@ -122,4 +147,7 @@ func app(ctx context.Context) {
 	_ = simpleLogger.Write("info", msg)
 
 	<-ctx.Done()
+
+	sw.StopAllJobs()
+	sw.Stop()
 }
