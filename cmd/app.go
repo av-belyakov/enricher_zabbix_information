@@ -69,8 +69,8 @@ func app(ctx context.Context) {
 		simpleLogger.SetDataBaseInteraction(esc)
 	}
 
-	// ****************************************************************
-	// ************* инициализация модуля чтения словарей *************
+	//*********************************************************************************
+	// ********************** инициализация модуля чтения словарей ********************
 	dicts, err := dictionarieshandler.Read("config/dictionary.yml")
 	if err != nil {
 		log.Fatalf("error module 'dictionarieshandler': %v", err)
@@ -78,7 +78,8 @@ func app(ctx context.Context) {
 
 	fmt.Println("Dictionaries:", dicts)
 
-	// проверка доступности Zabbix
+	//*********************************************************************************
+	//***************** инициализация модуля-обёртки соединения с Zabbix **************
 	zabbixConn, err := zconnection.NewConnect(
 		zconnection.WithHost(conf.GetZabbix().Host),
 		zconnection.WithPort(conf.GetZabbix().Port),
@@ -89,24 +90,35 @@ func app(ctx context.Context) {
 	if err != nil {
 		log.Fatalf("error zabbix connection: %v", err)
 	}
-	b, err := zabbixConn.GetAPIInfo(ctx)
-	if err != nil {
-		log.Fatalf("error zabbix connection: %v", err)
+	// выполняем проверку доступности Zabbix путём попытки тестовой авторизации так как
+	// для большей части методов требуется авторизация
+	if err = zabbixConn.AuthorizationStart(ctx); err != nil {
+		log.Fatalf("authorization error: %v", err)
 	}
 
-	// ***************************************************************************
-	// ************* инициализация модуля взаимодействия с Service 2 *************
-
-	//***************************************************************************
-	//************** инициализация обработчика логирования данных ***************
+	//*********************************************************************************
+	//***************** инициализация обработчика логирования данных ******************
 	logging := logginghandler.New(simpleLogger)
 	logging.Start(ctx)
 
 	//******************************************************************
 	//************** инициализация маршрутизатора данных ***************
 
+	// получаем дополнительную информацию о Zabbix
+	b, err := zabbixConn.GetAPIInfo(ctx)
+	if err != nil {
+		log.Fatalf("error zabbix connection: %v", err)
+	}
+	zabbixApiInfo, errMsg, err := zconnection.NewResponseAPIInfo().Get(b)
+	if err != nil {
+		simpleLogger.Write("error", wrappers.WrapperError(err).Error())
+	}
+	if errMsg != nil && errMsg.Error.Message != "" {
+		simpleLogger.Write("warning", wrappers.WrapperError(err).Error())
+	}
+
 	//вывод информационного сообщения
-	msg := getInformationMessage(conf)
+	msg := getInformationMessage(conf, zabbixApiInfo.Result)
 	_ = simpleLogger.Write("info", msg)
 
 	<-ctx.Done()

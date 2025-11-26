@@ -12,7 +12,7 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/internal/confighandler"
 )
 
-func getInformationMessage(conf *confighandler.ConfigApp) string {
+func getInformationMessage(conf *confighandler.ConfigApp, zabbixVersion string) string {
 	version, err := appversion.GetVersion()
 	if err != nil {
 		log.Println(err)
@@ -47,7 +47,8 @@ func getInformationMessage(conf *confighandler.ConfigApp) string {
 		constants.Ansi_Reset,
 	)
 	fmt.Printf(
-		"%vConnect to Zabbix with address %v%s:%d%v%v, user %v'%s'%v\n",
+		"%vConnect to Zabbix %s with address %v%s:%d%v%v, user %v'%s'%v\n",
+		zabbixVersion,
 		constants.Ansi_Bright_Green,
 		constants.Ansi_Dark_Gray,
 		conf.Zabbix.Host,
