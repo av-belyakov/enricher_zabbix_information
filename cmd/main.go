@@ -6,7 +6,9 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/av-belyakov/enricher_zabbix_information/constants"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appname"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/appversion"
 )
 
 func main() {
@@ -15,7 +17,14 @@ func main() {
 	go func() {
 		<-ctx.Done()
 
-		fmt.Printf("Module '%s' is stop", appname.GetName())
+		version, _ := appversion.GetVersion()
+		fmt.Printf(
+			"%vThe module '%s' %v was successfully stopped.%v\n",
+			constants.Ansi_Bright_Red,
+			appname.GetName(),
+			version,
+			constants.Ansi_Reset,
+		)
 
 		stop()
 	}()

@@ -35,7 +35,7 @@ func TestScheduleHandler(t *testing.T) {
 		t.Fatalf("Не удалось прочитать конфигурационный файл: %v", err)
 	}
 
-	t.Run("Тест 1. Инициализация обработчика задач по рассписанию", func(t *testing.T) {
+	t.Run("Тест 1. Инициализация обработчика задач по расписанию", func(t *testing.T) {
 		location, err := time.LoadLocation("Europe/Moscow")
 		assert.NoError(t, err)
 		year, month, day := time.Now().Date()

@@ -30,7 +30,7 @@ func (c *ConfigApp) GetNetBox() *CfgNetBox {
 	return &c.NetBox
 }
 
-// GetSchedule настройки рассписания запуска задачи
+// GetSchedule настройки расписания запуска задачи
 func (c *ConfigApp) GetSchedule() *CfgSchedule {
 	return &c.Schedule
 }

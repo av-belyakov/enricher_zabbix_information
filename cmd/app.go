@@ -119,7 +119,7 @@ func app(ctx context.Context) {
 		func() error {
 			/*
 
-			   тут надо добавить обработчик который запускается по рассписанию
+			   тут надо добавить обработчик который запускается по расписанию
 
 			*/
 			fmt.Println("START worker to 'schedule', current time:", time.Now())

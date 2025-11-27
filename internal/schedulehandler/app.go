@@ -8,7 +8,7 @@ import (
 	"github.com/jonboulle/clockwork"
 )
 
-// NewScheduleHandler новый обработчик рассписания
+// NewScheduleHandler новый обработчик расписания
 func NewScheduleHandler(opts ...ScheduleOptions) (*ScheduleWrapper, error) {
 	sw := &ScheduleWrapper{
 		TimerJob: Default_Timer_Job,
@@ -23,7 +23,7 @@ func NewScheduleHandler(opts ...ScheduleOptions) (*ScheduleWrapper, error) {
 	return sw, nil
 }
 
-// Start запуск обработчика рассписания
+// Start запуск обработчика расписания
 func (sw *ScheduleWrapper) Start(ctx context.Context, f func() error) error {
 	withClock := gocron.WithClock(clockwork.NewRealClock())
 
@@ -73,7 +73,7 @@ func (sw *ScheduleWrapper) Start(ctx context.Context, f func() error) error {
 	return nil
 }
 
-// Stop остановка обработчика рассписания
+// Stop остановка обработчика расписания
 func (sw *ScheduleWrapper) Stop() error {
 	if sw.Scheduler != nil {
 		return sw.Scheduler.Shutdown()
@@ -82,7 +82,7 @@ func (sw *ScheduleWrapper) Stop() error {
 	return nil
 }
 
-// StopAllJobs остановка всех задач в рассписании
+// StopAllJobs остановка всех задач в расписании
 func (sw *ScheduleWrapper) StopAllJobs() error {
 	if sw.Scheduler != nil {
 		return sw.Scheduler.StopJobs()

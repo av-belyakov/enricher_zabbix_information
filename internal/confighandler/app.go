@@ -83,7 +83,7 @@ func New(rootDir string) (*ConfigApp, error) {
 			return err
 		}
 
-		// Настройки рассписания работы сервиса
+		// Настройки расписания работы сервиса
 		if viper.IsSet("Schedule.timerJob") {
 			conf.Schedule.TimerJob = viper.GetInt("Schedule.timerJob")
 		}

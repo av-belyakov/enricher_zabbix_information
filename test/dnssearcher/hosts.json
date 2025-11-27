@@ -1,0 +1,1329 @@
+{
+    "hosts": [
+        {
+            "host_id": "11575",
+            "host": "www.government.ru",
+            "name": "Интернет-портал Правительства РФ"
+        },
+        {
+            "host_id": "11576",
+            "host": "www.duma.gov.ru",
+            "name": "Официальный сайт Государственной Думы Федерального Собрания РФ"
+        },
+        {
+            "host_id": "11577",
+            "host": "premier.gov.ru",
+            "name": "Официальный сайт Председателя Правительства РФ"
+        },
+        {
+            "host_id": "11579",
+            "host": "www.kremlin.ru",
+            "name": "Официальный сайт Президента РФ"
+        },
+        {
+            "host_id": "11580",
+            "host": "www.gov.ru",
+            "name": "Сервер ОГВ России"
+        },
+        {
+            "host_id": "11581",
+            "host": "www.scrf.gov.ru",
+            "name": "Совет Безопасности РФ"
+        },
+        {
+            "host_id": "11582",
+            "host": "council.gov.ru",
+            "name": "Совет Федерации Федерального Собрания РФ"
+        },
+        {
+            "host_id": "11585",
+            "host": "www.fsb.ru",
+            "name": "ФСБ России"
+        },
+        {
+            "host_id": "11586",
+            "host": "www.cikrf.ru",
+            "name": "Центральная избирательная комиссия РФ"
+        },
+        {
+            "host_id": "11587",
+            "host": "www.vybory.izbirkom.ru",
+            "name": "Сведения о проводящихся выборах и референдумах"
+        },
+        {
+            "host_id": "11588",
+            "host": "www.izbirkom.ru",
+            "name": "Сведения о проводящихся выборах и референдумах 2"
+        },
+        {
+            "host_id": "11616",
+            "host": "www.vsrf.ru",
+            "name": "Верховный Суд РФ"
+        },
+        {
+            "host_id": "11617",
+            "host": "www.genproc.gov.ru",
+            "name": "Генеральная прокуратура РФ"
+        },
+        {
+            "host_id": "11618",
+            "host": "www.award.gov.ru",
+            "name": "Государственные награды России"
+        },
+        {
+            "host_id": "11619",
+            "host": "www.crimea.gov.ru",
+            "name": "Государственный Совет Республики Крым"
+        },
+        {
+            "host_id": "11620",
+            "host": "www.ved.gov.ru",
+            "name": "Министерство экономического развития Российской Федерации"
+        },
+        {
+            "host_id": "11621",
+            "host": "pravo.gov.ru",
+            "name": "Информационно-правовая система «Закон»"
+        },
+        {
+            "host_id": "11622",
+            "host": "www.ksrf.ru",
+            "name": "Конституционный Cуд РФ"
+        },
+        {
+            "host_id": "11623",
+            "host": "www.mid.ru",
+            "name": "Министерство иностранных дел РФ"
+        },
+        {
+            "host_id": "11625",
+            "host": "www.mchs.gov.ru",
+            "name": "МЧС России"
+        },
+        {
+            "host_id": "11627",
+            "host": "www.dfo.gov.ru",
+            "name": "Полномочный представитель Президента РФ в ДФО"
+        },
+        {
+            "host_id": "11628",
+            "host": "www.pfo.gov.ru",
+            "name": "Полномочный представитель Президента РФ в ПФО"
+        },
+        {
+            "host_id": "11629",
+            "host": "szfo.gov.ru",
+            "name": "Полномочный представитель Президента РФ в СЗФО"
+        },
+        {
+            "host_id": "11630",
+            "host": "skfo.gov.ru",
+            "name": "Полномочный представитель Президента РФ в СКФО"
+        },
+        {
+            "host_id": "11631",
+            "host": "www.sfo.gov.ru",
+            "name": "Полномочный представитель Президента РФ в СФО"
+        },
+        {
+            "host_id": "11632",
+            "host": "uralfo.gov.ru",
+            "name": "Полномочный представитель Президента РФ в УФО"
+        },
+        {
+            "host_id": "11633",
+            "host": "www.cfo.gov.ru",
+            "name": "Полномочный представитель Президента РФ в ЦФО"
+        },
+        {
+            "host_id": "11634",
+            "host": "www.ufo.gov.ru",
+            "name": "Полномочный представитель Президента РФ в ЮФО"
+        },
+        {
+            "host_id": "11635",
+            "host": "www.zakupki.gov.ru",
+            "name": "Портал госзакупок"
+        },
+        {
+            "host_id": "11636",
+            "host": "gossluzhba.gov.ru",
+            "name": "Портал госслужбы"
+        },
+        {
+            "host_id": "11637",
+            "host": "www.svr.gov.ru",
+            "name": "Служба внешней разведки РФ"
+        },
+        {
+            "host_id": "11638",
+            "host": "torgi.gov.ru",
+            "name": "Торги: официальный сайт"
+        },
+        {
+            "host_id": "11639",
+            "host": "www.udprf.ru",
+            "name": "Управление делами Президента РФ"
+        },
+        {
+            "host_id": "11640",
+            "host": "www.nalog.ru",
+            "name": "Федеральная налоговая служба"
+        },
+        {
+            "host_id": "11641",
+            "host": "www.fso.gov.ru",
+            "name": "Федеральная служба охраны РФ"
+        },
+        {
+            "host_id": "11643",
+            "host": "www.fedsfm.ru",
+            "name": "Федеральная служба по финансовому мониторингу"
+        },
+        {
+            "host_id": "11644",
+            "host": "regulation.gov.ru",
+            "name": "Федеральный портал проектов нормативных правовых актов"
+        },
+        {
+            "host_id": "11645",
+            "host": "nac.gov.ru",
+            "name": "Национальный антитеррористический комитет"
+        },
+        {
+            "host_id": "11646",
+            "host": "tularegion.ru",
+            "name": "Правительства Тульской области"
+        },
+        {
+            "host_id": "11647",
+            "host": "www.opendata71.ru",
+            "name": "Портал открытых данных Правительства Тульской области"
+        },
+        {
+            "host_id": "11648",
+            "host": "www.region.tver.ru",
+            "name": "Правительство Тверской области"
+        },
+        {
+            "host_id": "11650",
+            "host": "avo.ru",
+            "name": "Администрация Владимирской области"
+        },
+        {
+            "host_id": "11651",
+            "host": "www.or71.ru",
+            "name": "Открытый регион 71 — портал полезных городских сервисов Тульской области"
+        },
+        {
+            "host_id": "11655",
+            "host": "www.tambov.gov.ru",
+            "name": "Администрация Тамбовской области"
+        },
+        {
+            "host_id": "11661",
+            "host": "vetrf.ru",
+            "name": "Россельхознадзор. ГИС ветеринария"
+        },
+        {
+            "host_id": "11662",
+            "host": "www.fsvps.ru",
+            "name": "Россельхознадзор официальный сайт"
+        },
+        {
+            "host_id": "11663",
+            "host": "mercury.vetrf.ru",
+            "name": "Россельхознадзор ветеринария 2"
+        },
+        {
+            "host_id": "11664",
+            "host": "argus.vetrf.ru",
+            "name": "Россельхознадзор ветеринария 3"
+        },
+        {
+            "host_id": "11665",
+            "host": "www.vetrf.ruvetrfcerberus.html",
+            "name": "Цербер"
+        },
+        {
+            "host_id": "11666",
+            "host": "irena.vetrf.ru",
+            "name": "Ирена"
+        },
+        {
+            "host_id": "11667",
+            "host": "vetrf.ruvetrfvesta.html",
+            "name": "АИС Россельхознадзора"
+        },
+        {
+            "host_id": "11681",
+            "host": "www.raspletin.com",
+            "name": "ПАО «Научно-производственное объединение «Алмаз»"
+        },
+        {
+            "host_id": "11682",
+            "host": "feedback.sk.ru",
+            "name": "Система обратной связи Инновационного центра «Сколково»"
+        },
+        {
+            "host_id": "11683",
+            "host": "cgkipd.ru",
+            "name": "ФГБУ «Центр геодезии, картографии и ИПД»"
+        },
+        {
+            "host_id": "11684",
+            "host": "prof.uacrussia.ru",
+            "name": "Совет по профессиональным квалификациям в авиастроении"
+        },
+        {
+            "host_id": "11685",
+            "host": "m.uacrussia.ru",
+            "name": "Объединенная авиастроительная корпорация 1"
+        },
+        {
+            "host_id": "11686",
+            "host": "www.xn----7sbhhgjt4afav0m.xn--p1ai",
+            "name": "Объединенная авиастроительная корпорация 2"
+        },
+        {
+            "host_id": "11687",
+            "host": "www.uacrussia.ru",
+            "name": "Объединенная авиастроительная корпорация 3"
+        },
+        {
+            "host_id": "11689",
+            "host": "partners.uacrussia.ru",
+            "name": "Единое информационное пространство ПАО «ОАК»"
+        },
+        {
+            "host_id": "11690",
+            "host": "www.rusnano.com",
+            "name": "АО «РОСНАНО»"
+        },
+        {
+            "host_id": "11692",
+            "host": "skolcity.ru",
+            "name": "Инновационный центр «Сколково» 1"
+        },
+        {
+            "host_id": "11693",
+            "host": "sk.ru",
+            "name": "Инновационный центр «Сколково» 2"
+        },
+        {
+            "host_id": "11695",
+            "host": "rg.ru",
+            "name": "Российская газета"
+        },
+        {
+            "host_id": "11697",
+            "host": "www.rsport.ru",
+            "name": "РСпорт главные новости спорта"
+        },
+        {
+            "host_id": "11701",
+            "host": "inosmi.ru",
+            "name": "ИноСМИ"
+        },
+        {
+            "host_id": "11702",
+            "host": "visualrian.ru",
+            "name": "Библиотека изображений «РИА Новости»"
+        },
+        {
+            "host_id": "11705",
+            "host": "ukraina.ru",
+            "name": "Украина.ру"
+        },
+        {
+            "host_id": "11707",
+            "host": "ria.ru",
+            "name": "«РИА Новости»"
+        },
+        {
+            "host_id": "12878",
+            "host": "www.altai-terr.izbirkom.ru",
+            "name": "Избирательная комиссия Алтайского края 1"
+        },
+        {
+            "host_id": "12879",
+            "host": "www.altai-rep.izbirkom.ru",
+            "name": "Избирательная комиссия Алтайского края 2"
+        },
+        {
+            "host_id": "12880",
+            "host": "www.amur.izbirkom.ru",
+            "name": "Избирательная комиссия Амурской области"
+        },
+        {
+            "host_id": "12881",
+            "host": "www.arkhangelsk.izbirkom.ru",
+            "name": "Избирательная комиссия Архангельской области"
+        },
+        {
+            "host_id": "12882",
+            "host": "www.astrakhan.izbirkom.ru",
+            "name": "Избирательная комиссия Астраханской области"
+        },
+        {
+            "host_id": "12883",
+            "host": "www.belgorod.izbirkom.ru",
+            "name": "Избирательная комиссия Белгородской области"
+        },
+        {
+            "host_id": "12885",
+            "host": "www.vladimir.izbirkom.ru",
+            "name": "Избирательная комиссия Владимирской области"
+        },
+        {
+            "host_id": "12886",
+            "host": "www.volgograd.izbirkom.ru",
+            "name": "Избирательная комиссия Волгоградской области"
+        },
+        {
+            "host_id": "12887",
+            "host": "www.vologod.izbirkom.ru",
+            "name": "Избирательная комиссия Вологодской области"
+        },
+        {
+            "host_id": "12888",
+            "host": "www.voronezh.izbirkom.ru",
+            "name": "Избирательная комиссия Воронежской области"
+        },
+        {
+            "host_id": "12890",
+            "host": "www.moscow-city.izbirkom.ru",
+            "name": "Избирательная комиссия города Москва"
+        },
+        {
+            "host_id": "12891",
+            "host": "www.st-petersburg.izbirkom.ru",
+            "name": "Избирательная комиссия города Санкт-Петербург"
+        },
+        {
+            "host_id": "12893",
+            "host": "www.jewish-aut.izbirkom.ru",
+            "name": "Избирательная комиссия Еврейского АО"
+        },
+        {
+            "host_id": "12894",
+            "host": "www.zabkray.izbirkom.ru",
+            "name": "Избирательная комиссия Забайкальского края"
+        },
+        {
+            "host_id": "12895",
+            "host": "www.ivanovo.izbirkom.ru",
+            "name": "Избирательная комиссия Ивановской области"
+        },
+        {
+            "host_id": "12896",
+            "host": "www.irkutsk.izbirkom.ru",
+            "name": "Избирательная комиссия Иркутской области"
+        },
+        {
+            "host_id": "12897",
+            "host": "www.kabardin-balkar.izbirkom.ru",
+            "name": "Избирательная комиссия Кабардино-Балкарской республики"
+        },
+        {
+            "host_id": "12898",
+            "host": "www.kaliningrad.izbirkom.ru",
+            "name": "Избирательная комиссия Калининградской области"
+        },
+        {
+            "host_id": "12899",
+            "host": "www.kaluga.izbirkom.ru",
+            "name": "Избирательная комиссия Калужской области"
+        },
+        {
+            "host_id": "12901",
+            "host": "www.kemerovo.izbirkom.ru",
+            "name": "Избирательная комиссия Кемеровской области"
+        },
+        {
+            "host_id": "12904",
+            "host": "www.kostroma.izbirkom.ru",
+            "name": "Избирательная комиссия Костромской области"
+        },
+        {
+            "host_id": "12905",
+            "host": "www.krasnodar.izbirkom.ru",
+            "name": "Избирательная комиссия Краснодарского края"
+        },
+        {
+            "host_id": "12906",
+            "host": "www.krasnoyarsk.izbirkom.ru",
+            "name": "Избирательная комиссия Красноярского края"
+        },
+        {
+            "host_id": "12907",
+            "host": "www.kurgan.izbirkom.ru",
+            "name": "Избирательная комиссия Курганской области"
+        },
+        {
+            "host_id": "12908",
+            "host": "www.kursk.izbirkom.ru",
+            "name": "Избирательная комиссия Курской области"
+        },
+        {
+            "host_id": "12909",
+            "host": "www.karachaev-cherkess.izbirkom.ru",
+            "name": "Избирательная комиссия Карачаево-Черкесской Республики"
+        },
+        {
+            "host_id": "12910",
+            "host": "www.leningrad-reg.izbirkom.ru",
+            "name": "Избирательная комиссия Ленинградской области"
+        },
+        {
+            "host_id": "12911",
+            "host": "www.lipetsk.izbirkom.ru",
+            "name": "Избирательная комиссия Липецкой области"
+        },
+        {
+            "host_id": "12912",
+            "host": "www.magadan.izbirkom.ru",
+            "name": "Избирательная комиссия Магаданской области"
+        },
+        {
+            "host_id": "12913",
+            "host": "www.murmansk.izbirkom.ru",
+            "name": "Избирательная комиссия Мурманской области"
+        },
+        {
+            "host_id": "12914",
+            "host": "www.nenetsk.izbirkom.ru",
+            "name": "Избирательная комиссия Ненецкого АО"
+        },
+        {
+            "host_id": "12915",
+            "host": "www.nnov.izbirkom.ru",
+            "name": "Избирательная комиссия Нижегородской области"
+        },
+        {
+            "host_id": "12916",
+            "host": "www.novgorod.izbirkom.ru",
+            "name": "Избирательная комиссия Новгородской области"
+        },
+        {
+            "host_id": "12917",
+            "host": "www.omsk.izbirkom.ru",
+            "name": "Избирательная комиссия Омской области"
+        },
+        {
+            "host_id": "12918",
+            "host": "www.orenburg.izbirkom.ru",
+            "name": "Избирательная комиссия Оренбургской области"
+        },
+        {
+            "host_id": "12919",
+            "host": "www.orel.izbirkom.ru",
+            "name": "Избирательная комиссия Орловской области"
+        },
+        {
+            "host_id": "12920",
+            "host": "www.penza.izbirkom.ru",
+            "name": "Избирательная комиссия Пензенской области"
+        },
+        {
+            "host_id": "12921",
+            "host": "www.permkrai.izbirkom.ru",
+            "name": "Избирательная комиссия Пермского края"
+        },
+        {
+            "host_id": "12923",
+            "host": "www.primorsk.izbirkom.ru",
+            "name": "Избирательная комиссия Приморского края"
+        },
+        {
+            "host_id": "12924",
+            "host": "www.pskov.izbirkom.ru",
+            "name": "Избирательная комиссия Псковской области"
+        },
+        {
+            "host_id": "12925",
+            "host": "www.adygei.izbirkom.ru",
+            "name": "Избирательная комиссия Республики Адыгея"
+        },
+        {
+            "host_id": "12926",
+            "host": "www.bashkortostan.izbirkom.ru",
+            "name": "Избирательная комиссия Республики Башкирия"
+        },
+        {
+            "host_id": "12927",
+            "host": "www.buriat.izbirkom.ru",
+            "name": "Избирательная комиссия Республики Бурятия"
+        },
+        {
+            "host_id": "12928",
+            "host": "www.dagestan.izbirkom.ru",
+            "name": "Избирательная комиссия Республики Дагестан"
+        },
+        {
+            "host_id": "12929",
+            "host": "www.ingush.izbirkom.ru",
+            "name": "Избирательная комиссия Республики Ингушетия"
+        },
+        {
+            "host_id": "12930",
+            "host": "www.kalmyk.izbirkom.ru",
+            "name": "Избирательная комиссия Республики Калмыкия"
+        },
+        {
+            "host_id": "12931",
+            "host": "www.karel.izbirkom.ru",
+            "name": "Избирательная комиссия Республики Карелия"
+        },
+        {
+            "host_id": "12933",
+            "host": "www.komi.izbirkom.ru",
+            "name": "Избирательная комиссия Республики Коми"
+        },
+        {
+            "host_id": "12934",
+            "host": "www.crimea.izbirkom.ru",
+            "name": "Избирательная комиссия Республики Крым"
+        },
+        {
+            "host_id": "12935",
+            "host": "www.mari-el.izbirkom.ru",
+            "name": "Избирательная комиссия Республики Марий Эл"
+        },
+        {
+            "host_id": "12936",
+            "host": "www.mordov.izbirkom.ru",
+            "name": "Избирательная комиссия Республики Мордовия"
+        },
+        {
+            "host_id": "12937",
+            "host": "www.yakut.izbirkom.ru",
+            "name": "Избирательная комиссия Республики Саха (Якутия)"
+        },
+        {
+            "host_id": "12938",
+            "host": "www.tatarstan.izbirkom.ru",
+            "name": "Избирательная комиссия Республики Татарстан"
+        },
+        {
+            "host_id": "12939",
+            "host": "www.tyva.izbirkom.ru",
+            "name": "Избирательная комиссия Республики Тыва"
+        },
+        {
+            "host_id": "12940",
+            "host": "www.khakas.izbirkom.ru",
+            "name": "Избирательная комиссия Республики Хакасия"
+        },
+        {
+            "host_id": "12941",
+            "host": "www.rostov.izbirkom.ru",
+            "name": "Избирательная комиссия Ростовской области"
+        },
+        {
+            "host_id": "12942",
+            "host": "www.ryazan.izbirkom.ru",
+            "name": "Избирательная комиссия Рязанской области"
+        },
+        {
+            "host_id": "12943",
+            "host": "www.samara.izbirkom.ru",
+            "name": "Избирательная комиссия Самарской области"
+        },
+        {
+            "host_id": "12944",
+            "host": "www.saratov.izbirkom.ru",
+            "name": "Избирательная комиссия Саратовской области"
+        },
+        {
+            "host_id": "12945",
+            "host": "www.sakhalin.izbirkom.ru",
+            "name": "Избирательная комиссия Сахалинской области"
+        },
+        {
+            "host_id": "12946",
+            "host": "www.sverdlovsk.izbirkom.ru",
+            "name": "Избирательная комиссия Свердловской области"
+        },
+        {
+            "host_id": "12947",
+            "host": "www.smolensk.izbirkom.ru",
+            "name": "Избирательная комиссия Смоленской области"
+        },
+        {
+            "host_id": "12948",
+            "host": "www.stavropol.izbirkom.ru",
+            "name": "Избирательная комиссия Ставропольского края"
+        },
+        {
+            "host_id": "12949",
+            "host": "www.tambov.izbirkom.ru",
+            "name": "Избирательная комиссия Тамбовской области"
+        },
+        {
+            "host_id": "12950",
+            "host": "www.tver.izbirkom.ru",
+            "name": "Избирательная комиссия Тверской области"
+        },
+        {
+            "host_id": "12951",
+            "host": "www.tomsk.izbirkom.ru",
+            "name": "Избирательная комиссия Томской области"
+        },
+        {
+            "host_id": "12952",
+            "host": "www.tula.izbirkom.ru",
+            "name": "Избирательная комиссия Тульской области"
+        },
+        {
+            "host_id": "12953",
+            "host": "www.tyumen.izbirkom.ru",
+            "name": "Избирательная комиссия Тюменской области"
+        },
+        {
+            "host_id": "12954",
+            "host": "www.udmurt.izbirkom.ru",
+            "name": "Избирательная комиссия Удмуртской Республики"
+        },
+        {
+            "host_id": "12955",
+            "host": "www.ulyanovsk.izbirkom.ru",
+            "name": "Избирательная комиссия Ульяновской области"
+        },
+        {
+            "host_id": "12957",
+            "host": "www.khabarovsk.izbirkom.ru",
+            "name": "Избирательная комиссия Хабаровского края"
+        },
+        {
+            "host_id": "12959",
+            "host": "www.chelyabinsk.izbirkom.ru",
+            "name": "Избирательная комиссия Челябинской области"
+        },
+        {
+            "host_id": "12960",
+            "host": "www.chechen.izbirkom.ru",
+            "name": "Избирательная комиссия Чеченской Республики"
+        },
+        {
+            "host_id": "12962",
+            "host": "www.chuvash.izbirkom.ru",
+            "name": "Избирательная комиссия Чувашской Республики"
+        },
+        {
+            "host_id": "12963",
+            "host": "www.chukot.izbirkom.ru",
+            "name": "Избирательная комиссия Чукотского АО"
+        },
+        {
+            "host_id": "12965",
+            "host": "www.yaroslavl.izbirkom.ru",
+            "name": "Избирательная комиссия Ярославской области"
+        },
+        {
+            "host_id": "12967",
+            "host": "www.moscow-reg.izbirkom.ru",
+            "name": "Избирательная комиссия Московской области"
+        },
+        {
+            "host_id": "12968",
+            "host": "www.novosibirsk.izbirkom.ru",
+            "name": "Избирательная комиссия Новосибирской области"
+        },
+        {
+            "host_id": "13061",
+            "host": "www.sevastopol.izbirkom.ru",
+            "name": "Севастопольская городская избирательная комиссия"
+        },
+        {
+            "host_id": "13062",
+            "host": "www.n-osset-alania.izbirkom.ru",
+            "name": "Центральная избирательная комиссия Республики Северная Осетия – Алания"
+        },
+        {
+            "host_id": "13063",
+            "host": "www.yamal-nenetsk.izbirkom.ru",
+            "name": "Избирательная комиссия Ямало-Ненецкого автономного округа"
+        },
+        {
+            "host_id": "13066",
+            "host": "www.kirov.izbirkom.ru",
+            "name": "Избирательная комиссия Кировской области"
+        },
+        {
+            "host_id": "13095",
+            "host": "cryptoacademy.gov.ru",
+            "name": "Академия криптографии Российской федерации"
+        },
+        {
+            "host_id": "13131",
+            "host": "rutube.ru",
+            "name": "Видеохостинг RUTUBE"
+        },
+        {
+            "host_id": "14012",
+            "host": "www.govvrn.ru",
+            "name": "Официальный портал органов власти Воронежской области"
+        },
+        {
+            "host_id": "14013",
+            "host": "belregion.ru",
+            "name": "Губернатор и Правительство Белгородской области"
+        },
+        {
+            "host_id": "14014",
+            "host": "www.ryazangov.ru",
+            "name": "Правительство Рязанской области"
+        },
+        {
+            "host_id": "14015",
+            "host": "mosreg.ru",
+            "name": "Официальный сайт Правительства и Губернатора Московской области"
+        },
+        {
+            "host_id": "14016",
+            "host": "agmo.mosreg.ru",
+            "name": "Администрация губернатора Московской области"
+        },
+        {
+            "host_id": "14017",
+            "host": "admlip.ru",
+            "name": "Правительство Липецкой области"
+        },
+        {
+            "host_id": "14018",
+            "host": "ivanovoobl.ru",
+            "name": "Правительство Ивановской области"
+        },
+        {
+            "host_id": "14020",
+            "host": "yarregion.ru",
+            "name": "Портал органов власти Ярославской области"
+        },
+        {
+            "host_id": "14024",
+            "host": "adm44.ru",
+            "name": "Администрация Костромской области"
+        },
+        {
+            "host_id": "14031",
+            "host": "git18.rostrud.gov.ru",
+            "name": "Государственная инспекция труда в Удмуртской Республике"
+        },
+        {
+            "host_id": "14037",
+            "host": "fd.rosmintrud.ru",
+            "name": "ПИК Минтруд России"
+        },
+        {
+            "host_id": "14288",
+            "host": "www.odkb-csto.org",
+            "name": "ОДКБ"
+        },
+        {
+            "host_id": "14306",
+            "host": "letters.fso.gov.ru",
+            "name": "Веб-приемная ФСО России 1"
+        },
+        {
+            "host_id": "14307",
+            "host": "letters2.fso.gov.ru",
+            "name": "Веб-приемная ФСО России 2"
+        },
+        {
+            "host_id": "14308",
+            "host": "agrarian.council.gov.ru",
+            "name": "Комитет СФ по АППиП"
+        },
+        {
+            "host_id": "14309",
+            "host": "en.kremlin.ru",
+            "name": "President of Russia"
+        },
+        {
+            "host_id": "14310",
+            "host": "en.letters.kremlin.ru",
+            "name": "Presidential Directorate for Correspondence"
+        },
+        {
+            "host_id": "14311",
+            "host": "tours.kremlin.ru",
+            "name": "Виртуальный тур по Кремлю"
+        },
+        {
+            "host_id": "14312",
+            "host": "uznai-prezidenta.ru",
+            "name": "Президент России гражданам школьного возраста"
+        },
+        {
+            "host_id": "14314",
+            "host": "ps.fsb.ru",
+            "name": "Пограничная служба ФСБ"
+        },
+        {
+            "host_id": "14315",
+            "host": "ppkvk.fsb.ru",
+            "name": "Первый пограничный кадетский военный корпус ФСБ"
+        },
+        {
+            "host_id": "14316",
+            "host": "clsz.fsb.ru",
+            "name": "ЦЛСЗ ФСБ России"
+        },
+        {
+            "host_id": "14317",
+            "host": "amur.fsb.ru",
+            "name": "ОБ по Амурской области"
+        },
+        {
+            "host_id": "14320",
+            "host": "ar.gov.ru",
+            "name": "Совершенствование государственного управления"
+        },
+        {
+            "host_id": "14323",
+            "host": "en.fas.gov.ru",
+            "name": "FAS RF"
+        },
+        {
+            "host_id": "14324",
+            "host": "fas.gov.ru",
+            "name": "Федеральная Антимонопольная Служба"
+        },
+        {
+            "host_id": "14325",
+            "host": "emc-fas.ru",
+            "name": "Учебно-методический центр ФАС России"
+        },
+        {
+            "host_id": "14326",
+            "host": "oprf.ru",
+            "name": "Общественная палата РФ"
+        },
+        {
+            "host_id": "14327",
+            "host": "eis.oprf.ru",
+            "name": "Интернет-приемная Общественной палаты РФ"
+        },
+        {
+            "host_id": "14328",
+            "host": "nsk.sledcom.ru",
+            "name": "СУ СК РФ по Новосибирской области"
+        },
+        {
+            "host_id": "14329",
+            "host": "penza.sledcom.ru",
+            "name": "СУ СК РФ по Пензенской области"
+        },
+        {
+            "host_id": "14330",
+            "host": "chukotka.sledcom.ru",
+            "name": "СУ СК РФ по Чукотскому автономному округу"
+        },
+        {
+            "host_id": "14331",
+            "host": "zapsib-sut.sledcom.ru",
+            "name": "Восточное межрегиональное СУ на транспорте СК РФ"
+        },
+        {
+            "host_id": "14332",
+            "host": "chel.sledcom.ru",
+            "name": "СУ СК РФ по Челябинской области"
+        },
+        {
+            "host_id": "14333",
+            "host": "khabkray.sledcom.ru",
+            "name": "СУ СК РФ по Хабаровскому краю и Еврейской автономной области"
+        },
+        {
+            "host_id": "14334",
+            "host": "voronezh.sledcom.ru",
+            "name": "СУ СК РФ по Воронежской области"
+        },
+        {
+            "host_id": "14335",
+            "host": "kuban.sledcom.ru",
+            "name": "СУ СК РФ по Краснодарскому краю"
+        },
+        {
+            "host_id": "14336",
+            "host": "crim.sledcom.ru",
+            "name": "СУ СК РФ по Республике Крым и городу Севастополю"
+        },
+        {
+            "host_id": "14337",
+            "host": "tomsk.sledcom.ru",
+            "name": "СУ СК РФ по Томской области"
+        },
+        {
+            "host_id": "14338",
+            "host": "zmsut.sledcom.ru",
+            "name": "Западное межрегиональное СУ на транспорте СКРФ"
+        },
+        {
+            "host_id": "14339",
+            "host": "sledcom.ru",
+            "name": "Следственный комитет РФ"
+        },
+        {
+            "host_id": "14341",
+            "host": "rusarchives.ru",
+            "name": "Портал архивы России"
+        },
+        {
+            "host_id": "14342",
+            "host": "avvakum.rusarchives.ru",
+            "name": "Протопоп Аввакум"
+        },
+        {
+            "host_id": "14343",
+            "host": "rgantd.ru",
+            "name": "Российский государственный архив научно-технической документации"
+        },
+        {
+            "host_id": "14344",
+            "host": "vcs.roscosmos.ru",
+            "name": "Вход в систему Роскосмос1"
+        },
+        {
+            "host_id": "14345",
+            "host": "disk.roscosmos.ruindex.phplogin",
+            "name": "Вход в систему Роскосмос2"
+        },
+        {
+            "host_id": "14346",
+            "host": "minobrnauki.gov.ru",
+            "name": "Минобрнауки"
+        },
+        {
+            "host_id": "14347",
+            "host": "sozd.duma.gov.ru",
+            "name": "Система обеспечения законодательной деятельности"
+        },
+        {
+            "host_id": "14348",
+            "host": "opk.km.duma.gov.ru",
+            "name": "Комиссия по правовому обеспечению развития организации ОПК РФ"
+        },
+        {
+            "host_id": "14349",
+            "host": "fsvts.gov.ru",
+            "name": "ФСВТС"
+        },
+        {
+            "host_id": "14350",
+            "host": "gkovd.ru",
+            "name": "ГКОВД РФ"
+        },
+        {
+            "host_id": "14351",
+            "host": "ivprf.ru",
+            "name": "Эффективное планирование полетов"
+        },
+        {
+            "host_id": "14352",
+            "host": "rs.gov.ru",
+            "name": "Россотрудничество"
+        },
+        {
+            "host_id": "14353",
+            "host": "archive.premier.gov.ru",
+            "name": "Архив сайта Председателя Правительства"
+        },
+        {
+            "host_id": "14377",
+            "host": "voronezh-city.ru",
+            "name": "АГ Воронеж"
+        },
+        {
+            "host_id": "14378",
+            "host": "zdrav36.ru",
+            "name": "ДЗО Воронежской области"
+        },
+        {
+            "host_id": "14379",
+            "host": "rmis36.ru",
+            "name": "Личный кабинет пациента Воронежской области"
+        },
+        {
+            "host_id": "14380",
+            "host": "dizovo.ru",
+            "name": "Департамент ИиЗО Воронежской области"
+        },
+        {
+            "host_id": "14381",
+            "host": "www.invest-in-voronezh.ruru",
+            "name": "Инвестиционная деятельность в Воронежской области"
+        },
+        {
+            "host_id": "14386",
+            "host": "nko71.ru",
+            "name": "Ресурсный центр Правительства Тульской области"
+        },
+        {
+            "host_id": "14387",
+            "host": "sc.tularegion.ru",
+            "name": "Ситуационный центр Губернатора Тульской области"
+        },
+        {
+            "host_id": "14388",
+            "host": "danilovmr.ru",
+            "name": "Администрация Даниловского мр Ярославской области"
+        },
+        {
+            "host_id": "14389",
+            "host": "www.yar-archives.ru",
+            "name": "Интернет-портал Архивной службы Ярославской области"
+        },
+        {
+            "host_id": "14393",
+            "host": "webtutor.yarcloud.rupravyaodefault.html",
+            "name": "Портал обучения Правительства Ярославской области"
+        },
+        {
+            "host_id": "14394",
+            "host": "znamcrb.tmbreg.ru",
+            "name": "Знаменская центральная районная больница"
+        },
+        {
+            "host_id": "14395",
+            "host": "obraz.tmbreg.ru",
+            "name": "Управление образования и науки Тамбовской области"
+        },
+        {
+            "host_id": "14396",
+            "host": "g31.tmbreg.ru",
+            "name": "Администрация города Рассказово"
+        },
+        {
+            "host_id": "14397",
+            "host": "lipetsk.ru",
+            "name": "Полезные сервисы Липецкой области"
+        },
+        {
+            "host_id": "14398",
+            "host": "artamonovigor.ru",
+            "name": "Сайт губернатора Липецкой области"
+        },
+        {
+            "host_id": "14405",
+            "host": "e-school.ryazangov.ruauthlogin-page",
+            "name": "Электронные дневники и журналы"
+        },
+        {
+            "host_id": "14406",
+            "host": "e-college.ryazan.gov.ru",
+            "name": "Электронный колледж"
+        },
+        {
+            "host_id": "14408",
+            "host": "rpgu.ryazangov.ru",
+            "name": "ОГВ Рязань"
+        },
+        {
+            "host_id": "14409",
+            "host": "geogisro.ryazan.gov.ru",
+            "name": "ГеоИС РО"
+        },
+        {
+            "host_id": "14410",
+            "host": "pd.ryazangov.ruLoginLogin.jsp",
+            "name": "Авторизация, РГИСУП"
+        },
+        {
+            "host_id": "14412",
+            "host": "mail.tfoms-rzn.ru",
+            "name": "Outlook Web App ТФОМС"
+        },
+        {
+            "host_id": "14413",
+            "host": "tfoms-rzn.ru",
+            "name": "ТФОМС Рязанской области"
+        },
+        {
+            "host_id": "14416",
+            "host": "forum.asiou.ru",
+            "name": "АСИОУ образовательным процессом"
+        },
+        {
+            "host_id": "14417",
+            "host": "data.yarregion.ru",
+            "name": "Портал открытых данных Ярославской области"
+        },
+        {
+            "host_id": "14420",
+            "host": "sputnikmediabank.com",
+            "name": "Sputnik Mediabank"
+        },
+        {
+            "host_id": "14421",
+            "host": "sputniknews.com",
+            "name": "Sputnik International"
+        },
+        {
+            "host_id": "14422",
+            "host": "1yar.tv",
+            "name": "Первый Ярославский"
+        },
+        {
+            "host_id": "14423",
+            "host": "rosatom-china.com",
+            "name": "Rosatom全球业务"
+        },
+        {
+            "host_id": "14424",
+            "host": "ocks-rosatoma.ru",
+            "name": "ОЦКС РОСАТОМ"
+        },
+        {
+            "host_id": "14426",
+            "host": "uranium1.com",
+            "name": "Uranium One"
+        },
+        {
+            "host_id": "14427",
+            "host": "rosatom.ruindex.html",
+            "name": "Росатом"
+        },
+        {
+            "host_id": "14428",
+            "host": "atomarhiv.ru",
+            "name": "Центратомархив"
+        },
+        {
+            "host_id": "14429",
+            "host": "atomenergoprom.ru",
+            "name": "АО «Атомэнергопром»"
+        },
+        {
+            "host_id": "14430",
+            "host": "izdat.ntckompas.ru",
+            "name": "ФГУП \"НТЦ оборонного комплекса «Компас»"
+        },
+        {
+            "host_id": "14433",
+            "host": "nrcki.ru",
+            "name": "НИЦ «Курчатовский институт»"
+        },
+        {
+            "host_id": "14434",
+            "host": "radiozavod.ru",
+            "name": "АО «Рязанский Радиозавод»"
+        },
+        {
+            "host_id": "14436",
+            "host": "www.energia.ru",
+            "name": "РКК Энергия"
+        },
+        {
+            "host_id": "14438",
+            "host": "rptp.org",
+            "name": "АО \"РПТП \"Гранит\""
+        },
+        {
+            "host_id": "14440",
+            "host": "plasmalabs.ru",
+            "name": "Рязань ПЛАЗМА"
+        },
+        {
+            "host_id": "14441",
+            "host": "tsniimash.ru",
+            "name": "ЦНИИМАШ"
+        },
+        {
+            "host_id": "14445",
+            "host": "www.kremlin.ru2",
+            "name": "Официальный сайт Президента РФ (президент.рф)"
+        },
+        {
+            "host_id": "14453",
+            "host": "vgtrk.ru",
+            "name": "ВГТРК РОССИЯ 1"
+        },
+        {
+            "host_id": "14455",
+            "host": "ach.gov.ru",
+            "name": "Счетная палата Российской Федерации"
+        },
+        {
+            "host_id": "14672",
+            "host": "www.kherson.izbirkom.ru",
+            "name": "Избирательная комиссия Херсонской области"
+        },
+        {
+            "host_id": "14673",
+            "host": "www.zaporozhye.izbirkom.ru",
+            "name": "Избирательная комиссия Запорожской области"
+        },
+        {
+            "host_id": "14674",
+            "host": "www.dnr.izbirkom.ru",
+            "name": "Избирательная комиссия Донецкой Народной Республики"
+        },
+        {
+            "host_id": "14675",
+            "host": "www.lnr.izbirkom.ru",
+            "name": "Избирательная комиссия Луганской Народной Республики"
+        },
+        {
+            "host_id": "14690",
+            "host": "russia.ru",
+            "name": "Национальный центр \"Россия\""
+        },
+        {
+            "host_id": "14693",
+            "host": "gossopka.ru",
+            "name": "Сайт ГОССОПКА (gossopka.ru)"
+        },
+        {
+            "host_id": "14722",
+            "host": "rkbglobus.ru",
+            "name": "Акционерное общество Рязанское конструкторское бюро «Глобус» 3"
+        },
+        {
+            "host_id": "14723",
+            "host": "svarka-russia.ru",
+            "name": "Акционерное общество Рязанское конструкторское бюро «Глобус» 4"
+        },
+        {
+            "host_id": "14724",
+            "host": "askud.ru",
+            "name": "Акционерное общество Рязанское конструкторское бюро «Глобус» 1"
+        },
+        {
+            "host_id": "14725",
+            "host": "esc-rus.ru",
+            "name": "Акционерное общество Рязанское конструкторское бюро «Глобус» 2"
+        },
+        {
+            "host_id": "14897",
+            "host": "bryansk.izbirkom.ru",
+            "name": "Сведения о проводящихся выборах и референдумах в Брянской области"
+        },
+        {
+            "host_id": "14909",
+            "host": "cniihm.ru",
+            "name": "ФГУП \"ЦНИИХМ\""
+        },
+        {
+            "host_id": "15204",
+            "host": "cert.gov.ru",
+            "name": "Официальный сайт НКЦКИ (cert.gov.ru)"
+        },
+        {
+            "host_id": "15222",
+            "host": "goszakaz.ufin48.ru",
+            "name": "Сайт госзакупок Управления финансов Липецкой области"
+        },
+        {
+            "host_id": "15223",
+            "host": "mydocuments36.ru",
+            "name": "Портал МФЦ Воронеж"
+        },
+        {
+            "host_id": "15226",
+            "host": "ping",
+            "name": "ping до \"важных\" ресурсов"
+        }
+    ]
+}

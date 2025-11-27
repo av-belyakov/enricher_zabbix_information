@@ -31,7 +31,7 @@ type LogSet struct {
 
 // CfgSchedule настройки планирования запуска сервиса
 type CfgSchedule struct {
-	DailyJob DailyJobOptions `validate:"validateFn" yaml:"dailyJob"` //рассписание в формате HH:MM
+	DailyJob DailyJobOptions `validate:"validateFn" yaml:"dailyJob"` //расписание в формате HH:MM
 	TimerJob int             `validate:"lte=1439" yaml:"timerJob"`   //таймер в формате минут
 }
 

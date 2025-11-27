@@ -45,7 +45,7 @@ func TestReadConfigHandler(t *testing.T) {
 			assert.NotEmpty(t, conf.GetAuthenticationData().WriteLogBDPasswd)
 		})
 
-		t.Run("Тест 2. Проверка настроек рассписания работы сервиса", func(t *testing.T) {
+		t.Run("Тест 2. Проверка настроек расписания работы сервиса", func(t *testing.T) {
 			assert.Equal(t, conf.GetSchedule().TimerJob, 10)
 			assert.Equal(t, len(conf.GetSchedule().DailyJob), 6)
 
