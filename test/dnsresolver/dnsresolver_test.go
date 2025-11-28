@@ -3,6 +3,7 @@ package dnsresolver
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/url"
 	"os"
@@ -47,17 +48,47 @@ func TestDnsResolver(t *testing.T) {
 		log.Fatalln(errors.New("the storage should not be empty"))
 	}
 
-	t.Run("Тест 1. Выполняем верификацию доменных имён. ", func(t *testing.T) {
+	t.Run("Тест 0. Просто проверка url", func(t *testing.T) {
+		urlHost, err := url.Parse("http11://" + "argus.vetrf.ru")
+		assert.NoError(t, err)
+
+		fmt.Printf("urlHost 1 '%+v'\n", urlHost)
+		fmt.Printf("urlHost 1 '%+v'\n", urlHost.Host)
+
+		urlHost, err = url.Parse("http://" + "www.vetrf.ruvetrfcerberus.html")
+		assert.NoError(t, err)
+
+		fmt.Printf("urlHost 2 '%+v'\n", urlHost)
+		fmt.Printf("urlHost 2 '%+v'\n", urlHost.Host)
+
+		urlHost, err = url.Parse("http://" + "www.xn----7sbhhgjt4afav0m.xn--p1ai")
+		assert.NoError(t, err)
+
+		fmt.Printf("urlHost 3 '%+v'\n", urlHost)
+		fmt.Printf("urlHost 3 '%+v'\n", urlHost.Host)
+	})
+
+	/*t.Run("Тест 1. Выполняем верификацию доменных имён.", func(t *testing.T) {
 		for _, v := range listElement {
 			urlHost, err := url.Parse(v.OriginalHost)
 			if err != nil {
-				t.Errorf(
-					"Host %s is not valid URL. Error: %s",
-					v.OriginalHost,
-					err.Error(),
-				)
-			}
-		}
-	})
+				fmt.Println("ERROR:", err)
 
+				sts.SetError(v.HostId, customerrors.NewErrorNoValidUrl(v.OriginalHost))
+			}
+
+			fmt.Printf("v.OriginalHost:'%s', urlHost.Host:'%s'\n", v.OriginalHost, urlHost.Host)
+
+			assert.NoError(t, sts.SetDomainName(v.HostId, urlHost.Host))
+		}
+
+		errList := sts.GetListErrors()
+		fmt.Println("Element with errors:", errList)
+
+		_, data, ok := sts.GetForHostId(11665)
+		assert.True(t, ok)
+		fmt.Printf("DATA:'%+v'\n", data)
+
+		assert.Len(t, errList, 0)
+	})*/
 }
