@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 	"testing"
+	"unsafe"
 
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 	"github.com/stretchr/testify/assert"
@@ -19,7 +20,7 @@ func TestStorage(t *testing.T) {
 		storageSize int
 	)
 
-	b, err := os.ReadFile("./exampledata.json")
+	b, err := os.ReadFile("../filesfortest/exampledata.json")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -97,12 +98,15 @@ func TestStorage(t *testing.T) {
 		sts.Add(storage.HostDetailedInformation{
 			Ip:           []netip.Addr{ipHost},
 			HostId:       hostId,
-			OriginalHost: "test.ru",
+			OriginalHost: "test.ru/anything&name=aa",
+			DomainName:   "test.ru",
 			Errors:       errors.New("new test error"),
 		})
 
-		_, ok := sts.GetForHostId(hostId)
+		data, ok := sts.GetForHostId(hostId)
 		assert.True(t, ok)
+
+		fmt.Println("Unsafe size:", unsafe.Sizeof(data))
 
 		list = sts.GetListErrors()
 		assert.Len(t, list, 1)

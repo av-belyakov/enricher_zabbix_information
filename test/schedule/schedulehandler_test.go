@@ -21,7 +21,7 @@ import (
 func TestScheduleHandler(t *testing.T) {
 	os.Setenv("GO_ENRICHERZI_MAIN", "test")
 
-	if err := gotenv.Load(".env"); err != nil {
+	if err := gotenv.Load("../filesfortest/.env"); err != nil {
 		t.Fatalf("Не удалось загрузить переменные окружения из файла .env: %v", err)
 	}
 

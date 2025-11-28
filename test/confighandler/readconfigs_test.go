@@ -23,7 +23,7 @@ func TestMain(m *testing.M) {
 	unSetEnviroment()
 
 	//загружаем ключи и пароли
-	if err := godotenv.Load(".env"); err != nil {
+	if err := godotenv.Load("../filesfortest/.env"); err != nil {
 		log.Fatalln(err)
 	}
 
@@ -46,7 +46,7 @@ func TestReadConfigHandler(t *testing.T) {
 		})
 
 		t.Run("Тест 2. Проверка настроек расписания работы сервиса", func(t *testing.T) {
-			assert.Equal(t, conf.GetSchedule().TimerJob, 10)
+			assert.Equal(t, conf.GetSchedule().TimerJob, 1)
 			assert.Equal(t, len(conf.GetSchedule().DailyJob), 6)
 
 			listTime := []string{
@@ -70,7 +70,7 @@ func TestReadConfigHandler(t *testing.T) {
 
 		t.Run("Тест 4. Проверка настройки Zabbix", func(t *testing.T) {
 			assert.Equal(t, conf.GetZabbix().Host, "192.168.9.45")
-			assert.Equal(t, conf.GetZabbix().Port, 80)
+			assert.Equal(t, conf.GetZabbix().Port, 443)
 			assert.Equal(t, conf.GetZabbix().Timeout, 30)
 			assert.Equal(t, conf.GetZabbix().User, "803.p.vishnitsky@avz-center.ru")
 		})
