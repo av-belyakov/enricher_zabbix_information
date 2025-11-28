@@ -11,8 +11,8 @@ func (sts *ShortTermStorage) GetList() []HostDetailedInformation {
 	sts.mutex.RLock()
 	defer sts.mutex.RUnlock()
 
-	list := make([]HostDetailedInformation, 0, len(sts.Data))
-	copy(list, sts.Data)
+	list := make([]HostDetailedInformation, len(sts.data))
+	copy(list, sts.data)
 
 	return list
 }
@@ -29,33 +29,33 @@ func (sts *ShortTermStorage) GetForHostId(hostId int) (HostDetailedInformation, 
 		return HostDetailedInformation{}, false
 	}
 
-	return sts.Data[index], true
+	return sts.data[index], true
 }
 
 // GetForDomainName данные по домену (медленный поиск)
-func (sts *ShortTermStorage) GetForDomainName(domaniName string) (HostDetailedInformation, bool) {
+func (sts *ShortTermStorage) GetForDomainName(domaniName string) (int, HostDetailedInformation, bool) {
 	sts.mutex.RLock()
 	defer sts.mutex.RUnlock()
 
 	index := sts.search("DomainName", domaniName)
 	if index == -1 {
-		return HostDetailedInformation{}, false
+		return index, HostDetailedInformation{}, false
 	}
 
-	return sts.Data[index], true
+	return index, sts.data[index], true
 }
 
 // GetForOriginalHost данные по неверифицированному названию хоста (медленный поиск)
-func (sts *ShortTermStorage) GetForOriginalHost(originalHost string) (HostDetailedInformation, bool) {
+func (sts *ShortTermStorage) GetForOriginalHost(originalHost string) (int, HostDetailedInformation, bool) {
 	sts.mutex.RLock()
 	defer sts.mutex.RUnlock()
 
 	index := sts.search("OriginalHost", originalHost)
 	if index == -1 {
-		return HostDetailedInformation{}, false
+		return index, HostDetailedInformation{}, false
 	}
 
-	return sts.Data[index], true
+	return index, sts.data[index], true
 }
 
 // Add добавляет элемент в хранилище
@@ -63,7 +63,7 @@ func (sts *ShortTermStorage) Add(event HostDetailedInformation) {
 	sts.mutex.Lock()
 	defer sts.mutex.Unlock()
 
-	sts.Data = append(sts.Data, event)
+	sts.data = append(sts.data, event)
 }
 
 // DeleteElement удаляет заданный элемент по hostId
@@ -73,11 +73,11 @@ func (sts *ShortTermStorage) DeleteElement(hostId int) {
 
 	sts.sort()
 	if index := sts.binarySearch(hostId); index != -1 {
-		if index < 0 || index >= len(sts.Data) {
+		if index < 0 || index >= len(sts.data) {
 			return
 		}
 
-		sts.Data = append(sts.Data[:index], sts.Data[index+1:]...)
+		sts.data = append(sts.data[:index], sts.data[index+1:]...)
 	}
 }
 
@@ -86,17 +86,17 @@ func (sts *ShortTermStorage) DeleteAll() {
 	sts.mutex.Lock()
 	defer sts.mutex.Unlock()
 
-	sts.Data = []HostDetailedInformation{}
+	sts.data = []HostDetailedInformation{}
 }
 
-// GetListErrors список ошибок
+// GetListErrors список объектов с ошибками
 func (sts *ShortTermStorage) GetListErrors() []HostDetailedInformation {
 	sts.mutex.RLock()
 	defer sts.mutex.RUnlock()
 
 	list := make([]HostDetailedInformation, 0)
-	for _, v := range sts.Data {
-		if v.Error != nil {
+	for _, v := range sts.data {
+		if v.Errors != nil {
 			list = append(list, v)
 		}
 	}
@@ -106,7 +106,7 @@ func (sts *ShortTermStorage) GetListErrors() []HostDetailedInformation {
 
 // sort сортировка
 func (sts *ShortTermStorage) sort() {
-	slices.SortFunc(sts.Data, func(a, b HostDetailedInformation) int {
+	slices.SortFunc(sts.data, func(a, b HostDetailedInformation) int {
 		return cmp.Compare(a.HostId, b.HostId)
 	})
 }
@@ -114,13 +114,13 @@ func (sts *ShortTermStorage) sort() {
 // binarySearch выполняет стандартный двоичный поиск.
 // Возвращает индекс целевого объекта, если он найден, или -1, если не найден.
 func (sts *ShortTermStorage) binarySearch(id int) int {
-	left, right := 0, len(sts.Data)
+	left, right := 0, len(sts.data)
 
 	for left < right {
 		mid := left + (right-left)/2
-		if sts.Data[mid].HostId == id {
+		if sts.data[mid].HostId == id {
 			return mid
-		} else if sts.Data[mid].HostId < id {
+		} else if sts.data[mid].HostId < id {
 			left = mid + 1
 		} else {
 			right = mid
@@ -131,8 +131,9 @@ func (sts *ShortTermStorage) binarySearch(id int) int {
 }
 
 func (sts *ShortTermStorage) search(nameElem, valueElem string) int {
-	for k, v := range sts.Data {
+	for k, v := range sts.data {
 		fields := reflect.TypeOf(v)
+		values := reflect.ValueOf(v)
 
 		for i := 0; i < fields.NumField(); i++ {
 			if fields.Field(i).Name != nameElem {
@@ -140,7 +141,7 @@ func (sts *ShortTermStorage) search(nameElem, valueElem string) int {
 			}
 
 			if fields.Field(i).Type.Kind() == reflect.String {
-				if fields.Field(i).Type.String() == valueElem {
+				if values.Field(i).String() == valueElem {
 					return k
 				}
 			}
