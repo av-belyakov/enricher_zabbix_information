@@ -13,9 +13,9 @@ type ShortTermStorage struct {
 
 // HostDetailedInformation детальная информация о хосте
 type HostDetailedInformation struct {
-	Ip           []netip.Addr // список ip адресов
+	Ips          []netip.Addr // список ip адресов
 	OriginalHost string       // исходное наименование хоста
 	DomainName   string       // доменное имя
-	Errors       error        // ошибка
+	Error        error        // ошибка
 	HostId       int          // id хоста
 }

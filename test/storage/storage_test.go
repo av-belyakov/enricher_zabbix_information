@@ -9,10 +9,11 @@ import (
 	"os"
 	"strconv"
 	"testing"
-	"unsafe"
+
+	"github.com/stretchr/testify/assert"
 
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
-	"github.com/stretchr/testify/assert"
+	"github.com/av-belyakov/enricher_zabbix_information/test/helpersfile"
 )
 
 func TestStorage(t *testing.T) {
@@ -25,7 +26,7 @@ func TestStorage(t *testing.T) {
 		log.Fatalln(err)
 	}
 
-	examleData := TypeExampleData{}
+	examleData := helpersfile.TypeExampleData{}
 	if err := json.Unmarshal(b, &examleData); err != nil {
 		log.Fatalln(err)
 	}
@@ -61,7 +62,7 @@ func TestStorage(t *testing.T) {
 				requiredHost   string = "feedback.sk.ru"
 			)
 
-			data, ok := sts.GetForHostId(requiredHostId)
+			_, data, ok := sts.GetForHostId(requiredHostId)
 			assert.True(t, ok)
 			assert.True(t, data.OriginalHost == requiredHost)
 		})
@@ -84,7 +85,7 @@ func TestStorage(t *testing.T) {
 		sts.DeleteElement(requiredHostId)
 		assert.Less(t, len(sts.GetList()), storageSize)
 
-		_, ok := sts.GetForHostId(requiredHostId)
+		_, _, ok := sts.GetForHostId(requiredHostId)
 		assert.False(t, ok)
 	})
 
@@ -96,34 +97,64 @@ func TestStorage(t *testing.T) {
 		ipHost, err := netip.ParseAddr("65.33.110.3")
 		assert.NoError(t, err)
 		sts.Add(storage.HostDetailedInformation{
-			Ip:           []netip.Addr{ipHost},
+			Ips:          []netip.Addr{ipHost},
 			HostId:       hostId,
 			OriginalHost: "test.ru/anything&name=aa",
 			DomainName:   "test.ru",
-			Errors:       errors.New("new test error"),
+			Error:        errors.New("new test error"),
 		})
 
-		data, ok := sts.GetForHostId(hostId)
+		_, _, ok := sts.GetForHostId(hostId)
 		assert.True(t, ok)
-
-		fmt.Println("Unsafe size:", unsafe.Sizeof(data))
 
 		list = sts.GetListErrors()
 		assert.Len(t, list, 1)
 	})
 
-	t.Run("Тест 5. Очистка всего хранилища", func(t *testing.T) {
+	t.Run("Тест 5. Модификация данных в элементе хранилища", func(t *testing.T) {
+		hostId := 323671
+		orgHost := "example-domain.ru/anything&name=aa"
+		domainName := "example-domain.ru"
+
+		sts.Add(storage.HostDetailedInformation{
+			HostId:       hostId,
+			OriginalHost: orgHost,
+		})
+
+		ipHost1, err := netip.ParseAddr("101.34.78.63")
+		assert.NoError(t, err)
+		ipHost2, err := netip.ParseAddr("78.100.0.64")
+		assert.NoError(t, err)
+		ipHost3, err := netip.ParseAddr("18.6.53.36")
+		assert.NoError(t, err)
+		ipHost4, err := netip.ParseAddr("218.26.5.132")
+		assert.NoError(t, err)
+
+		t.Run("Тест 5.1. Изменение или добавление доменного имени", func(t *testing.T) {
+			assert.NoError(t, sts.SetDomainName(hostId, domainName))
+		})
+		t.Run("Тест 5.2. Изменение или добавление ip адресов", func(t *testing.T) {
+			assert.NoError(t, sts.SetIps(hostId, ipHost1))
+			assert.NoError(t, sts.SetIps(hostId, ipHost2, ipHost3, ipHost4))
+		})
+		t.Run("Тест 5.3. Изменение или добавление ошибки", func(t *testing.T) {
+			assert.NoError(t, sts.SetError(hostId, errors.New("new test error")))
+		})
+		t.Run("Тест 5.4. Валидация добавленных данных", func(t *testing.T) {
+			_, data, ok := sts.GetForHostId(hostId)
+			assert.True(t, ok)
+			assert.Equal(t, data.OriginalHost, orgHost)
+			assert.Equal(t, data.DomainName, domainName)
+			assert.Len(t, data.Ips, 4)
+			assert.NotNil(t, data.Error)
+		})
+
+	})
+
+	t.Run("Тест 6. Очистка всего хранилища", func(t *testing.T) {
 		sts.DeleteAll()
 		assert.Len(t, sts.GetList(), 0)
 	})
 
 	//t.Run("Тест . ", func(t *testing.T) {})
-}
-
-type TypeExampleData struct {
-	Hosts []struct {
-		Name   string `json:"name"`
-		Host   string `json:"host"`
-		HostId string `json:"host_id"`
-	}
 }

@@ -2,6 +2,8 @@ package storage
 
 import (
 	"cmp"
+	"fmt"
+	"net/netip"
 	"reflect"
 	"slices"
 )
@@ -18,7 +20,7 @@ func (sts *ShortTermStorage) GetList() []HostDetailedInformation {
 }
 
 // GetForHostId данные по id хоста (быстрый поиск)
-func (sts *ShortTermStorage) GetForHostId(hostId int) (HostDetailedInformation, bool) {
+func (sts *ShortTermStorage) GetForHostId(hostId int) (int, HostDetailedInformation, bool) {
 	sts.mutex.Lock()
 	defer sts.mutex.Unlock()
 
@@ -26,10 +28,10 @@ func (sts *ShortTermStorage) GetForHostId(hostId int) (HostDetailedInformation, 
 	index := sts.binarySearch(hostId)
 
 	if index == -1 {
-		return HostDetailedInformation{}, false
+		return index, HostDetailedInformation{}, false
 	}
 
-	return sts.data[index], true
+	return index, sts.data[index], true
 }
 
 // GetForDomainName данные по домену (медленный поиск)
@@ -66,6 +68,46 @@ func (sts *ShortTermStorage) Add(event HostDetailedInformation) {
 	sts.data = append(sts.data, event)
 }
 
+// SetDomainName устанавливает доменное имя для заданного id хоста
+func (sts *ShortTermStorage) SetDomainName(hostId int, domainName string) error {
+	index, elem, ok := sts.GetForHostId(hostId)
+	if !ok {
+		return fmt.Errorf("the element with hostId '%d' was not found", hostId)
+	}
+
+	elem.DomainName = domainName
+	sts.data[index] = elem
+
+	return nil
+}
+
+// SetIps устанавливает ip адреса для заданного id хоста
+func (sts *ShortTermStorage) SetIps(hostId int, ip netip.Addr, ips ...netip.Addr) error {
+	index, elem, ok := sts.GetForHostId(hostId)
+	if !ok {
+		return fmt.Errorf("the element with hostId '%d' was not found", hostId)
+	}
+
+	ips = append(ips, ip)
+	elem.Ips = append(elem.Ips, ips...)
+	sts.data[index] = elem
+
+	return nil
+}
+
+// SetError устанавливает описание ошибки для заданного id хоста
+func (sts *ShortTermStorage) SetError(hostId int, err error) error {
+	index, elem, ok := sts.GetForHostId(hostId)
+	if !ok {
+		return fmt.Errorf("the element with hostId '%d' was not found", hostId)
+	}
+
+	elem.Error = err
+	sts.data[index] = elem
+
+	return nil
+}
+
 // DeleteElement удаляет заданный элемент по hostId
 func (sts *ShortTermStorage) DeleteElement(hostId int) {
 	sts.mutex.Lock()
@@ -96,7 +138,7 @@ func (sts *ShortTermStorage) GetListErrors() []HostDetailedInformation {
 
 	list := make([]HostDetailedInformation, 0)
 	for _, v := range sts.data {
-		if v.Errors != nil {
+		if v.Error != nil {
 			list = append(list, v)
 		}
 	}
