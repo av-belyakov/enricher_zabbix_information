@@ -1,17 +1,19 @@
 package dnsresolver
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
-	"net/url"
 	"os"
 	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/dnsresolver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 	"github.com/av-belyakov/enricher_zabbix_information/test/helpersfile"
 )
@@ -48,47 +50,95 @@ func TestDnsResolver(t *testing.T) {
 		log.Fatalln(errors.New("the storage should not be empty"))
 	}
 
-	t.Run("Тест 0. Просто проверка url", func(t *testing.T) {
-		urlHost, err := url.Parse("http11://" + "argus.vetrf.ru")
-		assert.NoError(t, err)
+	logging := NewLoggingForTest()
 
-		fmt.Printf("urlHost 1 '%+v'\n", urlHost)
-		fmt.Printf("urlHost 1 '%+v'\n", urlHost.Host)
+	ctx, ctxCancel := context.WithCancel(t.Context())
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				ctxCancel()
 
-		urlHost, err = url.Parse("http://" + "www.vetrf.ruvetrfcerberus.html")
-		assert.NoError(t, err)
+				return
 
-		fmt.Printf("urlHost 2 '%+v'\n", urlHost)
-		fmt.Printf("urlHost 2 '%+v'\n", urlHost.Host)
-
-		urlHost, err = url.Parse("http://" + "www.xn----7sbhhgjt4afav0m.xn--p1ai")
-		assert.NoError(t, err)
-
-		fmt.Printf("urlHost 3 '%+v'\n", urlHost)
-		fmt.Printf("urlHost 3 '%+v'\n", urlHost.Host)
-	})
-
-	/*t.Run("Тест 1. Выполняем верификацию доменных имён.", func(t *testing.T) {
-		for _, v := range listElement {
-			urlHost, err := url.Parse(v.OriginalHost)
-			if err != nil {
-				fmt.Println("ERROR:", err)
-
-				sts.SetError(v.HostId, customerrors.NewErrorNoValidUrl(v.OriginalHost))
+			case msg := <-logging.GetChan():
+				fmt.Printf("Log message: type:'%s', message:'%s'\n", msg.GetType(), msg.GetMessage())
 			}
-
-			fmt.Printf("v.OriginalHost:'%s', urlHost.Host:'%s'\n", v.OriginalHost, urlHost.Host)
-
-			assert.NoError(t, sts.SetDomainName(v.HostId, urlHost.Host))
 		}
+	}()
+
+	dnsRes, err := dnsresolver.New(
+		sts,
+		logging,
+		dnsresolver.WithTimeout(10),
+	)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	t.Run("Тест 1. Выполняем верификацию доменных имён.", func(t *testing.T) {
+		chDone := make(chan struct{})
+		go dnsRes.Run(ctx, chDone)
+		<-chDone
 
 		errList := sts.GetListErrors()
-		fmt.Println("Element with errors:", errList)
+		fmt.Println("\nCount element with errors:", len(errList))
+		for k, v := range errList {
+			fmt.Printf("%d.\n\tOriginalHost:'%s'\n\tList ip:'%v'\n\tError:'%s'\n", k+1, v.OriginalHost, v.Ips, v.Error.Error())
+		}
 
-		_, data, ok := sts.GetForHostId(11665)
-		assert.True(t, ok)
-		fmt.Printf("DATA:'%+v'\n", data)
+		/*
+			_, data, ok := sts.GetForHostId(11665)
+			assert.True(t, ok)
+			fmt.Printf("DATA:'%+v'\n", data)
+		*/
 
 		assert.Len(t, errList, 0)
-	})*/
+	})
+
+	t.Cleanup(func() {
+		ctxCancel()
+	})
+}
+
+type LoggingForTest struct {
+	chMessage chan interfaces.Messager
+}
+
+func NewLoggingForTest() *LoggingForTest {
+	return &LoggingForTest{
+		chMessage: make(chan interfaces.Messager),
+	}
+}
+
+func (l *LoggingForTest) GetChan() <-chan interfaces.Messager {
+	return l.chMessage
+}
+
+func (l *LoggingForTest) Send(msgType, msgData string) {
+	msg := &MessageForTest{}
+	msg.SetType(msgType)
+	msg.SetMessage(msgData)
+
+	l.chMessage <- msg
+}
+
+type MessageForTest struct {
+	msgType, msgData string
+}
+
+func (m *MessageForTest) GetType() string {
+	return m.msgType
+}
+
+func (m *MessageForTest) SetType(v string) {
+	m.msgType = v
+}
+
+func (m *MessageForTest) GetMessage() string {
+	return m.msgData
+}
+
+func (m *MessageForTest) SetMessage(v string) {
+	m.msgData = v
 }

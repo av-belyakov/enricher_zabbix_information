@@ -36,7 +36,7 @@ func New(storage interfaces.StorageDNSResolver, logger interfaces.Logger, opts .
 	return settings, nil
 }
 
-// Run запуск преобразования доменных имён в ip адреса
+// Run запуск преобразования списка доменных имён в ip адреса
 func (s *Settings) Run(ctx context.Context, chFinish chan<- struct{}) {
 	hostList := s.storage.GetHosts()
 
@@ -50,14 +50,18 @@ func (s *Settings) Run(ctx context.Context, chFinish chan<- struct{}) {
 	for hostId, originalHost := range hostList {
 		urlHost, err := url.Parse("http://" + originalHost)
 		if err != nil {
-			s.storage.SetError(hostId, customerrors.NewErrorNoValidUrl(originalHost, err))
+			if err := s.storage.SetError(hostId, customerrors.NewErrorNoValidUrl(originalHost, err)); err != nil {
+				s.logger.Send("error", wrappers.WrapperError(err).Error())
+			}
 
 			continue
 		}
 
 		ips, err := s.resolver.LookupHost(ctx, urlHost.Host)
 		if err != nil {
-			s.storage.SetError(hostId, customerrors.NewErrorUrlNotFound(originalHost, err))
+			if err := s.storage.SetError(hostId, customerrors.NewErrorUrlNotFound(originalHost, err)); err != nil {
+				s.logger.Send("error", wrappers.WrapperError(err).Error())
+			}
 
 			continue
 		}
@@ -67,7 +71,9 @@ func (s *Settings) Run(ctx context.Context, chFinish chan<- struct{}) {
 		}
 
 		if len(ips) == 0 {
-			s.storage.SetError(hostId, customerrors.NewErrorUrlNotFound(urlHost.Host, err))
+			if err := s.storage.SetError(hostId, customerrors.NewErrorUrlNotFound(urlHost.Host, err)); err != nil {
+				s.logger.Send("error", wrappers.WrapperError(err).Error())
+			}
 
 			continue
 		}
@@ -76,7 +82,9 @@ func (s *Settings) Run(ctx context.Context, chFinish chan<- struct{}) {
 		for _, ip := range ips {
 			ipaddr, err := netip.ParseAddr(ip)
 			if err != nil {
-				s.storage.SetError(hostId, customerrors.NewErrorIpInvalid(ip, err))
+				if err := s.storage.SetError(hostId, customerrors.NewErrorIpInvalid(ip, err)); err != nil {
+					s.logger.Send("error", wrappers.WrapperError(err).Error())
+				}
 
 				continue
 			}
