@@ -8,7 +8,7 @@ import (
 	"slices"
 )
 
-// GetList весь список
+// GetList список подробной информации о хостах
 func (sts *ShortTermStorage) GetList() []HostDetailedInformation {
 	sts.mutex.RLock()
 	defer sts.mutex.RUnlock()
@@ -17,6 +17,20 @@ func (sts *ShortTermStorage) GetList() []HostDetailedInformation {
 	copy(list, sts.data)
 
 	return list
+}
+
+// GetHosts список всех хостов
+func (sts *ShortTermStorage) GetHosts() map[int]string {
+	sts.mutex.RLock()
+	defer sts.mutex.RUnlock()
+
+	newList := make(map[int]string, len(sts.data))
+
+	for _, v := range sts.data {
+		newList[v.HostId] = v.OriginalHost
+	}
+
+	return newList
 }
 
 // GetForHostId данные по id хоста (быстрый поиск)

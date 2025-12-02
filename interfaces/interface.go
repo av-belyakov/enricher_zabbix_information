@@ -1,5 +1,7 @@
 package interfaces
 
+import "net/netip"
+
 //**************** счётчик *****************
 
 type Counter interface {
@@ -22,4 +24,12 @@ type Messager interface {
 
 type WriterLoggingData interface {
 	Write(typeLogFile, str string) bool
+}
+
+// ************** хранилище преобразователя доменных имён ***************
+type StorageDNSResolver interface {
+	GetHosts() map[int]string
+	SetIps(hostId int, ip netip.Addr, ips ...netip.Addr) error
+	SetError(hostId int, err error) error
+	SetDomainName(hostId int, domainName string) error
 }
