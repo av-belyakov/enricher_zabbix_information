@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -36,6 +37,13 @@ func TestStorage(t *testing.T) {
 	}
 
 	sts := storage.NewShortTermStorage()
+
+	t.Run("Тест 0. Начало выполнения процесса", func(t *testing.T) {
+		sts.SetProcessRunning()
+		dateStart, dateEnd := sts.GetDateExecution()
+		assert.Equal(t, dateStart.Year(), time.Now().Year())
+		assert.Equal(t, dateEnd.Year(), 1)
+	})
 
 	t.Run("Тест 1. Добавление данных", func(t *testing.T) {
 		for _, v := range examleData.Hosts {
@@ -149,12 +157,23 @@ func TestStorage(t *testing.T) {
 			assert.Len(t, data.Ips, 4)
 			assert.NotNil(t, data.Error)
 		})
-
 	})
 
-	t.Run("Тест 6. Очистка всего хранилища", func(t *testing.T) {
+	t.Run("Тест 6. Установка статуса процесса выполнения в 'false'", func(t *testing.T) {
+		sts.SetProcessNotRunning()
+		dateStart, dateEnd := sts.GetDateExecution()
+		assert.Equal(t, dateStart.Year(), time.Now().Year())
+		assert.Equal(t, dateEnd.Year(), time.Now().Year())
+	})
+
+	t.Run("Тест 7. Очистка всего хранилища", func(t *testing.T) {
 		sts.DeleteAll()
+		assert.False(t, sts.GetStatusProcessRunning())
 		assert.Len(t, sts.GetList(), 0)
+
+		dateStart, dateEnd := sts.GetDateExecution()
+		assert.Equal(t, dateStart.Year(), 1)
+		assert.Equal(t, dateEnd.Year(), 1)
 	})
 
 	//t.Run("Тест . ", func(t *testing.T) {})

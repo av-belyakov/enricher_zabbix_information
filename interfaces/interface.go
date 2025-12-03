@@ -2,6 +2,7 @@ package interfaces
 
 import (
 	"net/netip"
+	"time"
 
 	"github.com/av-belyakov/enricher_zabbix_information/datamodels"
 )
@@ -38,5 +39,6 @@ type StorageDNSResolver interface {
 
 type StorageInformation interface {
 	GetStatusProcessRunning() bool
+	GetDateExecution() (start, end time.Time)
 	GetList() []datamodels.HostDetailedInformation
 }

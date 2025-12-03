@@ -6,6 +6,7 @@ import (
 	"net/netip"
 	"reflect"
 	"slices"
+	"time"
 
 	"github.com/av-belyakov/enricher_zabbix_information/datamodels"
 )
@@ -18,11 +19,37 @@ func (sts *ShortTermStorage) GetStatusProcessRunning() bool {
 // SetProcessRunning установить статус 'процесс выполняется'
 func (sts *ShortTermStorage) SetProcessRunning() {
 	sts.isExecution.Store(true)
+	sts.SetStartDateExecution()
 }
 
 // SetProcessNotRunning установить статус 'процесс не выполняется'
 func (sts *ShortTermStorage) SetProcessNotRunning() {
 	sts.isExecution.Store(false)
+	sts.SetEndDateExecution()
+}
+
+// GetDateExecution получить дату начала и окончания выполнения процесса
+func (sts *ShortTermStorage) GetDateExecution() (start, end time.Time) {
+	sts.mutex.RLock()
+	defer sts.mutex.RUnlock()
+
+	return sts.startDateExecution, sts.endDateExecution
+}
+
+// SetDateExecution установить дату начала выполнения процесса
+func (sts *ShortTermStorage) SetStartDateExecution() {
+	sts.mutex.Lock()
+	defer sts.mutex.Unlock()
+
+	sts.startDateExecution = time.Now()
+}
+
+// SetDateExecution установить дату окончания выполнения процесса
+func (sts *ShortTermStorage) SetEndDateExecution() {
+	sts.mutex.Lock()
+	defer sts.mutex.Unlock()
+
+	sts.endDateExecution = time.Now()
 }
 
 // GetList список подробной информации о хостах
@@ -154,10 +181,16 @@ func (sts *ShortTermStorage) DeleteElement(hostId int) {
 	}
 }
 
-// DeleteAll удаляет все элементы из хранилища
+// DeleteAll удаляет все элементы из хранилища, выставляет время начала и конца
+// выполнения в дату начала эпохи Unix, выставляет статус выполнения в
+// 'не выполняется' (false)
 func (sts *ShortTermStorage) DeleteAll() {
 	sts.mutex.Lock()
 	defer sts.mutex.Unlock()
+
+	sts.startDateExecution = time.Time{}
+	sts.endDateExecution = time.Time{}
+	sts.isExecution.Store(false)
 
 	sts.data = []datamodels.HostDetailedInformation{}
 }
