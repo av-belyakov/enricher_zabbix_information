@@ -6,6 +6,8 @@ import (
 	"net/netip"
 	"reflect"
 	"slices"
+
+	"github.com/av-belyakov/enricher_zabbix_information/datamodels"
 )
 
 // GetStatusProcessRunning получить статус выполнение процесса
@@ -24,11 +26,11 @@ func (sts *ShortTermStorage) SetProcessNotRunning() {
 }
 
 // GetList список подробной информации о хостах
-func (sts *ShortTermStorage) GetList() []HostDetailedInformation {
+func (sts *ShortTermStorage) GetList() []datamodels.HostDetailedInformation {
 	sts.mutex.RLock()
 	defer sts.mutex.RUnlock()
 
-	list := make([]HostDetailedInformation, len(sts.data))
+	list := make([]datamodels.HostDetailedInformation, len(sts.data))
 	copy(list, sts.data)
 
 	return list
@@ -49,7 +51,7 @@ func (sts *ShortTermStorage) GetHosts() map[int]string {
 }
 
 // GetForHostId данные по id хоста (быстрый поиск)
-func (sts *ShortTermStorage) GetForHostId(hostId int) (int, HostDetailedInformation, bool) {
+func (sts *ShortTermStorage) GetForHostId(hostId int) (int, datamodels.HostDetailedInformation, bool) {
 	sts.mutex.Lock()
 	defer sts.mutex.Unlock()
 
@@ -57,40 +59,40 @@ func (sts *ShortTermStorage) GetForHostId(hostId int) (int, HostDetailedInformat
 	index := sts.binarySearch(hostId)
 
 	if index == -1 {
-		return index, HostDetailedInformation{}, false
+		return index, datamodels.HostDetailedInformation{}, false
 	}
 
 	return index, sts.data[index], true
 }
 
 // GetForDomainName данные по домену (медленный поиск)
-func (sts *ShortTermStorage) GetForDomainName(domaniName string) (int, HostDetailedInformation, bool) {
+func (sts *ShortTermStorage) GetForDomainName(domaniName string) (int, datamodels.HostDetailedInformation, bool) {
 	sts.mutex.RLock()
 	defer sts.mutex.RUnlock()
 
 	index := sts.search("DomainName", domaniName)
 	if index == -1 {
-		return index, HostDetailedInformation{}, false
+		return index, datamodels.HostDetailedInformation{}, false
 	}
 
 	return index, sts.data[index], true
 }
 
 // GetForOriginalHost данные по неверифицированному названию хоста (медленный поиск)
-func (sts *ShortTermStorage) GetForOriginalHost(originalHost string) (int, HostDetailedInformation, bool) {
+func (sts *ShortTermStorage) GetForOriginalHost(originalHost string) (int, datamodels.HostDetailedInformation, bool) {
 	sts.mutex.RLock()
 	defer sts.mutex.RUnlock()
 
 	index := sts.search("OriginalHost", originalHost)
 	if index == -1 {
-		return index, HostDetailedInformation{}, false
+		return index, datamodels.HostDetailedInformation{}, false
 	}
 
 	return index, sts.data[index], true
 }
 
 // Add добавляет элемент в хранилище
-func (sts *ShortTermStorage) Add(event HostDetailedInformation) {
+func (sts *ShortTermStorage) Add(event datamodels.HostDetailedInformation) {
 	sts.mutex.Lock()
 	defer sts.mutex.Unlock()
 
@@ -157,15 +159,15 @@ func (sts *ShortTermStorage) DeleteAll() {
 	sts.mutex.Lock()
 	defer sts.mutex.Unlock()
 
-	sts.data = []HostDetailedInformation{}
+	sts.data = []datamodels.HostDetailedInformation{}
 }
 
 // GetListErrors список объектов с ошибками
-func (sts *ShortTermStorage) GetListErrors() []HostDetailedInformation {
+func (sts *ShortTermStorage) GetListErrors() []datamodels.HostDetailedInformation {
 	sts.mutex.RLock()
 	defer sts.mutex.RUnlock()
 
-	list := make([]HostDetailedInformation, 0)
+	list := make([]datamodels.HostDetailedInformation, 0)
 	for _, v := range sts.data {
 		if v.Error != nil {
 			list = append(list, v)
@@ -177,7 +179,7 @@ func (sts *ShortTermStorage) GetListErrors() []HostDetailedInformation {
 
 // sort сортировка
 func (sts *ShortTermStorage) sort() {
-	slices.SortFunc(sts.data, func(a, b HostDetailedInformation) int {
+	slices.SortFunc(sts.data, func(a, b datamodels.HostDetailedInformation) int {
 		return cmp.Compare(a.HostId, b.HostId)
 	})
 }

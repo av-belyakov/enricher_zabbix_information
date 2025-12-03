@@ -64,8 +64,8 @@ type CfgZabbix struct {
 
 // CfgInformationServerApi настройки доступа к API сервера информации
 type CfgInformationServerApi struct {
-	Host string
-	Port int
+	Host string `yaml:"host"`
+	Port int    `validate:"gt=0,lte=65535" yaml:"port"`
 }
 
 // CfgAuthenticationData футентификационные данные

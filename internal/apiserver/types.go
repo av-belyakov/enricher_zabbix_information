@@ -10,6 +10,7 @@ import (
 // InformationServer информационный сервер
 type InformationServer struct {
 	logger    interfaces.Logger
+	storage   interfaces.StorageInformation
 	server    *http.Server
 	timeStart time.Time
 	timeout   time.Duration

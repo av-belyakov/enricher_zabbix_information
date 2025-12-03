@@ -4,7 +4,7 @@ import "os"
 
 // GetVersion версия приложения
 func GetVersion() (string, error) {
-	b, err := os.ReadFile("version")
+	b, err := os.ReadFile("../../version")
 	if err != nil {
 		return "", err
 	}

@@ -10,7 +10,6 @@ import (
 
 	"github.com/av-belyakov/enricher_zabbix_information/constants"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appname"
-	"github.com/av-belyakov/enricher_zabbix_information/internal/appversion"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/memorystatistics"
 )
 
@@ -36,24 +35,59 @@ func (is *InformationServer) RouteIndex(w http.ResponseWriter, r *http.Request) 
 	}
 
 	version := "v0.0.1"
-	if v, err := appversion.GetVersion(); err != nil {
-		version = "v" + v
+	if is.version != "" {
+		version = "v" + is.version
 	}
 
-	io.WriteString(
-		w,
-		fmt.Sprintf("Hello, %s %s, application status:'%s'. %d %s have passed since the launch of the application.\n\n%s\n",
-			appname.GetName(),
-			version,
-			status,
-			count,
-			unit,
-			memorystatistics.PrintMemStats()))
+	hellowMsg := fmt.Sprintf(
+		"Hello, %s %s, application status:'%s'. %d %s have passed since the launch of the application.\n\n\n",
+		appname.GetName(),
+		version,
+		status,
+		count,
+		unit,
+	)
+
+	fmt.Fprintf(w, `
+	  <!DOCTYPE html>
+		<html lang="ru">
+  		<head>
+    		<meta charset="utf-8">
+    		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    		<title>%s</title>
+		</head>
+		<body>
+		 	<p>%s</p>
+      		<nav>
+        		<ul>
+				<li><a href="manually_task_starting">ручной запуск задачи</a></li>
+          			<li><a href="task_information">информация о выполненной задаче</a></li>
+          			<li><a href="memory_statistics">общая статистика расходования памяти</a></li>
+        		</ul>
+      		</nav>
+    	</body>
+		</html>
+	`,
+		appname.GetName(),
+		hellowMsg,
+	)
 }
 
-// RouteTasks маршрут при обращении к '/tasks'
-func (is *InformationServer) RouteTasks(w http.ResponseWriter, r *http.Request) {
+// RouteMemoryStatistics статистика использования памяти
+func (is *InformationServer) RouteMemoryStatistics(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(w, fmt.Sprintf("Memory statistics:\n%s\n", memorystatistics.PrintMemStats()))
+}
+
+// RouteTaskInformation информация о выполненной задаче
+func (is *InformationServer) RouteTaskInformation(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(
 		w,
-		"This is tasks' page!")
+		"This is page with taks information!")
+}
+
+// RouteManuallyTaskStarting ручной запуск задачи
+func (is *InformationServer) RouteManuallyTaskStarting(w http.ResponseWriter, r *http.Request) {
+	io.WriteString(
+		w,
+		"This is page with manually starting a task!")
 }

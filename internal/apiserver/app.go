@@ -15,14 +15,15 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
 )
 
-func New(logger interfaces.Logger, opts ...informationServerOptions) (*InformationServer, error) {
+func New(logger interfaces.Logger, storage interfaces.StorageInformation, opts ...informationServerOptions) (*InformationServer, error) {
 	is := &InformationServer{
-		version:   "0.1.1",
+		version:   "0.0.1",
 		timeStart: time.Now(),
 		host:      "127.0.0.1",
 		port:      7575,
 		timeout:   time.Second * 10,
 		logger:    logger,
+		storage:   storage,
 	}
 
 	for _, opt := range opts {
@@ -36,8 +37,10 @@ func New(logger interfaces.Logger, opts ...informationServerOptions) (*Informati
 
 func (is *InformationServer) Start(ctx context.Context) error {
 	routers := map[string]func(http.ResponseWriter, *http.Request){
-		"/":      is.RouteIndex,
-		"/tasks": is.RouteTasks,
+		"/":                       is.RouteIndex,
+		"/task_information":       is.RouteTaskInformation,
+		"/memory_statistics":      is.RouteMemoryStatistics,
+		"/manually_task_starting": is.RouteManuallyTaskStarting,
 	}
 
 	//отладка через pprof (только для тестов)
@@ -56,7 +59,7 @@ func (is *InformationServer) Start(ctx context.Context) error {
 	}
 
 	is.server = &http.Server{
-		Addr:    fmt.Sprintf("%s:%d", is.host, is.port),
+		Addr:    net.JoinHostPort(is.host, fmt.Sprint(is.port)),
 		Handler: mux,
 		BaseContext: func(_ net.Listener) context.Context {
 			return ctx
@@ -69,6 +72,8 @@ func (is *InformationServer) Start(ctx context.Context) error {
 	})
 	g.Go(func() error {
 		<-gCtx.Done()
+
+		fmt.Println("Web server is stoped")
 
 		return is.server.Shutdown(context.Background())
 	})

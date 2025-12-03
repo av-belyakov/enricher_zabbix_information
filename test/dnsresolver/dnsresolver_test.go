@@ -12,9 +12,10 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
+	"github.com/av-belyakov/enricher_zabbix_information/datamodels"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dnsresolver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
+	"github.com/av-belyakov/enricher_zabbix_information/test/helpers"
 	"github.com/av-belyakov/enricher_zabbix_information/test/helpersfile"
 )
 
@@ -39,7 +40,7 @@ func TestDnsResolver(t *testing.T) {
 		hostId, err := strconv.Atoi(v.HostId)
 		assert.NoError(t, err)
 
-		sts.Add(storage.HostDetailedInformation{
+		sts.Add(datamodels.HostDetailedInformation{
 			HostId:       hostId,
 			OriginalHost: v.Host,
 		})
@@ -50,7 +51,7 @@ func TestDnsResolver(t *testing.T) {
 		log.Fatalln(errors.New("the storage should not be empty"))
 	}
 
-	logging := NewLoggingForTest()
+	logging := helpers.NewLoggingForTest()
 
 	ctx, ctxCancel := context.WithCancel(t.Context())
 	go func() {
@@ -109,6 +110,7 @@ func TestDnsResolver(t *testing.T) {
 	})
 }
 
+/*
 type LoggingForTest struct {
 	chMessage chan interfaces.Messager
 }
@@ -150,3 +152,4 @@ func (m *MessageForTest) GetMessage() string {
 func (m *MessageForTest) SetMessage(v string) {
 	m.msgData = v
 }
+*/
