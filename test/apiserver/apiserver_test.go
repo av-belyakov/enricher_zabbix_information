@@ -2,6 +2,7 @@ package apiserver
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -9,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/av-belyakov/enricher_zabbix_information/datamodels"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/apiserver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appversion"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
@@ -45,6 +47,10 @@ func TestApiServer(t *testing.T) {
 	}()
 
 	storageTemp := storage.NewShortTermStorage()
+	storageTemp.SetProcessRunning()
+	fillInStorage(storageTemp)
+	time.Sleep(time.Second * 2)
+	storageTemp.SetProcessNotRunning()
 
 	t.Run("Тест 1. Запуск API сервера", func(t *testing.T) {
 		version, err := appversion.GetVersion()
@@ -84,4 +90,48 @@ func TestApiServer(t *testing.T) {
 
 		ctxCancel()
 	})
+}
+
+func fillInStorage(s *storage.ShortTermStorage) {
+	testList := []datamodels.HostDetailedInformation{
+		{
+			HostId:       14421,
+			OriginalHost: "1yar.tv",
+		},
+		{
+			HostId:       14412,
+			OriginalHost: "tfoms-rzn.ru",
+		},
+		{
+			HostId:       14433,
+			OriginalHost: "nrcki.ru",
+		},
+		{
+			HostId:       14582,
+			OriginalHost: "rosatom.ruindex.html",
+			Error:        errors.New("rosatom.ruindex.html' was not found, learn more (lookup rosatom.ruindex.html on 127.0.0.53:53: no such host)"),
+		},
+		{
+			HostId:       14521,
+			OriginalHost: "www.kremlin.ru2",
+			Error:        errors.New("www.kremlin.ru2' was not found, learn more (lookup www.kremlin.ru2 on 127.0.0.53:53: no such host)"),
+		},
+		{
+			HostId:       14438,
+			OriginalHost: "www.energia.ru",
+		},
+		{
+			HostId:       14438,
+			OriginalHost: "rptp.org",
+		},
+		{
+			HostId:       14441,
+			OriginalHost: "www.invest-in-voronezh.ruru",
+			Error:        errors.New("www.invest-in-voronezh.ruru' was not found, learn more (lookup www.invest-in-voronezh.ruru on 127.0.0.53:53: no such host)"),
+		},
+	}
+
+	for _, v := range testList {
+		s.Add(v)
+	}
 }
