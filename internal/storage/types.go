@@ -3,12 +3,14 @@ package storage
 import (
 	"net/netip"
 	"sync"
+	"sync/atomic"
 )
 
 // ShortTermStorage хранилище в памяти
 type ShortTermStorage struct {
-	mutex sync.RWMutex
-	data  []HostDetailedInformation
+	data        []HostDetailedInformation
+	mutex       sync.RWMutex
+	isExecution atomic.Bool
 }
 
 // HostDetailedInformation детальная информация о хосте

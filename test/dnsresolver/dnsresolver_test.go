@@ -77,9 +77,17 @@ func TestDnsResolver(t *testing.T) {
 	}
 
 	t.Run("Тест 1. Выполняем верификацию доменных имён.", func(t *testing.T) {
+		//изменить статус выполнения процесса
+		sts.SetProcessRunning()
+		assert.True(t, sts.GetStatusProcessRunning())
+
 		chDone := make(chan struct{})
 		go dnsRes.Run(ctx, chDone)
 		<-chDone
+
+		//изменить статус выполнения процесса
+		sts.SetProcessNotRunning()
+		assert.True(t, sts.GetStatusProcessRunning())
 
 		errList := sts.GetListErrors()
 		fmt.Println("\nCount element with errors:", len(errList))

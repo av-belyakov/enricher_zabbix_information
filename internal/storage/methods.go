@@ -8,6 +8,21 @@ import (
 	"slices"
 )
 
+// GetStatusProcessRunning получить статус выполнение процесса
+func (sts *ShortTermStorage) GetStatusProcessRunning() bool {
+	return sts.isExecution.Load()
+}
+
+// SetProcessRunning установить статус 'процесс выполняется'
+func (sts *ShortTermStorage) SetProcessRunning() {
+	sts.isExecution.Store(true)
+}
+
+// SetProcessNotRunning установить статус 'процесс не выполняется'
+func (sts *ShortTermStorage) SetProcessNotRunning() {
+	sts.isExecution.Store(false)
+}
+
 // GetList список подробной информации о хостах
 func (sts *ShortTermStorage) GetList() []HostDetailedInformation {
 	sts.mutex.RLock()
