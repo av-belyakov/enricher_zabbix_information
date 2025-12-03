@@ -19,6 +19,9 @@ NetBox:
   host: localhost
   port: 4455
   user: someuser
+InformationServerApi:
+  host: localhost
+  port: 8080
 # Настройки подключения к БД для записи логов
 WriteLogDataBase:
   host: database.cloud.example

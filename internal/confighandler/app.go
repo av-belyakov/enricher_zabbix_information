@@ -28,15 +28,19 @@ func New(rootDir string) (*ConfigApp, error) {
 			"GO_" + constants.App_Environment_Name + "_ZPASSWD":      "",
 			"GO_" + constants.App_Environment_Name + "_DBWLOGPASSWD": "",
 
-			// Подключение к некоторому сервису NetBox
+			// Подключение к сервису NetBox
 			"GO_" + constants.App_Environment_Name + "_NBHOST": "",
 			"GO_" + constants.App_Environment_Name + "_NBPORT": "",
 			"GO_" + constants.App_Environment_Name + "_NBUSER": "",
 
-			// Подключение к некоторому сервису Zabbix
+			// Подключение к сервису Zabbix
 			"GO_" + constants.App_Environment_Name + "_ZHOST": "",
 			"GO_" + constants.App_Environment_Name + "_ZPORT": "",
 			"GO_" + constants.App_Environment_Name + "_ZUSER": "",
+
+			// Подключение к API сервера информации
+			"GO_" + constants.App_Environment_Name + "_APIISHOST": "",
+			"GO_" + constants.App_Environment_Name + "_APIISPORT": "",
 
 			// Настройки доступа к БД в которую будут записыватся логи
 			"GO_" + constants.App_Environment_Name + "_DBWLOGHOST":        "",
@@ -116,6 +120,14 @@ func New(rootDir string) (*ConfigApp, error) {
 			conf.NetBox.User = viper.GetString("NetBox.user")
 		}
 
+		// Настройки для модуля API сервера информации
+		if viper.IsSet("InformationServerApi.host") {
+			conf.InformationServerApi.Host = viper.GetString("InformationServerApi.host")
+		}
+		if viper.IsSet("InformationServerApi.port") {
+			conf.InformationServerApi.Port = viper.GetInt("InformationServerApi.port")
+		}
+
 		// Настройки доступа к БД в которую будут записыватся логи
 		if viper.IsSet("WriteLogDataBase.host") {
 			conf.LogDB.Host = viper.GetString("WriteLogDataBase.host")
@@ -191,7 +203,7 @@ func New(rootDir string) (*ConfigApp, error) {
 		return conf, wrappers.WrapperError(err)
 	}
 
-	// Настройки получения авторизационной информации
+	//*** Настройки получения авторизационной информации ***
 	//для Netbox
 	if envList["GO_"+constants.App_Environment_Name+"_NBPASSWD"] != "" {
 		conf.AuthenticationData.NetBoxPasswd = envList["GO_"+constants.App_Environment_Name+"_NBPASSWD"]
@@ -229,6 +241,16 @@ func New(rootDir string) (*ConfigApp, error) {
 	}
 	if envList["GO_"+constants.App_Environment_Name+"_ZUSER"] != "" {
 		conf.Zabbix.User = envList["GO_"+constants.App_Environment_Name+"_ZUSER"]
+	}
+
+	// Подключение к API сервера информации
+	if envList["GO_"+constants.App_Environment_Name+"_APIISHOST"] != "" {
+		conf.InformationServerApi.Host = envList["GO_"+constants.App_Environment_Name+"_APIISHOST"]
+	}
+	if envList["GO_"+constants.App_Environment_Name+"_APIISPORT"] != "" {
+		if p, err := strconv.Atoi(envList["GO_"+constants.App_Environment_Name+"_APIISPORT"]); err == nil {
+			conf.InformationServerApi.Port = p
+		}
 	}
 
 	// Настройки доступа к БД в которую будут записыватся логи

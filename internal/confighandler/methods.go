@@ -35,6 +35,11 @@ func (c *ConfigApp) GetSchedule() *CfgSchedule {
 	return &c.Schedule
 }
 
+// GetInformationServerApi настройки взаимодействия с API сервера информации
+func (c *ConfigApp) GetInformationServerApi() *CfgInformationServerApi {
+	return &c.InformationServerApi
+}
+
 // GetAuthenticationData авторизационные данные
 func (c *ConfigApp) GetAuthenticationData() *CfgAuthenticationData {
 	return &c.AuthenticationData

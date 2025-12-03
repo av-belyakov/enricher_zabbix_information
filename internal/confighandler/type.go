@@ -2,12 +2,13 @@ package confighandler
 
 // ConfigApp конфигурационные настройки приложения
 type ConfigApp struct {
-	Common             CfgCommon
-	LogDB              CfgWriteLogDB
-	AuthenticationData CfgAuthenticationData
-	Schedule           CfgSchedule
-	NetBox             CfgNetBox
-	Zabbix             CfgZabbix
+	Common               CfgCommon
+	LogDB                CfgWriteLogDB
+	AuthenticationData   CfgAuthenticationData
+	InformationServerApi CfgInformationServerApi
+	Schedule             CfgSchedule
+	NetBox               CfgNetBox
+	Zabbix               CfgZabbix
 }
 
 // CfgCommon общие настройки
@@ -61,6 +62,13 @@ type CfgZabbix struct {
 	Timeout int    `validate:"gte=0,lte=6000" yaml:"timeout"`
 }
 
+// CfgInformationServerApi настройки доступа к API сервера информации
+type CfgInformationServerApi struct {
+	Host string
+	Port int
+}
+
+// CfgAuthenticationData футентификационные данные
 type CfgAuthenticationData struct {
 	NetBoxPasswd     string `validate:"required"`
 	ZabbixPasswd     string `validate:"required"`
