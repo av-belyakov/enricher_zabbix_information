@@ -1,6 +1,7 @@
 package confighandler_test
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"slices"
@@ -75,7 +76,12 @@ func TestReadConfigHandler(t *testing.T) {
 			assert.Equal(t, conf.GetZabbix().User, "803.p.vishnitsky@avz-center.ru")
 		})
 
-		t.Run("Тест 5. Проверка настройки WriteLogDataBase", func(t *testing.T) {
+		t.Run("Тест 5. Проверка настройки API Information Server", func(t *testing.T) {
+			assert.Equal(t, conf.GetInformationServerApi().Host, "localhost")
+			assert.Equal(t, conf.GetInformationServerApi().Port, 8989)
+		})
+
+		t.Run("Тест 6. Проверка настройки WriteLogDataBase", func(t *testing.T) {
 			assert.Equal(t, conf.GetLogDB().Host, "database.cloud.example")
 			assert.Equal(t, conf.GetLogDB().Port, 9200)
 			assert.Equal(t, conf.GetLogDB().User, "log_writer")
@@ -128,7 +134,22 @@ func TestReadConfigHandler(t *testing.T) {
 			assert.Equal(t, conf.GetZabbix().User, "some_user_service")
 		})
 
-		t.Run("Тест 4. Проверка настройки WriteLogDataBase", func(t *testing.T) {
+		t.Run("Тест 4. Проверка настройки сервиса InformationServerApi", func(t *testing.T) {
+			const (
+				host = "127.0.0.1"
+				port = 4242
+			)
+
+			os.Setenv("GO_"+constants.App_Environment_Name+"_APIISHOST", host)
+			os.Setenv("GO_"+constants.App_Environment_Name+"_APIISPORT", fmt.Sprint(port))
+
+			conf, err := confighandler.New(constants.Root_Dir)
+			assert.NoError(t, err)
+			assert.Equal(t, conf.GetInformationServerApi().Host, host)
+			assert.Equal(t, conf.GetInformationServerApi().Port, port)
+		})
+
+		t.Run("Тест 5. Проверка настройки WriteLogDataBase", func(t *testing.T) {
 			os.Setenv("GO_"+constants.App_Environment_Name+"_DBWLOGHOST", "domaniname.database.cm")
 			os.Setenv("GO_"+constants.App_Environment_Name+"_DBWLOGPORT", "8989")
 			os.Setenv("GO_"+constants.App_Environment_Name+"_DBWLOGUSER", "somebody_user")
@@ -164,6 +185,10 @@ func unSetEnviroment() {
 	os.Unsetenv("GO_" + constants.App_Environment_Name + "_ZHOST")
 	os.Unsetenv("GO_" + constants.App_Environment_Name + "_ZPORT")
 	os.Unsetenv("GO_" + constants.App_Environment_Name + "_ZUSER")
+
+	// Подключение к API сервера информации
+	os.Unsetenv("GO_" + constants.App_Environment_Name + "_APIISHOST")
+	os.Unsetenv("GO_" + constants.App_Environment_Name + "_APIISPORT")
 
 	// Настройки доступа к БД в которую будут записыватся логи
 	os.Unsetenv("GO_" + constants.App_Environment_Name + "_DBWLOGHOST")
