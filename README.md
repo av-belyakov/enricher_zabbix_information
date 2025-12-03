@@ -40,6 +40,11 @@
 - 'GO_ENRICHERZI_NBPORT' - сетевой порт
 - 'GO_ENRICHERZI_NBUSER' - имя пользователя для авторизации
 
+#### Переменные окружения отвечающие за настройки доступа к InformationServerApi
+
+- 'GO_ENRICHERZI_APIISHOST' - доменное имя или ip
+- 'GO_ENRICHERZI_APIISPORT' - сетевой порт
+
 #### Переменные окружения отвечающие за настройку доступа к БД применяемой для хранения логов
 
 - 'GO_ENRICHERZI_DBWLOGHOST' - доменное имя или ip
