@@ -10,3 +10,20 @@ type MemoryCache struct {
 	CountMemoryReturned    uint64
 	GarbagecollectorMemory uint64
 }
+
+type MemoryStatsCache struct {
+	Alloc                  MemoryStatsValues
+	HeapSys                MemoryStatsValues
+	HeapAlloc              MemoryStatsValues
+	TotalAlloc             MemoryStatsValues
+	HeapObjects            MemoryStatsValues
+	NumberLiveObjects      MemoryStatsValues
+	CountMemoryReturned    MemoryStatsValues
+	GarbagecollectorMemory MemoryStatsValues
+}
+
+type MemoryStatsValues struct {
+	Previous        uint64
+	Current         uint64
+	PointerUpOrDown string
+}

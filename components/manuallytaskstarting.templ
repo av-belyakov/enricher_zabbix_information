@@ -1,0 +1,35 @@
+package components
+
+templ ManuallyTaskStarting(executeStatus bool){
+    if executeStatus {
+        <div><p>В настоящее время задача уже выполняется</p></div>
+    } else {
+        <script>
+            function sendToken(){
+                let tokenElement = document.getElementById("token_validation")
+                let xhr = new XMLHttpRequest();
+                let json = JSON.stringify({
+                    token: tokenElement.value,
+                });
+
+                console.log(json)
+
+                xhr.open("POST", '/api?task_management')
+                xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+                xhr.send(json);
+                xhr.onload = function() {
+                    if (xhr.status != 200) { // анализируем HTTP-статус ответа, если статус не 200, то произошла ошибка
+                        alert(`Ошибка ${xhr.status}: ${xhr.statusText}`); // Например, 404: Not Found
+                    } else { // если всё прошло гладко, выводим результат
+                        alert(`Готово, получили ${xhr.response.length} байт`); // response -- это ответ сервера
+                    }
+                };
+            }
+        </script>
+
+        <div>
+            <input name="token" id="token_validation" value="">
+            <button onclick="sendToken()">отправить</button>
+        </div>
+    }
+}

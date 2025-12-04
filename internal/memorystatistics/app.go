@@ -10,9 +10,76 @@ import (
 )
 
 var (
-	once     sync.Once
-	memCache *MemoryCache = nil
+	once          sync.Once
+	memCache      *MemoryCache      = nil
+	memStatsCache *MemoryStatsCache = nil
 )
+
+func NewMemoryStats() *MemoryStatsCache {
+	once.Do(func() {
+		memStatsCache = new(MemoryStatsCache)
+	})
+
+	return memStatsCache
+}
+
+func GetMemoryStats() MemoryStatsCache {
+	var memStats runtime.MemStats
+	runtime.ReadMemStats(&memStats)
+
+	alloc := memStats.Alloc
+	gcSys := memStats.GCSys
+	heapSys := memStats.HeapSys
+	heapAlloc := memStats.HeapAlloc
+	numLiveObj := memStats.Mallocs - memStats.Frees
+	returnedOS := memStats.HeapIdle - memStats.HeapReleased
+	totalAlloc := memStats.TotalAlloc
+	heapObjects := memStats.HeapObjects
+
+	memStatsCache = NewMemoryStats()
+	memStatsCache.Alloc = MemoryStatsValues{
+		PointerUpOrDown: supfunc.GetPointerUpOrDown(memStatsCache.Alloc.Previous, alloc),
+		Previous:        memStatsCache.Alloc.Current,
+		Current:         alloc,
+	}
+	memStatsCache.HeapSys = MemoryStatsValues{
+		PointerUpOrDown: supfunc.GetPointerUpOrDown(memStatsCache.HeapSys.Previous, heapSys),
+		Previous:        memStatsCache.HeapSys.Current,
+		Current:         heapSys,
+	}
+	memStatsCache.HeapAlloc = MemoryStatsValues{
+		PointerUpOrDown: supfunc.GetPointerUpOrDown(memStatsCache.HeapAlloc.Previous, heapAlloc),
+		Previous:        memStatsCache.HeapAlloc.Current,
+		Current:         heapAlloc,
+	}
+	memStatsCache.TotalAlloc = MemoryStatsValues{
+		PointerUpOrDown: supfunc.GetPointerUpOrDown(memStatsCache.TotalAlloc.Previous, totalAlloc),
+		Previous:        memStatsCache.TotalAlloc.Current,
+		Current:         totalAlloc,
+	}
+	memStatsCache.HeapObjects = MemoryStatsValues{
+		PointerUpOrDown: supfunc.GetPointerUpOrDown(memStatsCache.HeapObjects.Previous, heapObjects),
+		Previous:        memStatsCache.HeapObjects.Current,
+		Current:         heapObjects,
+	}
+	memStatsCache.NumberLiveObjects = MemoryStatsValues{
+		PointerUpOrDown: supfunc.GetPointerUpOrDown(memStatsCache.NumberLiveObjects.Previous, numLiveObj),
+		Previous:        memStatsCache.NumberLiveObjects.Current,
+		Current:         numLiveObj,
+	}
+	memStatsCache.CountMemoryReturned = MemoryStatsValues{
+		PointerUpOrDown: supfunc.GetPointerUpOrDown(memStatsCache.CountMemoryReturned.Previous, returnedOS),
+		Previous:        memStatsCache.CountMemoryReturned.Current,
+		Current:         returnedOS,
+	}
+	memStatsCache.GarbagecollectorMemory = MemoryStatsValues{
+		PointerUpOrDown: supfunc.GetPointerUpOrDown(memStatsCache.GarbagecollectorMemory.Previous, gcSys),
+		Previous:        memStatsCache.GarbagecollectorMemory.Current,
+		Current:         gcSys,
+	}
+
+	return *memStatsCache
+}
 
 func NewMemoryCache() *MemoryCache {
 	once.Do(func() {
@@ -22,7 +89,7 @@ func NewMemoryCache() *MemoryCache {
 	return memCache
 }
 
-// printMemStats вывод информации по потребляемой памяти
+// PrintMemStats вывод информации по потребляемой памяти
 func PrintMemStats() string {
 	var memStats runtime.MemStats
 	runtime.ReadMemStats(&memStats)

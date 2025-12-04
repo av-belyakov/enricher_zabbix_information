@@ -1,0 +1,17 @@
+package components
+
+import "github.com/av-belyakov/enricher_zabbix_information/internal/memorystatistics"
+
+templ MemoryStats(memStats memorystatistics.MemoryStatsCache){
+    <div>
+        <p>Статистика расходования памяти:</p>
+        <div>Allocated Memory: {memStats.Alloc.Current} bytes {memStats.Alloc.PointerUpOrDown}</div>
+        <div>Total Allocated Memory: {memStats.TotalAlloc.Current} bytes {memStats.TotalAlloc.PointerUpOrDown}</div>
+        <div>Heap Alloc Memory: {memStats.HeapAlloc.Current} bytes {memStats.HeapAlloc.PointerUpOrDown}</div>
+        <div>Heap System Memory: {memStats.HeapSys.Current} bytes {memStats.HeapSys.PointerUpOrDown}</div>
+        <div>The number of allocated heap objects: {memStats.HeapObjects.Current} bytes {memStats.HeapObjects.PointerUpOrDown}</div>
+        <div>The number of live objects: {memStats.NumberLiveObjects.Current} bytes {memStats.NumberLiveObjects.PointerUpOrDown}</div>
+        <div>Count memory that could be returned to the OS: {memStats.CountMemoryReturned.Current} bytes {memStats.CountMemoryReturned.PointerUpOrDown}</div>
+        <div>Garbage Collector Memory: {memStats.GarbagecollectorMemory.Current} bytes {memStats.GarbagecollectorMemory.PointerUpOrDown}</div>
+    </div>
+}

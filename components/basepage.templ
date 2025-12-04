@@ -1,0 +1,31 @@
+package components
+
+import "github.com/av-belyakov/enricher_zabbix_information/datamodels"
+
+templ BasePage(tbp datamodels.TemplBasePage, component templ.Component) {
+    <!DOCTYPE html>
+		<html lang="ru">
+  		<head>
+    		<meta charset="utf-8">
+    		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    		<title>{tbp.Title}</title>
+		</head>
+		<body>
+		 	<h3 style="text-align: center;">{tbp.AppName} {tbp.AppVersion}</h3>
+      		<nav>@menuLinks(tbp.MenuLinks)</nav>
+            <div>@component</div>
+    	</body>
+		</html>
+}
+
+templ menuLinks(links []struct{Name, Link, Icon string}){
+    <table style="width: 100%;">
+        <thead>
+        <tr>
+            for _, v := range links {
+                <th scope="col" style="border: 1px solid rgb(140 140 140);"><a href={v.Link}>{v.Name}</a></th>                    
+            }
+        </tr>
+        </thead>
+    </table>    
+}

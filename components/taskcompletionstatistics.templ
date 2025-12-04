@@ -1,0 +1,21 @@
+package components
+
+import "github.com/av-belyakov/enricher_zabbix_information/datamodels"
+
+templ TaskCompletionStatistics(ttcs datamodels.TemplTaskCompletionsStatistics){
+    <div>
+		<p>Статистика выполнения задачи:</p>		
+		<div>Статус задачи: <u>{ttcs.ExecutionStatus}</u></div>
+		<div>Время начала выполнения: {ttcs.DataStart}</div>
+		<div>Время завершения выполнения: {ttcs.DataEnd}</div>
+		<div>Время на выполнение задачи: {ttcs.DiffTime}</div>
+		<div>Количество обработанных доменных имён: {ttcs.CountHosts}</div>
+		<div>Количество доменных имён обработанных с ошибкой: {ttcs.CountHostsError}</div>
+		<div>Список доменных имён при обработки которых возникли ошибки:</div>
+        <ol>
+            for _, v := range ttcs.Hosts {
+                <li><b>{v.Name}</b>, error: {v.Error.Error()}</li>
+            }
+        </ol>
+    </div>
+}
