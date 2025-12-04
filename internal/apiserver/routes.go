@@ -3,6 +3,7 @@ package apiserver
 import (
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/constants"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appname"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/memorystatistics"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
 )
 
 // RouteIndex маршрут при обращении к '/'
@@ -141,22 +143,78 @@ func (is *InformationServer) RouteTaskInformation(w http.ResponseWriter, r *http
 		countHostsError,
 		listHostsError.String(),
 	)
-
-	/*
-			- задача выполняется или выполнилась
-			- время начала задачи
-			- время окончания задачи
-			- сколько потребовалось времение на выполнения задачи
-			- кол-во доменных имен обработано
-		 	- кол-во доменных имен обработанных с ошибкой
-				(список этих доменных имён с кратким описанием ошибки)
-
-	*/
 }
 
 // RouteManuallyTaskStarting ручной запуск задачи
 func (is *InformationServer) RouteManuallyTaskStarting(w http.ResponseWriter, r *http.Request) {
-	io.WriteString(
-		w,
-		"This is page with manually starting a task!")
+	var jsScripts string
+	var msgTaskIsExecuting string
+	if is.storage.GetStatusProcessRunning() {
+		msgTaskIsExecuting = "<p>В настоящее время задача уже выполняется</p>"
+	} else {
+		jsScripts = fmt.Sprintf(`<script>
+			let token = prompt("Введите токен авторизации для запуска задачи:");
+			if (token) {
+				const data = JSON.stringify({ token: token });
+				const xhr = new XMLHttpRequest();
+				xhr.open('POST', 'http://%s/api?task_management&task=start', true);
+				xhr.setRequestHeader('Content-Type', 'application/json');
+				xhr.send(data);
+				xhr.onload = function() {
+  					if (xhr.status != 200) { // анализируем HTTP-статус ответа, если статус не 200, то произошла ошибка
+						alert('Ошибка ${xhr.status}: ${xhr.statusText}'); // Например, 404: Not Found
+  					} else { // если всё прошло гладко, выводим результат
+    					alert('Готово, получили ${xhr.response.length} байт'); // response -- это ответ сервера
+  					}
+				};
+			}
+		</script>`, net.JoinHostPort(is.host, fmt.Sprint(is.port)))
+	}
+
+	fmt.Fprintf(w, `
+	  <!DOCTYPE html>
+		<html lang="ru">
+  		<head>
+    		<meta charset="utf-8">
+    		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    		<title>%s</title>
+			%s
+		</head>
+		<body>
+			<h3>Запуск выполнения задачи вне расписания</h3>
+			%s
+    	</body>
+		</html>
+	`,
+		appname.GetName(),
+		jsScripts,
+		msgTaskIsExecuting,
+	)
+}
+
+func (is *InformationServer) RouteApi(w http.ResponseWriter, r *http.Request) {
+	defer supportingfunctions.CloseHTTPRequest(r)
+
+	if r.Method != "POST" {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		//http.Error(w, "this method is not supported", http.StatusMethodNotAllowed)
+		fmt.Fprintf(w, "")
+
+		return
+	}
+
+	b, err := io.ReadAll(r.Body)
+	if err != nil {
+		is.logger.Send("error", fmt.Sprintf("invalid http request accepted, learn more '%s'", err.Error()))
+	}
+
+	fmt.Println("method 'InformationServer.RouteApi' received POST request, body:", string(b))
+
+	fmt.Fprintf(w, "Success!")
+
+	if r.URL.Query().Get("task_management") == "" {
+		http.NotFound(w, r)
+
+		return
+	}
 }

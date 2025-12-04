@@ -38,6 +38,7 @@ func New(logger interfaces.Logger, storage interfaces.StorageInformation, opts .
 func (is *InformationServer) Start(ctx context.Context) error {
 	routers := map[string]func(http.ResponseWriter, *http.Request){
 		"/":                       is.RouteIndex,
+		"/api":                    is.RouteApi,
 		"/task_information":       is.RouteTaskInformation,
 		"/memory_statistics":      is.RouteMemoryStatistics,
 		"/manually_task_starting": is.RouteManuallyTaskStarting,
@@ -72,8 +73,6 @@ func (is *InformationServer) Start(ctx context.Context) error {
 	})
 	g.Go(func() error {
 		<-gCtx.Done()
-
-		fmt.Println("Web server is stoped")
 
 		return is.server.Shutdown(context.Background())
 	})
