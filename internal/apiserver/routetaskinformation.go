@@ -54,5 +54,8 @@ func (is *InformationServer) RouteTaskInformation(w http.ResponseWriter, r *http
 		Hosts:           listHostsError,
 	}
 
-	is.getBasePage(components.TaskCompletionStatistics(ttcs)).Component.Render(r.Context(), w)
+	is.getBasePage(
+		components.TaskCompletionStatistics(ttcs),
+		components.BaseComponentScripts(),
+	).Component.Render(r.Context(), w)
 }

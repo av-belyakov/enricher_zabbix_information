@@ -2,7 +2,7 @@ package components
 
 import "github.com/av-belyakov/enricher_zabbix_information/datamodels"
 
-templ BasePage(tbp datamodels.TemplBasePage, component templ.Component) {
+templ BasePage(tbp datamodels.TemplBasePage, component templ.Component, scripts templ.ComponentScript) {
     <!DOCTYPE html>
 		<html lang="ru">
   		<head>
@@ -11,9 +11,10 @@ templ BasePage(tbp datamodels.TemplBasePage, component templ.Component) {
     		<title>{tbp.Title}</title>
 		</head>
 		<body>
-		 	<h3 style="text-align: center;">{tbp.AppName} {tbp.AppVersion}</h3>
+		 	<h3 style="text-align: center;">{tbp.AppName} {tbp.AppVersion}<div id="timeElem"></div>></h3>
       		<nav>@menuLinks(tbp.MenuLinks)</nav>
             <div>@component</div>
+            @scripts
     	</body>
 		</html>
 }

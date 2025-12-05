@@ -30,5 +30,8 @@ func (is *InformationServer) RouteIndex(w http.ResponseWriter, r *http.Request) 
 		time.Since(is.timeStart).String(),
 	)
 
-	is.getBasePage(components.MainElement(hellowMsg)).Component.Render(r.Context(), w)
+	is.getBasePage(
+		components.MainElement(hellowMsg),
+		components.BaseComponentScripts(),
+	).Component.Render(r.Context(), w)
 }

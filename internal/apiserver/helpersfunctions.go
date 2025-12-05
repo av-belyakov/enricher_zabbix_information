@@ -10,7 +10,7 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appname"
 )
 
-func (is *InformationServer) getBasePage(tmpComponent templ.Component) *templ.ComponentHandler {
+func (is *InformationServer) getBasePage(tmpComponent templ.Component, componentScript templ.ComponentScript) *templ.ComponentHandler {
 	links := []struct {
 		Name string
 		Link string
@@ -34,13 +34,17 @@ func (is *InformationServer) getBasePage(tmpComponent templ.Component) *templ.Co
 		},
 	}
 
-	return templ.Handler(components.BasePage(datamodels.TemplBasePage{
-		Title:      appname.GetName(),
-		AppName:    strings.ToUpper(appname.GetName()),
-		AppVersion: is.getAppVersion(),
-		//AppShortInfo: hellowMsg,
-		MenuLinks: links,
-	}, tmpComponent))
+	return templ.Handler(
+		components.BasePage(datamodels.TemplBasePage{
+			Title:      appname.GetName(),
+			AppName:    strings.ToUpper(appname.GetName()),
+			AppVersion: is.getAppVersion(),
+			//AppShortInfo: hellowMsg,
+			MenuLinks: links,
+		},
+			tmpComponent,
+			componentScript,
+		))
 }
 
 func (is *InformationServer) getAppVersion() string {
