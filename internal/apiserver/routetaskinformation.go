@@ -55,7 +55,7 @@ func (is *InformationServer) RouteTaskInformation(w http.ResponseWriter, r *http
 	}
 
 	is.getBasePage(
-		components.TaskCompletionStatistics(ttcs),
+		components.TemplateTaskCompletionStatistics(ttcs),
 		components.BaseComponentScripts(),
 	).Component.Render(r.Context(), w)
 }

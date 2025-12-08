@@ -10,12 +10,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/av-belyakov/enricher_zabbix_information/datamodels"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/apiserver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appversion"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 	"github.com/av-belyakov/enricher_zabbix_information/test/helpers"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestApiServer(t *testing.T) {
@@ -30,8 +31,8 @@ func TestApiServer(t *testing.T) {
 	)
 
 	logging := helpers.NewLoggingForTest()
-
 	ctx, ctxCancel := context.WithCancel(t.Context())
+
 	go func() {
 		for {
 			select {

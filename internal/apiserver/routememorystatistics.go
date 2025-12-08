@@ -10,7 +10,7 @@ import (
 // RouteMemoryStatistics статистика использования памяти
 func (is *InformationServer) RouteMemoryStatistics(w http.ResponseWriter, r *http.Request) {
 	is.getBasePage(
-		components.MemoryStats(memorystatistics.GetMemoryStats()),
+		components.TemplateMemoryStats(memorystatistics.GetMemoryStats()),
 		components.BaseComponentScripts(),
 	).Component.Render(r.Context(), w)
 }

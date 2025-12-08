@@ -2,7 +2,7 @@ package components
 
 import "github.com/av-belyakov/enricher_zabbix_information/datamodels"
 
-templ TaskCompletionStatistics(ttcs datamodels.TemplTaskCompletionsStatistics){
+templ TemplateTaskCompletionStatistics(ttcs datamodels.TemplTaskCompletionsStatistics){
     <div>
 		<p>Статистика выполнения задачи:</p>		
 		<div>Статус задачи: <u>{ttcs.ExecutionStatus}</u></div>

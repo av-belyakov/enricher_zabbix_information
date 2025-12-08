@@ -9,7 +9,7 @@ import (
 // RouteManuallyTaskStarting ручной запуск задачи
 func (is *InformationServer) RouteManuallyTaskStarting(w http.ResponseWriter, r *http.Request) {
 	is.getBasePage(
-		components.ManuallyTaskStarting(is.storage.GetStatusProcessRunning()),
+		components.TemplateManuallyTaskStarting(is.storage.GetStatusProcessRunning()),
 		components.BaseComponentScripts(),
 	).Component.Render(r.Context(), w)
 }

@@ -1,9 +1,9 @@
 package components
 
-templ ManuallyTaskStarting(executeStatus bool){
+templ TemplateManuallyTaskStarting(executeStatus bool){
     <script>
         function sendToken(){
-            let tokenElement = document.getElementById("token_validation")
+            let tokenElement = document.getElementById("inputToken")
             let xhr = new XMLHttpRequest();
             let json = JSON.stringify({
                 token: tokenElement.value,
@@ -15,8 +15,33 @@ templ ManuallyTaskStarting(executeStatus bool){
             xhr.onload = function() {
                 if (xhr.status != 200) { // анализируем HTTP-статус ответа, если статус не 200, то произошла ошибка
                     alert(`Ошибка ${xhr.status}: ${xhr.statusText}`); // Например, 404: Not Found
+
+                    let idMsgTErr = document.getElementById("messageTokenError")
+                    idMsgTErr.hidden = false
                 } else { // если всё прошло гладко, выводим результат
                     alert(`Готово, получили ${xhr.response.length} байт`); // response -- это ответ сервера
+                    
+                    //временно выключаеv кнопку и строку ввода
+                    let idInputToken = document.getElementById("inputToken")
+                    idInputToken.value = ""
+                    idInputToken.disabled = true
+                    document.getElementById("buttonSendToken").disabled = true
+
+                    //показ области для для вывода информации о выполнении процесса
+                    let idInformationArea = document.getElementById("informationArea")
+                    idInformationArea.hidden = false
+
+                    //выводим холд выпонения задачи
+                    //.....
+
+
+                    //пока, для тестов сделаем через sleep
+                    setTimeout(() => {
+                        //включаеv кнопку и строку ввода
+                        idInputToken.disabled = false
+                        document.getElementById("buttonSendToken").disabled = false
+                    }, 10000)
+
                 }
             };
         }
@@ -28,8 +53,15 @@ templ ManuallyTaskStarting(executeStatus bool){
         return
     }
 
-    <div>
-        <input name="token" id="token_validation" value="">
-        <button onclick="sendToken()">отправить</button>
+    <div style="margin-top: 35px; margin-left: 15px; margin-right: 15px;">
+        <p>Необходимо ввести корректный токен для продолжения</p>
+        <div style="padding: 5px, 5px, 5px, 5px;">
+            <input id="inputToken" name="token" value="" style="width: 30%">
+            <button id="buttonSendToken" onclick="sendToken()">отправить</button>
+        </div>
+        <div id="messageTokenError" hidden style="color:red;" >Выполнение операции не возможно. Получен не верный токен.</div>
+        <div id="informationArea" hidden style="width:auto; margin-top: 30px;">
+            Это область для вывода информации о ходе выполнения процесса
+        </div>
     </div>
 }

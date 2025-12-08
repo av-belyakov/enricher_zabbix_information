@@ -31,7 +31,7 @@ func (is *InformationServer) RouteIndex(w http.ResponseWriter, r *http.Request) 
 	)
 
 	is.getBasePage(
-		components.MainElement(hellowMsg),
+		components.TemplateMainElement(hellowMsg),
 		components.BaseComponentScripts(),
 	).Component.Render(r.Context(), w)
 }

@@ -8,7 +8,7 @@ package components
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-func ManuallyTaskStarting(executeStatus bool) templ.Component {
+func TemplateManuallyTaskStarting(executeStatus bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -29,7 +29,7 @@ func ManuallyTaskStarting(executeStatus bool) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<script>\n        function sendToken(){\n            let tokenElement = document.getElementById(\"token_validation\")\n            let xhr = new XMLHttpRequest();\n            let json = JSON.stringify({\n                token: tokenElement.value,\n            });\n\n            xhr.open(\"POST\", '/api?task_management')\n            xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');\n            xhr.send(json);\n            xhr.onload = function() {\n                if (xhr.status != 200) { // анализируем HTTP-статус ответа, если статус не 200, то произошла ошибка\n                    alert(`Ошибка ${xhr.status}: ${xhr.statusText}`); // Например, 404: Not Found\n                } else { // если всё прошло гладко, выводим результат\n                    alert(`Готово, получили ${xhr.response.length} байт`); // response -- это ответ сервера\n                }\n            };\n        }\n    </script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<script>\n        function sendToken(){\n            let tokenElement = document.getElementById(\"inputToken\")\n            let xhr = new XMLHttpRequest();\n            let json = JSON.stringify({\n                token: tokenElement.value,\n            });\n\n            xhr.open(\"POST\", '/api?task_management')\n            xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');\n            xhr.send(json);\n            xhr.onload = function() {\n                if (xhr.status != 200) { // анализируем HTTP-статус ответа, если статус не 200, то произошла ошибка\n                    alert(`Ошибка ${xhr.status}: ${xhr.statusText}`); // Например, 404: Not Found\n\n                    let idMsgTErr = document.getElementById(\"messageTokenError\")\n                    idMsgTErr.hidden = false\n                } else { // если всё прошло гладко, выводим результат\n                    alert(`Готово, получили ${xhr.response.length} байт`); // response -- это ответ сервера\n                    \n                    //временно выключаеv кнопку и строку ввода\n                    let idInputToken = document.getElementById(\"inputToken\")\n                    idInputToken.value = \"\"\n                    idInputToken.disabled = true\n                    document.getElementById(\"buttonSendToken\").disabled = true\n\n                    //показ области для для вывода информации о выполнении процесса\n                    let idInformationArea = document.getElementById(\"informationArea\")\n                    idInformationArea.hidden = false\n\n                    //выводим холд выпонения задачи\n                    //.....\n\n\n                    //пока, для тестов сделаем через sleep\n                    setTimeout(() => {\n                        //включаеv кнопку и строку ввода\n                        idInputToken.disabled = false\n                        document.getElementById(\"buttonSendToken\").disabled = false\n                    }, 10000)\n\n                }\n            };\n        }\n    </script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -39,7 +39,7 @@ func ManuallyTaskStarting(executeStatus bool) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div><input name=\"token\" id=\"token_validation\" value=\"\"> <button onclick=\"sendToken()\">отправить</button></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div style=\"margin-top: 35px; margin-left: 15px; margin-right: 15px;\"><p>Необходимо ввести корректный токен для продолжения</p><div style=\"padding: 5px, 5px, 5px, 5px;\"><input id=\"inputToken\" name=\"token\" value=\"\" style=\"width: 30%\"> <button id=\"buttonSendToken\" onclick=\"sendToken()\">отправить</button></div><div id=\"messageTokenError\" hidden style=\"color:red;\">Выполнение операции не возможно. Получен не верный токен.</div><div id=\"informationArea\" hidden style=\"width:auto; margin-top: 30px;\">Это область для вывода информации о ходе выполнения процесса</div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

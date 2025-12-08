@@ -32,10 +32,14 @@ func (is *InformationServer) getBasePage(tmpComponent templ.Component, component
 			Name: "ручной запуск задачи",
 			Link: "manually_task_starting",
 		},
+		{
+			Name: "логи",
+			Link: "logs",
+		},
 	}
 
 	return templ.Handler(
-		components.BasePage(datamodels.TemplBasePage{
+		components.TemplateBasePage(datamodels.TemplBasePage{
 			Title:      appname.GetName(),
 			AppName:    strings.ToUpper(appname.GetName()),
 			AppVersion: is.getAppVersion(),

@@ -2,7 +2,7 @@ package components
 
 import "github.com/av-belyakov/enricher_zabbix_information/internal/memorystatistics"
 
-templ MemoryStats(memStats memorystatistics.MemoryStatsCache){
+templ TemplateMemoryStats(memStats memorystatistics.MemoryStatsCache){
     <div>
         <p>Статистика расходования памяти:</p>
         <div>Allocated Memory: {memStats.Alloc.Current} bytes {memStats.Alloc.PointerUpOrDown}</div>

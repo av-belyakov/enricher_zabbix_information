@@ -42,6 +42,7 @@ func (is *InformationServer) Start(ctx context.Context) error {
 		"/task_information":       is.RouteTaskInformation,
 		"/memory_statistics":      is.RouteMemoryStatistics,
 		"/manually_task_starting": is.RouteManuallyTaskStarting,
+		"/logs":                   is.RouteLogs,
 	}
 
 	//отладка через pprof (только для тестов)
