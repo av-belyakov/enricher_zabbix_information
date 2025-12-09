@@ -8,7 +8,7 @@ package components
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-func TemplateSSE() templ.Component {
+func TemplateLogs() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -29,7 +29,7 @@ func TemplateSSE() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<script>\n        function ClientSSE(){\n            //const eventSource = new EventSource('http://localhost:8989/sse');\n            const eventSource = new EventSource(\"/sse\");\n\n            eventSource.onopen = () => {\n                console.log('Соединение установлено');\n            };\n\n            eventSource.onmessage = (event) => {\n                console.log('Получено сообщение:', event.data);\n                const data = JSON.parse(event.data);\n                // Обработка данных\n                console.log(data);\n            };\n\n            eventSource.onerror = (error) => {\n                console.error('Ошибка SSE:', error);\n                // Автоматическое переподключение через 3 секунды (по умолчанию)\n            };\n        }\n\n        ClientSSE();\n    </script><div>Здесь будут логи</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<script>\n        function WebSocketConnect(){\n\n        }\n\n        WebSocketConnect();\n    </script><div>Здесь будут логи</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

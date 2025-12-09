@@ -9,9 +9,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/a-h/templ"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/a-h/templ"
 	"github.com/av-belyakov/enricher_zabbix_information/components"
 	"github.com/av-belyakov/enricher_zabbix_information/constants"
 	"github.com/av-belyakov/enricher_zabbix_information/datamodels"
@@ -19,13 +19,24 @@ import (
 )
 
 func (is *InformationServer) Start(ctx context.Context) error {
+	/*var upgrader = websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			// Разрешаем все origin для примера
+			// В продакшене следует проверять origin!
+			return true
+		},
+	}*/
+
 	routers := map[string]func(http.ResponseWriter, *http.Request){
 		"/":                       is.RouteIndex,
 		"/api":                    is.RouteApi,
 		"/task_information":       is.RouteTaskInformation,
 		"/memory_statistics":      is.RouteMemoryStatistics,
 		"/manually_task_starting": is.RouteManuallyTaskStarting,
-		"/sse":                    is.RouteSSE,
+		"/logs":                   is.RouteLogs,
+		"/ws": func(w http.ResponseWriter, r *http.Request) {
+			serveWs(is.wsServer, w, r)
+		},
 	}
 
 	//отладка через pprof (только для тестов)
@@ -53,10 +64,12 @@ func (is *InformationServer) Start(ctx context.Context) error {
 		},
 	}
 
-	//инициализируем sse сервер
+	//запускаем ws сервер
+	go is.wsServer.Run(ctx)
 
 	g, gCtx := errgroup.WithContext(ctx)
 	g.Go(func() error {
+
 		return is.server.ListenAndServe()
 	})
 	g.Go(func() error {
@@ -91,8 +104,8 @@ func (is *InformationServer) getBasePage(tmpComponent templ.Component, component
 			Link: "manually_task_starting",
 		},
 		{
-			Name: "интерактивные сообщения",
-			Link: "sse",
+			Name: "логи приложения",
+			Link: "logs",
 		},
 	}
 

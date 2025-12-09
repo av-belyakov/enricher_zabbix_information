@@ -6,12 +6,9 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/components"
 )
 
-func (is *InformationServer) RouteSSE(w http.ResponseWriter, r *http.Request) {
-	//sse сервер
-	go is.sseServer.HandleSSE(w, r)
-
+func (is *InformationServer) RouteLogs(w http.ResponseWriter, r *http.Request) {
 	is.getBasePage(
-		components.TemplateSSE(),
+		components.TemplateLogs(),
 		components.BaseComponentScripts(),
 	).Component.Render(r.Context(), w)
 }

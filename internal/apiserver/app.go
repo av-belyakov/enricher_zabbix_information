@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
-	"github.com/av-belyakov/enricher_zabbix_information/internal/sseserver"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/websocketserver"
 )
 
 func New(logger interfaces.Logger, storage interfaces.StorageInformation, opts ...informationServerOptions) (*InformationServer, error) {
@@ -17,9 +17,8 @@ func New(logger interfaces.Logger, storage interfaces.StorageInformation, opts .
 		timeout:   time.Second * 10,
 		logger:    logger,
 		storage:   storage,
-		sseServer: sseserver.New(logger),
+		wsServer:  websocketserver.New(),
 	}
-
 	for _, opt := range opts {
 		if err := opt(is); err != nil {
 			return is, err

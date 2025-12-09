@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
-	"github.com/av-belyakov/enricher_zabbix_information/internal/sseserver"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/websocketserver"
 )
 
 // InformationServer информационный сервер
@@ -14,8 +14,8 @@ type InformationServer struct {
 	storage                 interfaces.StorageInformation
 	transmitterFromFrontend interfaces.BytesTransmitter
 	transmitterToFrontend   interfaces.BytesTransmitter
+	wsServer                *websocketserver.Hub
 	server                  *http.Server
-	sseServer               *sseserver.SSEServer
 	timeStart               time.Time
 	timeout                 time.Duration
 	host                    string
