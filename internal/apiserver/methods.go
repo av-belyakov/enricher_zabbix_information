@@ -7,10 +7,15 @@ import (
 	"net/http"
 	"net/http/pprof"
 	"os"
+	"strings"
 
 	"golang.org/x/sync/errgroup"
 
+	"github.com/a-h/templ"
+	"github.com/av-belyakov/enricher_zabbix_information/components"
 	"github.com/av-belyakov/enricher_zabbix_information/constants"
+	"github.com/av-belyakov/enricher_zabbix_information/datamodels"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/appname"
 )
 
 func (is *InformationServer) Start(ctx context.Context) error {
@@ -20,7 +25,7 @@ func (is *InformationServer) Start(ctx context.Context) error {
 		"/task_information":       is.RouteTaskInformation,
 		"/memory_statistics":      is.RouteMemoryStatistics,
 		"/manually_task_starting": is.RouteManuallyTaskStarting,
-		"/logs":                   is.RouteLogs,
+		"/sse":                    is.RouteSSE,
 	}
 
 	//отладка через pprof (только для тестов)
@@ -61,4 +66,54 @@ func (is *InformationServer) Start(ctx context.Context) error {
 	})
 
 	return g.Wait()
+}
+
+func (is *InformationServer) getBasePage(tmpComponent templ.Component, componentScript templ.ComponentScript) *templ.ComponentHandler {
+	links := []struct {
+		Name string
+		Link string
+		Icon string
+	}{
+		{
+			Name: "начало",
+			Link: "/",
+		},
+		{
+			Name: "информация о выполненной задаче",
+			Link: "task_information",
+		},
+		{
+			Name: "общая статистика расходования памяти",
+			Link: "memory_statistics",
+		},
+		{
+			Name: "ручной запуск задачи",
+			Link: "manually_task_starting",
+		},
+		{
+			Name: "интерактивные сообщения",
+			Link: "sse",
+		},
+	}
+
+	return templ.Handler(
+		components.TemplateBasePage(datamodels.TemplBasePage{
+			Title:      appname.GetName(),
+			AppName:    strings.ToUpper(appname.GetName()),
+			AppVersion: is.getAppVersion(),
+			//AppShortInfo: hellowMsg,
+			MenuLinks: links,
+		},
+			tmpComponent,
+			componentScript,
+		))
+}
+
+func (is *InformationServer) getAppVersion() string {
+	version := "v0.0.1"
+	if is.version != "" {
+		version = "v" + is.version
+	}
+
+	return version
 }

@@ -17,7 +17,7 @@ func New(logger interfaces.Logger, storage interfaces.StorageInformation, opts .
 		timeout:   time.Second * 10,
 		logger:    logger,
 		storage:   storage,
-		sseServer: sseserver.New(logger, storage),
+		sseServer: sseserver.New(logger),
 	}
 
 	for _, opt := range opts {
@@ -31,8 +31,8 @@ func New(logger interfaces.Logger, storage interfaces.StorageInformation, opts .
 
 // WithTimeout устанавливает время ожидания выполнения запроса
 func WithTimeout(v int) informationServerOptions {
-	return func(whs *InformationServer) error {
-		whs.timeout = time.Duration(v) * time.Second
+	return func(is *InformationServer) error {
+		is.timeout = time.Duration(v) * time.Second
 
 		return nil
 	}
@@ -40,8 +40,8 @@ func WithTimeout(v int) informationServerOptions {
 
 // WithPort устанавливает порт для взаимодействия с модулем
 func WithPort(v int) informationServerOptions {
-	return func(whs *InformationServer) error {
-		whs.port = v
+	return func(is *InformationServer) error {
+		is.port = v
 
 		return nil
 	}
@@ -49,8 +49,8 @@ func WithPort(v int) informationServerOptions {
 
 // WithHost устанавливает хост для взаимодействия с модулем
 func WithHost(v string) informationServerOptions {
-	return func(whs *InformationServer) error {
-		whs.host = v
+	return func(is *InformationServer) error {
+		is.host = v
 
 		return nil
 	}
@@ -58,8 +58,8 @@ func WithHost(v string) informationServerOptions {
 
 // WithVersion устанавливает версию модуля (опционально)
 func WithVersion(v string) informationServerOptions {
-	return func(whs *InformationServer) error {
-		whs.version = v
+	return func(is *InformationServer) error {
+		is.version = v
 
 		return nil
 	}
@@ -67,9 +67,9 @@ func WithVersion(v string) informationServerOptions {
 
 // WithTransmitterToModule устанавливает интерфейс для взаимодействия с модулем
 func WithChToModule(v interfaces.BytesTransmitter) informationServerOptions {
-	return func(whs *InformationServer) error {
+	return func(is *InformationServer) error {
 		if v != nil {
-			whs.transmitterToFrontend = v
+			is.transmitterToFrontend = v
 
 			return nil
 		} else {
@@ -80,9 +80,9 @@ func WithChToModule(v interfaces.BytesTransmitter) informationServerOptions {
 
 // WithTransmitterFromModule устанавливает интерфейс для получения данных из модуля
 func WithChFromModule(v interfaces.BytesTransmitter) informationServerOptions {
-	return func(whs *InformationServer) error {
+	return func(is *InformationServer) error {
 		if v != nil {
-			whs.transmitterFromFrontend = v
+			is.transmitterFromFrontend = v
 
 			return nil
 		} else {

@@ -20,8 +20,8 @@ func (s *SSEServer) RemoveClient(client *Client) {
 	s.customerRegistration.mutex.Lock()
 	defer s.customerRegistration.mutex.Unlock()
 
-	delete(s.customerRegistration.clients, client)
 	close(client.messages)
+	delete(s.customerRegistration.clients, client)
 
 	s.logger.Send("info", fmt.Sprintf("Удален клиент. Всего: %d", len(s.customerRegistration.clients)))
 	//log.Printf("Удален клиент. Всего: %d", len(s.customerRegistration.clients))
