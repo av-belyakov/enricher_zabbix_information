@@ -1,53 +1,77 @@
 package schedulehandler
 
 import (
-	"errors"
-	"time"
+	"context"
+	"os"
 
 	"github.com/go-co-op/gocron/v2"
 	"github.com/jonboulle/clockwork"
 )
 
-//******************* функции настройки опций ***********************
+// Start запуск обработчика расписания
+func (sw *ScheduleWrapper) Start(ctx context.Context, f func() error) error {
+	withClock := gocron.WithClock(clockwork.NewRealClock())
 
-// WithDailyJob частота запуска задачи в минутах
-func WithTimerJob(timerJob int) ScheduleOptions {
-	return func(sw *ScheduleWrapper) error {
-		if timerJob < 1 {
-			return errors.New("the task launch frequency in minutes cannot be less than '1'")
+	// для тестов будет использоватся фейковое время
+	if os.Getenv("GO_ENRICHERZI_MAIN") == "test" && sw.ClockWork != nil {
+		withClock = gocron.WithClock(sw.ClockWork)
+	}
+
+	s, err := gocron.NewScheduler(withClock)
+	if err != nil {
+		return err
+	}
+
+	sw.Scheduler = s
+
+	go func(ctx context.Context, s gocron.Scheduler) {
+		<-ctx.Done()
+		s.Shutdown()
+	}(ctx, s)
+
+	//используем таймер
+	if len(sw.DailyJob) == 0 {
+		if _, err := s.NewJob(
+			gocron.DurationJob(sw.TimerJob),
+			gocron.NewTask(f),
+			gocron.WithName(Worker_Name),
+		); err != nil {
+			return err
+		}
+	} else {
+		ats := gocron.NewAtTimes(sw.DailyJob[0])
+		if len(sw.DailyJob) > 1 {
+			ats = gocron.NewAtTimes(sw.DailyJob[0], sw.DailyJob...)
 		}
 
-		sw.TimerJob = time.Duration(timerJob) * time.Minute
-
-		return nil
+		if _, err = s.NewJob(
+			gocron.DailyJob(1, ats),
+			gocron.NewTask(f),
+			gocron.WithName(Worker_Name),
+		); err != nil {
+			return err
+		}
 	}
+
+	s.Start()
+
+	return nil
 }
 
-// WithDailyJob список времени запуска задачи в формате HH:MM:SS
-func WithDailyJob(dailyJob []string) ScheduleOptions {
-	return func(sw *ScheduleWrapper) error {
-		if len(dailyJob) == 0 {
-			return nil
-		}
-
-		for _, v := range dailyJob {
-			t, err := time.Parse(time.TimeOnly, v)
-			if err != nil {
-				return errors.New("the time format is incorrect")
-			}
-
-			sw.DailyJob = append(sw.DailyJob, gocron.NewAtTime(uint(t.Hour()), uint(t.Minute()), uint(t.Second())))
-		}
-
-		return nil
+// Stop остановка обработчика расписания
+func (sw *ScheduleWrapper) Stop() error {
+	if sw.Scheduler != nil {
+		return sw.Scheduler.Shutdown()
 	}
+
+	return nil
 }
 
-// WithFakeClock использование фейкового времени (исключительно для тестирования)
-func WithFakeClock(clock *clockwork.FakeClock) ScheduleOptions {
-	return func(sw *ScheduleWrapper) error {
-		sw.ClockWork = clock
-
-		return nil
+// StopAllJobs остановка всех задач в расписании
+func (sw *ScheduleWrapper) StopAllJobs() error {
+	if sw.Scheduler != nil {
+		return sw.Scheduler.StopJobs()
 	}
+
+	return nil
 }

@@ -22,7 +22,10 @@ type AppCore struct {
 }
 
 func NewAppCore(conf *confighandler.ConfigApp, zc *zconnection.ZabbixConnectionJsonRPC) {
-
+	/*
+	   продумать все же где будет инициализироваться api сервер, хранилище и
+	   обработчик рассписаний
+	*/
 }
 
 func (core *AppCore) Start(ctx context.Context) error {

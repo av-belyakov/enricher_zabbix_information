@@ -1,18 +1,30 @@
 package sseserver
 
-/*
+import "github.com/av-belyakov/enricher_zabbix_information/interfaces"
 
-!!!!!!!!!!
-
-Этот сервер надо внимательно посмотреть. Проверить логику.
-Кроме того надо продумать как добавлять клиента, что бы избежать
-добавления клиентов со злым умыслом. Как удалять клиентов.
-
-
-*/
-
-func New() *SSEServer {
+func New(logger interfaces.Logger) *SSEServer {
 	return &SSEServer{
-		clients: make(map[*Client]bool),
+		logger: logger,
+		customerRegistration: SSEServerCustomerRegistration{
+			clients: make(map[*Client]bool),
+		},
+	}
+}
+
+// WithPort устанавливает порт для взаимодействия с модулем
+func WithPort(v int) sseServerOptions {
+	return func(s *SSEServer) error {
+		s.settings.port = v
+
+		return nil
+	}
+}
+
+// WithHost устанавливает хост для взаимодействия с модулем
+func WithHost(v string) sseServerOptions {
+	return func(s *SSEServer) error {
+		s.settings.host = v
+
+		return nil
 	}
 }

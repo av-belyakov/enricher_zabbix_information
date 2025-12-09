@@ -1,72 +1,64 @@
 package apiserver
 
 import (
-	"errors"
-	"time"
+	"context"
+	"fmt"
+	"net"
+	"net/http"
+	"net/http/pprof"
+	"os"
 
-	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
+	"golang.org/x/sync/errgroup"
+
+	"github.com/av-belyakov/enricher_zabbix_information/constants"
 )
 
-//******************** функциональные настройки ***********************
-
-// WithTimeout устанавливает время ожидания выполнения запроса
-func WithTimeout(v int) informationServerOptions {
-	return func(whs *InformationServer) error {
-		whs.timeout = time.Duration(v) * time.Second
-
-		return nil
+func (is *InformationServer) Start(ctx context.Context) error {
+	routers := map[string]func(http.ResponseWriter, *http.Request){
+		"/":                       is.RouteIndex,
+		"/api":                    is.RouteApi,
+		"/task_information":       is.RouteTaskInformation,
+		"/memory_statistics":      is.RouteMemoryStatistics,
+		"/manually_task_starting": is.RouteManuallyTaskStarting,
+		"/logs":                   is.RouteLogs,
 	}
-}
 
-// WithPort устанавливает порт для взаимодействия с модулем
-func WithPort(v int) informationServerOptions {
-	return func(whs *InformationServer) error {
-		whs.port = v
-
-		return nil
+	//отладка через pprof (только для тестов)
+	//http://InformationServerApi.Host:InformationServerApi.Port/debug/pprof/
+	//go tool pprof http://InformationServerApi.Host:InformationServerApi.Port/debug/pprof/heap
+	//go tool pprof http://InformationServerApi.Host:InformationServerApi.Port/debug/pprof/allocs
+	//go tool pprof http://InformationServerApi.Host:InformationServerApi.Port/debug/pprof/goroutine
+	if os.Getenv("GO_"+constants.App_Environment_Name+"_MAIN") == "test" ||
+		os.Getenv("GO_"+constants.App_Environment_Name+"_MAIN") == "development" {
+		routers["/debug/pprof/"] = pprof.Index
 	}
-}
 
-// WithHost устанавливает хост для взаимодействия с модулем
-func WithHost(v string) informationServerOptions {
-	return func(whs *InformationServer) error {
-		whs.host = v
-
-		return nil
+	//регистрируем обработчики маршрутов
+	mux := http.NewServeMux()
+	for k, v := range routers {
+		mux.HandleFunc(k, v)
 	}
-}
 
-// WithVersion устанавливает версию модуля (опционально)
-func WithVersion(v string) informationServerOptions {
-	return func(whs *InformationServer) error {
-		whs.version = v
-
-		return nil
+	//инициализируем api сервер
+	is.server = &http.Server{
+		Addr:    net.JoinHostPort(is.host, fmt.Sprint(is.port)),
+		Handler: mux,
+		BaseContext: func(_ net.Listener) context.Context {
+			return ctx
+		},
 	}
-}
 
-// WithTransmitterToModule устанавливает интерфейс для взаимодействия с модулем
-func WithChToModule(v interfaces.BytesTransmitter) informationServerOptions {
-	return func(whs *InformationServer) error {
-		if v != nil {
-			whs.transmitterToFrontend = v
+	//инициализируем sse сервер
 
-			return nil
-		} else {
-			return errors.New("the transmitter for interaction with the module must be initialized")
-		}
-	}
-}
+	g, gCtx := errgroup.WithContext(ctx)
+	g.Go(func() error {
+		return is.server.ListenAndServe()
+	})
+	g.Go(func() error {
+		<-gCtx.Done()
 
-// WithTransmitterFromModule устанавливает интерфейс для получения данных из модуля
-func WithChFromModule(v interfaces.BytesTransmitter) informationServerOptions {
-	return func(whs *InformationServer) error {
-		if v != nil {
-			whs.transmitterFromFrontend = v
+		return is.server.Shutdown(context.Background())
+	})
 
-			return nil
-		} else {
-			return errors.New("the transmitter for receiving data from the module must be initialized")
-		}
-	}
+	return g.Wait()
 }
