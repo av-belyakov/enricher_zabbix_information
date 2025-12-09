@@ -1,14 +1,11 @@
 package apiserver
 
-import "time"
+import (
+	"errors"
+	"time"
 
-// SendCommandStartProcess отправляет команду на запуск процесса
-func (is *InformationServer) SendCommandStartProcess() {
-	is.chTaskMng <- TaskManagementChannel{
-		Type:    "task processing",
-		Command: "start process",
-	}
-}
+	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
+)
 
 //******************** функциональные настройки ***********************
 
@@ -45,5 +42,31 @@ func WithVersion(v string) informationServerOptions {
 		whs.version = v
 
 		return nil
+	}
+}
+
+// WithChToModule устанавливает канал для взаимодействия с модулем
+func WithChToModule(v <-chan interfaces.BytesTransmitter) informationServerOptions {
+	return func(whs *InformationServer) error {
+		if v != nil {
+			whs.chToFrontend = v
+
+			return nil
+		} else {
+			return errors.New("the channel for interaction with the module must be initialized")
+		}
+	}
+}
+
+// WithChFromModule устанавливает канал для получения данных из модуля
+func WithChFromModule(v chan<- interfaces.BytesTransmitter) informationServerOptions {
+	return func(whs *InformationServer) error {
+		if v != nil {
+			whs.chFromFrontend = v
+
+			return nil
+		} else {
+			return errors.New("the channel for receiving data from the module must be initialized")
+		}
 	}
 }

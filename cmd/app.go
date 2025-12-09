@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 
 	"github.com/av-belyakov/simplelogger"
 	zconnection "github.com/av-belyakov/zabbixapicommunicator/v2/cmd/connectionjsonrpc"
@@ -14,10 +13,8 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/constants"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appname"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/confighandler"
-	"github.com/av-belyakov/enricher_zabbix_information/internal/dictionarieshandler"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/elasticsearchapi"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/logginghandler"
-	"github.com/av-belyakov/enricher_zabbix_information/internal/schedulehandler"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
 )
@@ -72,15 +69,6 @@ func app(ctx context.Context) {
 	}
 
 	//*********************************************************************************
-	// ********************** инициализация модуля чтения словарей ********************
-	dicts, err := dictionarieshandler.Read("config/dictionary.yml")
-	if err != nil {
-		log.Fatalf("error module 'dictionarieshandler': %v", err)
-	}
-
-	fmt.Println("Dictionaries:", dicts)
-
-	//*********************************************************************************
 	//***************** инициализация модуля-обёртки соединения с Zabbix **************
 	zabbixConn, err := zconnection.NewConnect(
 		zconnection.WithTLS(),
@@ -105,9 +93,9 @@ func app(ctx context.Context) {
 	logging := logginghandler.New(simpleLogger)
 	logging.Start(ctx)
 
-	//******************************************************************
-	//************** инициализация маршрутизатора данных ***************
-	sw, err := schedulehandler.NewScheduleHandler(
+	//*********************************************************************************
+	//******************** инициализация обработчика рассписаний **********************
+	/*sw, err := schedulehandler.NewScheduleHandler(
 		schedulehandler.WithTimerJob(conf.Schedule.TimerJob),
 		schedulehandler.WithDailyJob(conf.Schedule.DailyJob),
 	)
@@ -117,19 +105,32 @@ func app(ctx context.Context) {
 	if err = sw.Start(
 		ctx,
 		func() error {
-			/*
+			// !!!!! инициализация словарей !!!!!!
+	// Думаю что чтение словарей должно быть каждый раз при запуске задачи, это
+	// позволит измениять состав словарей не перезапуская приложение. Кроме того
+	// следует обратить внимание на то что если словари не будут найдены или
+	// они будут пустыми то из zabbix забираем все данные по хостам. Отсутствие
+	// словарей не является критической ошибкой.
+	// Таким образом место чтения словарей в обработчике задач.
+	//dicts, err := dictionarieshandler.Read("config/dictionary.yml")
+	//if err != nil {
+	//	simpleLogger.Write("error", wrappers.WrapperError(err).Error())
+	//}
+	//fmt.Println("Dictionaries:", dicts)
 
-			   тут надо добавить обработчик который запускается по расписанию
-
-			*/
+			//
+			//
+			//   тут надо добавить обработчик который запускается по расписанию
+			//
+			//
 			fmt.Println("START worker to 'schedule', current time:", time.Now())
 
 			return nil
 		}); err != nil {
 		log.Fatalf("error start module 'schedulehandler': %v", err)
-	}
+	}*/
 
-	// получаем дополнительную информацию о Zabbix
+	// получаем дополнительную информацию о Zabbix нужную для вывода в информационном сообщении
 	b, err := zabbixConn.GetAPIInfo(ctx)
 	if err != nil {
 		log.Fatalf("error zabbix connection: %v", err)

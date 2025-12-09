@@ -9,20 +9,16 @@ import (
 
 // InformationServer информационный сервер
 type InformationServer struct {
-	logger    interfaces.Logger
-	storage   interfaces.StorageInformation
-	server    *http.Server
-	timeStart time.Time
-	timeout   time.Duration
-	host      string
-	version   string
-	port      int
-	chTaskMng chan TaskManagementChannel
+	logger         interfaces.Logger
+	storage        interfaces.StorageInformation
+	server         *http.Server
+	timeStart      time.Time
+	timeout        time.Duration
+	host           string
+	version        string
+	port           int
+	chFromFrontend chan<- interfaces.BytesTransmitter
+	chToFrontend   <-chan interfaces.BytesTransmitter
 }
 
 type informationServerOptions func(*InformationServer) error
-
-type TaskManagementChannel struct {
-	Type    string
-	Command string
-}

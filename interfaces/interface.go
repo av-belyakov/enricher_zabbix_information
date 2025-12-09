@@ -42,3 +42,9 @@ type StorageInformation interface {
 	GetDateExecution() (start, end time.Time)
 	GetList() []datamodels.HostDetailedInformation
 }
+
+// ************** передача данных ***************
+type BytesTransmitter interface {
+	Send([]byte)
+	Receive() []byte
+}

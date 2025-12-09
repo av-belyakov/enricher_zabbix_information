@@ -27,7 +27,7 @@ func NewScheduleHandler(opts ...ScheduleOptions) (*ScheduleWrapper, error) {
 func (sw *ScheduleWrapper) Start(ctx context.Context, f func() error) error {
 	withClock := gocron.WithClock(clockwork.NewRealClock())
 
-	// для тестов используется фейковое время
+	// для тестов будет использоватся фейковое время
 	if os.Getenv("GO_ENRICHERZI_MAIN") == "test" && sw.ClockWork != nil {
 		withClock = gocron.WithClock(sw.ClockWork)
 	}
