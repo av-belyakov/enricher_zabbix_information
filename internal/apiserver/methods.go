@@ -45,28 +45,28 @@ func WithVersion(v string) informationServerOptions {
 	}
 }
 
-// WithChToModule устанавливает канал для взаимодействия с модулем
-func WithChToModule(v <-chan interfaces.BytesTransmitter) informationServerOptions {
+// WithTransmitterToModule устанавливает интерфейс для взаимодействия с модулем
+func WithChToModule(v interfaces.BytesTransmitter) informationServerOptions {
 	return func(whs *InformationServer) error {
 		if v != nil {
-			whs.chToFrontend = v
+			whs.transmitterToFrontend = v
 
 			return nil
 		} else {
-			return errors.New("the channel for interaction with the module must be initialized")
+			return errors.New("the transmitter for interaction with the module must be initialized")
 		}
 	}
 }
 
-// WithChFromModule устанавливает канал для получения данных из модуля
-func WithChFromModule(v chan<- interfaces.BytesTransmitter) informationServerOptions {
+// WithTransmitterFromModule устанавливает интерфейс для получения данных из модуля
+func WithChFromModule(v interfaces.BytesTransmitter) informationServerOptions {
 	return func(whs *InformationServer) error {
 		if v != nil {
-			whs.chFromFrontend = v
+			whs.transmitterFromFrontend = v
 
 			return nil
 		} else {
-			return errors.New("the channel for receiving data from the module must be initialized")
+			return errors.New("the transmitter for receiving data from the module must be initialized")
 		}
 	}
 }
