@@ -7,6 +7,8 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"os/signal"
+	"syscall"
 	"testing"
 	"time"
 
@@ -26,12 +28,15 @@ func TestApiServer(t *testing.T) {
 	)
 
 	var (
+		api *apiserver.InformationServer
 		res *http.Response
 		err error
 	)
 
 	logging := helpers.NewLoggingForTest()
-	ctx, ctxCancel := context.WithCancel(t.Context())
+	ctx, ctxCancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+
+	//ctx, ctxCancel := context.WithCancel(t.Context())
 
 	go func() {
 		for {
@@ -57,7 +62,7 @@ func TestApiServer(t *testing.T) {
 		version, err := appversion.GetVersion()
 		assert.NoError(t, err)
 
-		api, err := apiserver.New(
+		api, err = apiserver.New(
 			logging,
 			storageTemp,
 			apiserver.WithHost(host),
@@ -66,13 +71,13 @@ func TestApiServer(t *testing.T) {
 		)
 		assert.NoError(t, err)
 
-		api.Start(ctx)
+		go api.Start(ctx)
 
 		time.Sleep(time.Second * 1)
 	})
 
 	t.Run("Тест 2. Обращение к странице с задачами", func(t *testing.T) {
-		res, err = http.Get("http://" + net.JoinHostPort(host, fmt.Sprint(port)) + "/tasks")
+		res, err = http.Get("http://" + net.JoinHostPort(host, fmt.Sprint(port)) + "/manually_task_starting")
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 		assert.Equal(t, res.StatusCode, http.StatusOK)
@@ -83,6 +88,27 @@ func TestApiServer(t *testing.T) {
 
 		fmt.Println("Web server response:", string(b))
 	})
+
+	t.Run("Тест 3. Передача сообщения на веб-страницу используя websocket", func(t *testing.T) {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+
+			case <-time.After(time.Second * 1):
+				api.SendData([]byte(`{
+					"type": "logs",
+					"data": {
+						"date": "2023-07-20T13:00:00Z",
+						"type": "info",
+						"message": "Test message"
+					}
+				}`))
+			}
+		}
+	})
+
+	<-ctx.Done()
 
 	t.Cleanup(func() {
 		if res != nil {

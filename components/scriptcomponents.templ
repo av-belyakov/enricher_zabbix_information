@@ -1,12 +1,42 @@
 package components
 
 script BaseComponentScripts(){
-    // только для проверки работы функции
-    //
-    //function getAlert(){
-    //    alert("some message");
-    //}
+    function wsConnect(){
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${wsProtocol}//${window.location.host}/ws`;
+            
+        socket = new WebSocket(wsUrl);
 
-    //getAlert();
+        socket.onopen = function() {
+            console.log('WebSocket соединение установлено');
+            //updateStatus(true);
+            //addMessage('Подключено к серверу', 'server');
+        };
+
+        socket.onmessage = function(event) {
+            console.log('Получено сообщение:', event.data);
+            //addMessage(`Сервер: ${event.data}`, 'server');
+        };
+
+        socket.onclose = function(event) {
+            console.log('WebSocket соединение закрыто');
+            //updateStatus(false);
+            //addMessage('Соединение закрыто', 'server');
+        };
+
+        socket.onerror = function(error) {
+            console.error('WebSocket ошибка:', error);
+            //addMessage('Произошла ошибка соединения', 'server');
+        };
+    }
+
+    function wsDisconnect() {
+            if (socket) {
+                socket.close();
+                socket = null;
+            }
+        }
+
+    wsConnect();
 }
 

@@ -1,11 +1,9 @@
 package apiserver
 
 import (
-	"errors"
 	"time"
 
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
-	"github.com/av-belyakov/enricher_zabbix_information/internal/websocketserver"
 )
 
 func New(logger interfaces.Logger, storage interfaces.StorageInformation, opts ...informationServerOptions) (*InformationServer, error) {
@@ -17,7 +15,8 @@ func New(logger interfaces.Logger, storage interfaces.StorageInformation, opts .
 		timeout:   time.Second * 10,
 		logger:    logger,
 		storage:   storage,
-		wsServer:  websocketserver.New(),
+		chInput:   make(chan []byte),
+		chOutput:  make(chan []byte),
 	}
 	for _, opt := range opts {
 		if err := opt(is); err != nil {
@@ -65,7 +64,7 @@ func WithVersion(v string) informationServerOptions {
 }
 
 // WithTransmitterToModule устанавливает интерфейс для взаимодействия с модулем
-func WithChToModule(v interfaces.BytesTransmitter) informationServerOptions {
+/*func WithChToModule(v interfaces.BytesTransmitter) informationServerOptions {
 	return func(is *InformationServer) error {
 		if v != nil {
 			is.transmitterToFrontend = v
@@ -88,4 +87,4 @@ func WithChFromModule(v interfaces.BytesTransmitter) informationServerOptions {
 			return errors.New("the transmitter for receiving data from the module must be initialized")
 		}
 	}
-}
+}*/

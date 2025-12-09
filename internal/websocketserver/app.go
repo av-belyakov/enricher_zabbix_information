@@ -1,5 +1,6 @@
 package websocketserver
 
+// New конструктор нового хаба
 func New() *Hub {
 	return &Hub{
 		broadcast:  make(chan []byte),

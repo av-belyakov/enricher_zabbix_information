@@ -1,14 +1,17 @@
 package websocketserver
 
 import (
-	"log"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/websocket"
+
+	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
 )
 
-func serveWs(h *Hub, w http.ResponseWriter, r *http.Request) {
+// ServerWs обработчик websocket
+func ServeWs(logger interfaces.Logger, h *Hub, w http.ResponseWriter, r *http.Request) {
 	var upgrader = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			return true
@@ -19,18 +22,24 @@ func serveWs(h *Hub, w http.ResponseWriter, r *http.Request) {
 		HandshakeTimeout: (time.Duration(1) * time.Second),
 	}
 
+	// инициализация websocket соединения
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println("Upgrade error:", err)
+		logger.Send("error", wrappers.WrapperError(err).Error())
+
 		return
 	}
 
 	client := &Client{
-		conn: conn,
-		send: make(chan []byte, 256),
+		conn:   conn,
+		send:   make(chan []byte, 256),
+		logger: logger,
 	}
 
+	// регистрация нового клиента
 	h.register <- client
+
+	logger.Send("info", "connection established, new client registration")
 
 	// Запускаем горутины для чтения и записи
 	go client.writePump()

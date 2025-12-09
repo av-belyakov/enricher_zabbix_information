@@ -10,17 +10,48 @@ import templruntime "github.com/a-h/templ/runtime"
 
 func BaseComponentScripts() templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_BaseComponentScripts_c50a`,
-		Function: `function __templ_BaseComponentScripts_c50a(){// только для проверки работы функции
+		Name: `__templ_BaseComponentScripts_0a49`,
+		Function: `function __templ_BaseComponentScripts_0a49(){// только для проверки работы функции
     //
     //function getAlert(){
     //    alert("some message");
     //}
 
     //getAlert();
+
+    function wsConnect(){
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = ` + "`" + `${wsProtocol}//${window.location.host}/ws` + "`" + `;
+            
+        socket = new WebSocket(wsUrl);
+
+        socket.onopen = function() {
+            console.log('WebSocket соединение установлено');
+            //updateStatus(true);
+            //addMessage('Подключено к серверу', 'server');
+        };
+
+        socket.onmessage = function(event) {
+            console.log('Получено сообщение:', event.data);
+            //addMessage(` + "`" + `Сервер: ${event.data}` + "`" + `, 'server');
+        };
+
+        socket.onclose = function(event) {
+            console.log('WebSocket соединение закрыто');
+            //updateStatus(false);
+            //addMessage('Соединение закрыто', 'server');
+        };
+
+        socket.onerror = function(error) {
+            console.error('WebSocket ошибка:', error);
+            //addMessage('Произошла ошибка соединения', 'server');
+        };
+    }
+
+    wsConnect();
 }`,
-		Call:       templ.SafeScript(`__templ_BaseComponentScripts_c50a`),
-		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_c50a`),
+		Call:       templ.SafeScript(`__templ_BaseComponentScripts_0a49`),
+		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_0a49`),
 	}
 }
 

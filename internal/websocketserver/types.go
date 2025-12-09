@@ -1,14 +1,19 @@
 package websocketserver
 
-import "github.com/gorilla/websocket"
+import (
+	"github.com/gorilla/websocket"
 
-// Клиент представляет подключение
+	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
+)
+
+// Client реализованное подключение
 type Client struct {
-	conn *websocket.Conn
-	send chan []byte
+	conn   *websocket.Conn
+	logger interfaces.Logger
+	send   chan []byte
 }
 
-// Хаб управляет всеми клиентами
+// Hub управление всеми клиентами
 type Hub struct {
 	clients    map[*Client]bool
 	broadcast  chan []byte

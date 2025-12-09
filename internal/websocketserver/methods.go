@@ -2,11 +2,12 @@ package websocketserver
 
 import (
 	"context"
-	"log"
 
+	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
 	"github.com/gorilla/websocket"
 )
 
+// Run запуск обработчика
 func (h *Hub) Run(ctx context.Context) {
 	for {
 		select {
@@ -36,6 +37,16 @@ func (h *Hub) Run(ctx context.Context) {
 	}
 }
 
+// GetChanBroadcast канал для рассылки широковещательных сообщений
+func (h *Hub) GetChanBroadcast() chan<- []byte {
+	return h.broadcast
+}
+
+// SendBroadcast отправить широковещательное сообщение
+func (h *Hub) SendBroadcast(b []byte) {
+	h.broadcast <- b
+}
+
 func (c *Client) readPump(h *Hub) {
 	defer func() {
 		h.unregister <- c
@@ -46,7 +57,7 @@ func (c *Client) readPump(h *Hub) {
 		_, message, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("error: %v", err)
+				c.logger.Send("error", wrappers.WrapperError(err).Error())
 			}
 
 			break
@@ -73,7 +84,7 @@ func (c *Client) writePump() {
 
 		err := c.conn.WriteMessage(websocket.TextMessage, message)
 		if err != nil {
-			log.Printf("write error: %v", err)
+			c.logger.Send("error", wrappers.WrapperError(err).Error())
 
 			return
 		}

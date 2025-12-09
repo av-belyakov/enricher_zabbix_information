@@ -16,26 +16,19 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/constants"
 	"github.com/av-belyakov/enricher_zabbix_information/datamodels"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appname"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/websocketserver"
 )
 
 func (is *InformationServer) Start(ctx context.Context) error {
-	/*var upgrader = websocket.Upgrader{
-		CheckOrigin: func(r *http.Request) bool {
-			// Разрешаем все origin для примера
-			// В продакшене следует проверять origin!
-			return true
-		},
-	}*/
-
+	wsServer := websocketserver.New()
 	routers := map[string]func(http.ResponseWriter, *http.Request){
 		"/":                       is.RouteIndex,
-		"/api":                    is.RouteApi,
 		"/task_information":       is.RouteTaskInformation,
 		"/memory_statistics":      is.RouteMemoryStatistics,
 		"/manually_task_starting": is.RouteManuallyTaskStarting,
 		"/logs":                   is.RouteLogs,
 		"/ws": func(w http.ResponseWriter, r *http.Request) {
-			serveWs(is.wsServer, w, r)
+			websocketserver.ServeWs(is.logger, wsServer, w, r)
 		},
 	}
 
@@ -65,11 +58,23 @@ func (is *InformationServer) Start(ctx context.Context) error {
 	}
 
 	//запускаем ws сервер
-	go is.wsServer.Run(ctx)
+	go wsServer.Run(ctx)
+
+	//обработчик входящих данных
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+
+			case b := <-is.chInput:
+				wsServer.SendBroadcast(b)
+			}
+		}
+	}()
 
 	g, gCtx := errgroup.WithContext(ctx)
 	g.Go(func() error {
-
 		return is.server.ListenAndServe()
 	})
 	g.Go(func() error {
@@ -79,6 +84,16 @@ func (is *InformationServer) Start(ctx context.Context) error {
 	})
 
 	return g.Wait()
+}
+
+// SendData отправка данных в APIServer
+func (is *InformationServer) SendData(b []byte) {
+	is.chInput <- b
+}
+
+// GetChannelOutgoingData канал с исходящими от APIServer данными
+func (is *InformationServer) GetChannelOutgoingData() <-chan []byte {
+	return is.chOutput
 }
 
 func (is *InformationServer) getBasePage(tmpComponent templ.Component, componentScript templ.ComponentScript) *templ.ComponentHandler {
