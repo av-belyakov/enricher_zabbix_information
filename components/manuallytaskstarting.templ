@@ -3,6 +3,13 @@ package components
 templ TemplateManuallyTaskStarting(executeStatus bool){
     <script>
         function sendToken(){
+
+            /*
+            
+            здесь надо переписать обработчик с AJAX на WebSocket
+
+            */
+
             let tokenElement = document.getElementById("inputToken")
             let xhr = new XMLHttpRequest();
             let json = JSON.stringify({

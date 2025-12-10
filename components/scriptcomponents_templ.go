@@ -10,14 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 func BaseComponentScripts() templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_BaseComponentScripts_0a49`,
-		Function: `function __templ_BaseComponentScripts_0a49(){// только для проверки работы функции
-    //
-    //function getAlert(){
-    //    alert("some message");
-    //}
-
-    //getAlert();
+		Name: `__templ_BaseComponentScripts_4399`,
+		Function: `function __templ_BaseComponentScripts_4399(){let arrLogs = [];
 
     function wsConnect(){
         const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -32,7 +26,9 @@ func BaseComponentScripts() templ.ComponentScript {
         };
 
         socket.onmessage = function(event) {
-            console.log('Получено сообщение:', event.data);
+            //console.log('Получено сообщение:', event.data);
+
+            processingMessage(event.data);
             //addMessage(` + "`" + `Сервер: ${event.data}` + "`" + `, 'server');
         };
 
@@ -47,11 +43,119 @@ func BaseComponentScripts() templ.ComponentScript {
             //addMessage('Произошла ошибка соединения', 'server');
         };
     }
+    
+    function wsDisconnect() {
+        if (socket) {
+            socket.close();
+            socket = null;
+        }
+    }
 
+    function processingMessage(data){
+        let jsonObj = JSON.parse(data)
+
+        if (jsonObj.type == "logs") {
+            console.log("приняты логи:", jsonObj.data)
+
+            arrLogs.unshift(jsonObj.data)
+
+            if (arrLogs.length == 31){
+                arrLogs.pop();
+            }
+
+            displayLogs(arrLogs);
+        }
+    }
+
+    // форматирования времени
+    function formatTimestamp(timestamp) {
+        const date = new Date(timestamp);
+        
+        return date.toLocaleString('ru-RU');
+    }
+
+    // CSS класс по уровню логирования
+    function getLogLevelClass(level) {
+        const levelMap = {
+            'INFO': 'log-info',
+            'WARNING': 'log-warning',
+            'ERROR': 'log-error',
+            'DEBUG': 'log-info'
+        };
+
+        return levelMap[level] || 'log-info';
+    }
+
+    // CSS класс для уровня
+    function getLevelColorClass(level) {
+        return ` + "`" + `log-level-${level.toLowerCase()}` + "`" + `;
+    }
+
+    // статистика по логам
+    function getLogStats(logs) {
+        return {
+            total: logs.length,
+            info: logs.filter(log => log.level === 'INFO').length,
+            warning: logs.filter(log => log.level === 'WARNING').length,
+            error: logs.filter(log => log.level === 'ERROR').length,
+            debug: logs.filter(log => log.level === 'DEBUG').length
+        };
+    }
+
+    // Отображение логов
+    function displayLogs(logs) {
+        const logsContainer = document.getElementById('areaLogs');
+        if (logsContainer == null){
+            return
+        }
+    
+        // Очищаем контейнер
+        logsContainer.innerHTML = '';
+    
+        // Создаем список логов
+        const logsList = document.createElement('div');
+    
+        logs.forEach(log => {
+            const logItem = document.createElement('div');
+            logItem.className = ` + "`" + `log-item ${getLogLevelClass(log.level)}` + "`" + `;
+        
+            // Создаем HTML для элемента лога
+            logItem.innerHTML = ` + "`" + `
+                <div>
+                    <span class="log-timestamp">${formatTimestamp(log.timestamp)}</span>
+                    <span class="log-level ${getLevelColorClass(log.level)}">${log.level}</span>
+                    <span class="log-source">[${log.source}]</span>
+                </div>
+                <div class="log-message">${log.message}</div>
+                ${log.details ? ` + "`" + `<div class="log-details"><small>${log.details}</small></div>` + "`" + ` : ''}
+                ${log.user ? ` + "`" + `<div class="log-user"><small>Пользователь: ${log.user}</small></div>` + "`" + ` : ''}
+            ` + "`" + `;
+        
+            logsList.appendChild(logItem);
+        });
+    
+        // Добавляем статистику
+        const stats = getLogStats(logs);
+        const statsElement = document.createElement('div');
+        statsElement.innerHTML = ` + "`" + `
+            <hr>
+            <div style="color: #666; font-size: 0.9em;">
+                Всего событий: ${stats.total} | 
+                INFO: ${stats.info} | 
+                WARNING: ${stats.warning} | 
+                ERROR: ${stats.error} | 
+                DEBUG: ${stats.debug}
+            </div>
+        ` + "`" + `;
+    
+        logsContainer.appendChild(statsElement);
+        logsContainer.appendChild(logsList);
+    }
+    
     wsConnect();
 }`,
-		Call:       templ.SafeScript(`__templ_BaseComponentScripts_0a49`),
-		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_0a49`),
+		Call:       templ.SafeScript(`__templ_BaseComponentScripts_4399`),
+		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_4399`),
 	}
 }
 

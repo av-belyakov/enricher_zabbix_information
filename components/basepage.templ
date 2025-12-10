@@ -9,6 +9,55 @@ templ TemplateBasePage(tbp datamodels.TemplBasePage, component templ.Component, 
     		<meta charset="utf-8">
     		<meta name="viewport" content="width=device-width, initial-scale=1.0">
     		<title>{tbp.Title}</title>
+            <style>
+                #areaLogs {
+                    font-family: 'Courier New', monospace;
+                    background-color: #f5f5f5;
+                    border: 1px solid #ddd;
+                    padding: 15px;
+                    margin: 20px;
+                    border-radius: 5px;
+                    max-height: 400px;
+                    overflow-y: auto;
+                }
+        
+                .log-item {
+                    padding: 8px 12px;
+                    margin: 5px 0;
+                    border-left: 4px solid #4CAF50;
+                    background-color: white;
+                    border-radius: 3px;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                }
+        
+                .log-warning {
+                    border-left-color: #ff9800;
+                }
+        
+                .log-error {
+                    border-left-color: #f44336;
+                }
+        
+                .log-info {
+                    border-left-color: #2196F3;
+                }
+        
+                .log-timestamp {
+                    color: #666;
+                    font-size: 0.9em;
+                    margin-right: 10px;
+                }
+        
+                .log-level {
+                    font-weight: bold;
+                    margin-right: 10px;
+                }
+        
+                .log-level-info { color: #2196F3; }
+                .log-level-warning { color: #ff9800; }
+                .log-level-error { color: #f44336; }
+                .log-level-debug { color: #9c27b0; }
+            </style>
 		</head>
 		<body>
 		 	<h3 style="text-align: center;">{tbp.AppName} {tbp.AppVersion}<div id="timeElem"></div></h3>

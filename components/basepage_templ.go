@@ -44,14 +44,14 @@ func TemplateBasePage(tbp datamodels.TemplBasePage, component templ.Component, s
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title></head><body><h3 style=\"text-align: center;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><style>\n                #areaLogs {\n                    font-family: 'Courier New', monospace;\n                    background-color: #f5f5f5;\n                    border: 1px solid #ddd;\n                    padding: 15px;\n                    margin: 20px;\n                    border-radius: 5px;\n                    max-height: 400px;\n                    overflow-y: auto;\n                }\n        \n                .log-item {\n                    padding: 8px 12px;\n                    margin: 5px 0;\n                    border-left: 4px solid #4CAF50;\n                    background-color: white;\n                    border-radius: 3px;\n                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);\n                }\n        \n                .log-warning {\n                    border-left-color: #ff9800;\n                }\n        \n                .log-error {\n                    border-left-color: #f44336;\n                }\n        \n                .log-info {\n                    border-left-color: #2196F3;\n                }\n        \n                .log-timestamp {\n                    color: #666;\n                    font-size: 0.9em;\n                    margin-right: 10px;\n                }\n        \n                .log-level {\n                    font-weight: bold;\n                    margin-right: 10px;\n                }\n        \n                .log-level-info { color: #2196F3; }\n                .log-level-warning { color: #ff9800; }\n                .log-level-error { color: #f44336; }\n                .log-level-debug { color: #9c27b0; }\n            </style></head><body><h3 style=\"text-align: center;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(tbp.AppName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/basepage.templ`, Line: 14, Col: 48}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/basepage.templ`, Line: 63, Col: 48}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -64,7 +64,7 @@ func TemplateBasePage(tbp datamodels.TemplBasePage, component templ.Component, s
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(tbp.AppVersion)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/basepage.templ`, Line: 14, Col: 65}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/basepage.templ`, Line: 63, Col: 65}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -135,7 +135,7 @@ func menuLinks(links []struct{ Name, Link, Icon string }) templ.Component {
 			var templ_7745c5c3_Var6 templ.SafeURL
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinURLErrs(v.Link)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/basepage.templ`, Line: 27, Col: 91}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/basepage.templ`, Line: 76, Col: 91}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -148,7 +148,7 @@ func menuLinks(links []struct{ Name, Link, Icon string }) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(v.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/basepage.templ`, Line: 27, Col: 100}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/basepage.templ`, Line: 76, Col: 100}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {

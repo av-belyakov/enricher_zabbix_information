@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"net"
 	"net/http"
 	"os/signal"
@@ -82,11 +81,12 @@ func TestApiServer(t *testing.T) {
 		assert.NotNil(t, res)
 		assert.Equal(t, res.StatusCode, http.StatusOK)
 
-		b, err := io.ReadAll(res.Body)
-		res.Body.Close()
-		assert.NoError(t, err)
+		//b, err := io.ReadAll(res.Body)
+		//assert.NoError(t, err)
 
-		fmt.Println("Web server response:", string(b))
+		//fmt.Println("Web server response:", string(b))
+
+		res.Body.Close()
 	})
 
 	t.Run("Тест 3. Передача сообщения на веб-страницу используя websocket", func(t *testing.T) {
@@ -95,15 +95,27 @@ func TestApiServer(t *testing.T) {
 			case <-ctx.Done():
 				return
 
-			case <-time.After(time.Second * 1):
-				api.SendData([]byte(`{
+			case <-time.After(time.Second * 3):
+				api.SendData(fmt.Appendf(nil, `{
 					"type": "logs",
 					"data": {
-						"date": "2023-07-20T13:00:00Z",
-						"type": "info",
-						"message": "Test message"
+						"timestamp": "%s",
+						"level": "WARNING",
+						"message": "Warning test message"
 					}
-				}`))
+				}`, time.Now().Format(time.RFC3339)))
+
+				time.Sleep(time.Second * 1)
+
+				api.SendData(fmt.Appendf(nil, `{
+					"type": "logs",
+					"data": {
+						"timestamp": "%s",
+						"level": "INFO",
+						"message": "Info test message"
+					}
+				}`, time.Now().Format(time.RFC3339)))
+
 			}
 		}
 	})
