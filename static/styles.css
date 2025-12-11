@@ -1,0 +1,233 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+        
+body {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #f1f1f1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            width: 100%;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00dbde, #fc00ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: #a0a0c0;
+            margin-bottom: 30px;
+        }
+        
+        /* Стили меню */
+        .menu-container {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+        
+        nav {
+            width: 100%;
+        }
+        
+        .menu {
+            display: flex;
+            list-style: none;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .menu li {
+            position: relative;
+            margin: 5px 10px;
+        }
+        
+        .menu a {
+            display: flex;
+            align-items: center;
+            color: #e0e0ff;
+            text-decoration: none;
+            padding: 14px 22px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .menu a i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .menu a:hover {
+            background: rgba(94, 114, 235, 0.15);
+            color: #ffffff;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(94, 114, 235, 0.2);
+            border-color: rgba(94, 114, 235, 0.3);
+        }
+        
+        .menu a.active {
+            background: linear-gradient(90deg, #5e72eb, #9c27b0);
+            color: white;
+            box-shadow: 0 5px 15px rgba(94, 114, 235, 0.4);
+        }
+        
+        .menu a.active:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(94, 114, 235, 0.5);
+        }
+        
+        /* Индикатор активного элемента */
+        .indicator {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background: #5e72eb;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .menu li.active .indicator {
+            opacity: 1;
+        }
+        
+        /* Стили контента */
+        .content {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            width: 100%;
+            max-width: 800px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .content h2 {
+            color: #5e72eb;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        .content p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: #d0d0e7;
+        }
+        
+        .content .highlight {
+            color: #9c27b0;
+            font-weight: 600;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+        
+        .stat-box {
+            background: rgba(94, 114, 235, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px;
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+            border: 1px solid rgba(94, 114, 235, 0.2);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #5e72eb;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #a0a0c0;
+            font-size: 0.9rem;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 900px) {
+            .menu {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .menu li {
+                width: 100%;
+                max-width: 400px;
+                margin: 5px 0;
+            }
+            
+            .menu a {
+                justify-content: center;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .menu a {
+                padding: 12px 15px;
+                font-size: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+        
+        footer {
+            margin-top: 40px;
+            color: #a0a0c0;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 20px;
+        }

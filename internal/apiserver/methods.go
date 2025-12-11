@@ -3,6 +3,7 @@ package apiserver
 import (
 	"context"
 	"fmt"
+	"mime"
 	"net"
 	"net/http"
 	"net/http/pprof"
@@ -18,6 +19,16 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appname"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/websocketserver"
 )
+
+func init() {
+	// Добавляем кастомные MIME-типы при инициализации
+	mime.AddExtensionType(".css", "text/css; charset=utf-8")
+	mime.AddExtensionType(".js", "application/javascript; charset=utf-8")
+	mime.AddExtensionType(".json", "application/json; charset=utf-8")
+	mime.AddExtensionType(".svg", "image/svg+xml")
+	mime.AddExtensionType(".ico", "image/x-icon")
+
+}
 
 func (is *InformationServer) Start(ctx context.Context) error {
 	wsServer := websocketserver.New()
@@ -47,6 +58,10 @@ func (is *InformationServer) Start(ctx context.Context) error {
 	for k, v := range routers {
 		mux.HandleFunc(k, v)
 	}
+
+	//инициализируем обработчик статических файлов
+	fs := http.FileServer(http.Dir("../../static"))
+	mux.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	//инициализируем api сервер
 	is.server = &http.Server{

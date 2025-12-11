@@ -9,6 +9,7 @@ templ TemplateBasePage(tbp datamodels.TemplBasePage, component templ.Component, 
     		<meta charset="utf-8">
     		<meta name="viewport" content="width=device-width, initial-scale=1.0">
     		<title>{tbp.Title}</title>
+            <link rel="stylesheet" href="/static/styles.css">
             <style>
                 #areaLogs {
                     font-family: 'Courier New', monospace;
@@ -60,11 +61,19 @@ templ TemplateBasePage(tbp datamodels.TemplBasePage, component templ.Component, 
             </style>
 		</head>
 		<body>
-		 	<h3 style="text-align: center;">{tbp.AppName} {tbp.AppVersion}<div id="timeElem"></div></h3>
-      		<nav>@menuLinks(tbp.MenuLinks)</nav>
-            <div>@component</div>
-            @scripts
+            <div class="container">
+                <header>
+                    <h2>{tbp.AppName} {tbp.AppVersion}</h2>
+                    <p class="subtitle">Используйте меню для навигации по разделам</p>
+                </header>        
+                <div class="menu-container">
+      		        <nav>@menuLinks(tbp.MenuLinks)</nav>
+                    <div>@component</div>
+                    @scripts
+                </div>
+            </div>
     	</body>
+		 	<!--<h3 style="text-align: center;">{tbp.AppName} {tbp.AppVersion}<div id="timeElem"></div></h3>-->
 		</html>
 }
 
