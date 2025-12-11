@@ -2,8 +2,10 @@ package apiserver
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"os/signal"
@@ -19,6 +21,17 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 	"github.com/av-belyakov/enricher_zabbix_information/test/helpers"
 )
+
+type ElementManuallyTask struct {
+	Type     string                      `json:"type"`
+	Settings ElementManuallyTaskSettings `json:"settings"`
+}
+
+type ElementManuallyTaskSettings struct {
+	Command string `json:"command"`
+	Error   string `json:"error"`
+	Token   string `json:"token"`
+}
 
 func TestApiServer(t *testing.T) {
 	const (
@@ -57,25 +70,65 @@ func TestApiServer(t *testing.T) {
 	time.Sleep(time.Second * 2)
 	storageTemp.SetProcessNotRunning()
 
-	t.Run("Тест 1. Запуск API сервера", func(t *testing.T) {
-		version, err := appversion.GetVersion()
-		assert.NoError(t, err)
+	version, err := appversion.GetVersion()
+	assert.NoError(t, err)
 
-		api, err = apiserver.New(
-			logging,
-			storageTemp,
-			apiserver.WithHost(host),
-			apiserver.WithPort(port),
-			apiserver.WithVersion(version),
-		)
-		assert.NoError(t, err)
+	//инициализируем api сервер
+	api, err = apiserver.New(
+		logging,
+		storageTemp,
+		apiserver.WithHost(host),
+		apiserver.WithPort(port),
+		apiserver.WithVersion(version),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-		go api.Start(ctx)
+	//запускаем api сервер
+	go api.Start(ctx)
 
-		time.Sleep(time.Second * 1)
-	})
+	time.Sleep(time.Second * 1)
 
-	t.Run("Тест 2. Обращение к странице с задачами", func(t *testing.T) {
+	//обработчик входящих от api сервера данных
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+
+			case b := <-api.GetChannelOutgoingData():
+				fmt.Println("Outgoing data from API server:", string(b))
+				elmManualTask := ElementManuallyTask{}
+
+				err := json.Unmarshal(b, &elmManualTask)
+				assert.NoError(t, err)
+
+				if elmManualTask.Type != "manually_task" {
+					continue
+				}
+
+				var strErr string
+				if elmManualTask.Settings.Token != "my_some_token" {
+					strErr = "token invalide"
+				}
+
+				b, err = json.Marshal(ElementManuallyTask{
+					Type: "manually_task",
+					Settings: ElementManuallyTaskSettings{
+						Error: strErr,
+					},
+				})
+				assert.NoError(t, err)
+
+				api.SendData(b)
+			}
+		}
+	}()
+
+	//t.Run("Тест 1. Запуск API сервера", func(t *testing.T) {})
+
+	t.Run("Тест 1. Обращение к странице с задачами", func(t *testing.T) {
 		res, err = http.Get("http://" + net.JoinHostPort(host, fmt.Sprint(port)) + "/manually_task_starting")
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
@@ -89,7 +142,7 @@ func TestApiServer(t *testing.T) {
 		res.Body.Close()
 	})
 
-	t.Run("Тест 3. Передача сообщения на веб-страницу используя websocket", func(t *testing.T) {
+	t.Run("Тест 2. Передача сообщения на веб-страницу используя websocket", func(t *testing.T) {
 		for {
 			select {
 			case <-ctx.Done():

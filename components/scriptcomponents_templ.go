@@ -10,15 +10,13 @@ import templruntime "github.com/a-h/templ/runtime"
 
 func BaseComponentScripts() templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_BaseComponentScripts_4399`,
-		Function: `function __templ_BaseComponentScripts_4399(){let arrLogs = [];
+		Name: `__templ_BaseComponentScripts_efea`,
+		Function: `function __templ_BaseComponentScripts_efea(){const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = ` + "`" + `${wsProtocol}//${window.location.host}/ws` + "`" + `;
+    let arrLogs = [];
+    let socket = new WebSocket(wsUrl);
 
     function wsConnect(){
-        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = ` + "`" + `${wsProtocol}//${window.location.host}/ws` + "`" + `;
-            
-        socket = new WebSocket(wsUrl);
-
         socket.onopen = function() {
             console.log('WebSocket соединение установлено');
             //updateStatus(true);
@@ -64,6 +62,28 @@ func BaseComponentScripts() templ.ComponentScript {
             }
 
             displayLogs(arrLogs);
+        }
+
+        if (jsonObj.type == "manually_task") {            
+            if (jsonObj.settings.error != "") {
+                //если есть ошибка
+                printErrorMessage(true);
+
+                disabledInputAndButtonSendToken(false);                
+
+                return
+            } 
+            
+            //показ области для для вывода информации о выполнении процесса
+            let idInformationArea = document.getElementById("informationArea");
+            if (idInformationArea != null) {
+                idInformationArea.hidden = false;
+            }
+
+            printErrorMessage(false);
+
+            //делать доступными для взаимодействия кнопку и поле ввода
+            //только после выполнения задачи
         }
     }
 
@@ -152,10 +172,58 @@ func BaseComponentScripts() templ.ComponentScript {
         logsContainer.appendChild(logsList);
     }
     
+    function sendToken(){
+        let tokenElement = document.getElementById("inputToken");
+        let jsonData = JSON.stringify({
+            "type": "manually_task",
+            "settings": {
+                "token": tokenElement.value
+            }
+        });
+
+        socket.send(jsonData)
+
+        //временно выключаем поле ввода токена и кнопку его отправки
+        disabledInputAndButtonSendToken(true);
+    }
+
+    function setHandlerForButtonSendToken(){
+        let buttonSend = document.getElementById("buttonSendToken");
+        if (buttonSend == null) {
+            return;
+        }
+
+        buttonSend.onclick = sendToken;
+    }
+
+    function printErrorMessage(isLook){
+        let idMsgTErr = document.getElementById("messageTokenError");
+        if (idMsgTErr != null) {
+            idMsgTErr.hidden = !isLook;
+        }
+    }
+
+    function disabledInputAndButtonSendToken(isDisabled){
+        let idInputToken = document.getElementById("inputToken")
+        if (idInputToken != null) {
+            idInputToken.value = "";
+            idInputToken.disabled = isDisabled;
+        }
+
+        let idButtonSendToken = document.getElementById("buttonSendToken")
+        if (idButtonSendToken != null) {
+            idButtonSendToken.disabled = isDisabled;
+        }
+    }
+
+    //обработчик соединений по websocket
     wsConnect();
+
+    //обработчик на кнопку отправляющую токен на сервер
+    setHandlerForButtonSendToken();
 }`,
-		Call:       templ.SafeScript(`__templ_BaseComponentScripts_4399`),
-		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_4399`),
+		Call:       templ.SafeScript(`__templ_BaseComponentScripts_efea`),
+		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_efea`),
 	}
 }
 

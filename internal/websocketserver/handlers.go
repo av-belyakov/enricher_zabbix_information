@@ -37,11 +37,11 @@ func ServeWs(logger interfaces.Logger, h *Hub, w http.ResponseWriter, r *http.Re
 	}
 
 	// регистрация нового клиента
-	h.register <- client
+	h.chRegister <- client
 
 	logger.Send("info", "connection established, new client registration")
 
-	// Запускаем горутины для чтения и записи
+	// горутины для чтения и записи
 	go client.writePump()
 	go client.readPump(h)
 }

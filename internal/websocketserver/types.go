@@ -15,8 +15,9 @@ type Client struct {
 
 // Hub управление всеми клиентами
 type Hub struct {
-	clients    map[*Client]bool
-	broadcast  chan []byte
-	register   chan *Client
-	unregister chan *Client
+	clients        map[*Client]bool
+	chBroadcast    chan []byte
+	chIncomingData chan []byte
+	chRegister     chan *Client
+	chUnregister   chan *Client
 }

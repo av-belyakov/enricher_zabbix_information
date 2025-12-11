@@ -57,18 +57,22 @@ func (is *InformationServer) Start(ctx context.Context) error {
 		},
 	}
 
-	//запускаем ws сервер
-	go wsServer.Run(ctx)
+	//запускаем ws сервер и получаем канал с входящими данными
+	chIncomingData := wsServer.Run(ctx)
 
-	//обработчик входящих данных
+	//обработчик входящих и исходящих данных
 	go func() {
 		for {
 			select {
 			case <-ctx.Done():
 				return
 
-			case b := <-is.chInput:
-				wsServer.SendBroadcast(b)
+			case msg := <-is.chInput:
+				wsServer.SendBroadcast(msg)
+
+			case msg := <-chIncomingData:
+				is.chOutput <- msg
+
 			}
 		}
 	}()
@@ -103,7 +107,7 @@ func (is *InformationServer) getBasePage(tmpComponent templ.Component, component
 		Icon string
 	}{
 		{
-			Name: "начало",
+			Name: "главная страница",
 			Link: "/",
 		},
 		{
