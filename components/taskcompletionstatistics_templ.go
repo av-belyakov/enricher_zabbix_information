@@ -109,7 +109,7 @@ func TemplateTaskCompletionStatistics(ttcs datamodels.TemplTaskCompletionsStatis
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><div>Список доменных имён при обработки которых возникли ошибки:</div><ol>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><div>Список доменных имён при обработки которых возникли ошибки:</div><div style=\"padding-left: 20px; margin: 10px 0;\"><ol>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -121,7 +121,7 @@ func TemplateTaskCompletionStatistics(ttcs datamodels.TemplTaskCompletionsStatis
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(v.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/taskcompletionstatistics.templ`, Line: 17, Col: 30}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/taskcompletionstatistics.templ`, Line: 18, Col: 19}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -134,7 +134,7 @@ func TemplateTaskCompletionStatistics(ttcs datamodels.TemplTaskCompletionsStatis
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(v.Error.Error())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/taskcompletionstatistics.templ`, Line: 17, Col: 60}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/taskcompletionstatistics.templ`, Line: 18, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -145,7 +145,7 @@ func TemplateTaskCompletionStatistics(ttcs datamodels.TemplTaskCompletionsStatis
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</ol></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</ol></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

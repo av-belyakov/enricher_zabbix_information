@@ -10,8 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 func BaseComponentScripts() templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_BaseComponentScripts_efea`,
-		Function: `function __templ_BaseComponentScripts_efea(){const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+		Name: `__templ_BaseComponentScripts_9697`,
+		Function: `function __templ_BaseComponentScripts_9697(){const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = ` + "`" + `${wsProtocol}//${window.location.host}/ws` + "`" + `;
     let arrLogs = [];
     let socket = new WebSocket(wsUrl);
@@ -144,9 +144,8 @@ func BaseComponentScripts() templ.ComponentScript {
                 <div>
                     <span class="log-timestamp">${formatTimestamp(log.timestamp)}</span>
                     <span class="log-level ${getLevelColorClass(log.level)}">${log.level}</span>
-                    <span class="log-source">[${log.source}]</span>
+                    <span class="log-message">${log.message}</span>
                 </div>
-                <div class="log-message">${log.message}</div>
                 ${log.details ? ` + "`" + `<div class="log-details"><small>${log.details}</small></div>` + "`" + ` : ''}
                 ${log.user ? ` + "`" + `<div class="log-user"><small>Пользователь: ${log.user}</small></div>` + "`" + ` : ''}
             ` + "`" + `;
@@ -222,8 +221,8 @@ func BaseComponentScripts() templ.ComponentScript {
     //обработчик на кнопку отправляющую токен на сервер
     setHandlerForButtonSendToken();
 }`,
-		Call:       templ.SafeScript(`__templ_BaseComponentScripts_efea`),
-		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_efea`),
+		Call:       templ.SafeScript(`__templ_BaseComponentScripts_9697`),
+		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_9697`),
 	}
 }
 

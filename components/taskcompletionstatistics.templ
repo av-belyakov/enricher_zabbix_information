@@ -12,10 +12,12 @@ templ TemplateTaskCompletionStatistics(ttcs datamodels.TemplTaskCompletionsStati
 		<div>Количество обработанных доменных имён: {ttcs.CountHosts}</div>
 		<div>Количество доменных имён обработанных с ошибкой: {ttcs.CountHostsError}</div>
 		<div>Список доменных имён при обработки которых возникли ошибки:</div>
-        <ol>
-            for _, v := range ttcs.Hosts {
-                <li><b>{v.Name}</b>, error: {v.Error.Error()}</li>
-            }
-        </ol>
+        <div style="padding-left: 20px; margin: 10px 0;">
+			<ol>
+				for _, v := range ttcs.Hosts {
+					<li><b>{v.Name}</b>, error: {v.Error.Error()}</li>
+				}
+			</ol>
+		</div>
     </div>
 }

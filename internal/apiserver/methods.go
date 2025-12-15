@@ -27,7 +27,6 @@ func init() {
 	mime.AddExtensionType(".json", "application/json; charset=utf-8")
 	mime.AddExtensionType(".svg", "image/svg+xml")
 	mime.AddExtensionType(".ico", "image/x-icon")
-
 }
 
 func (is *InformationServer) Start(ctx context.Context) error {
@@ -122,23 +121,23 @@ func (is *InformationServer) getBasePage(tmpComponent templ.Component, component
 		Icon string
 	}{
 		{
-			Name: "главная страница",
+			Name: "главная",
 			Link: "/",
 		},
 		{
-			Name: "информация о выполненной задаче",
+			Name: "информация",
 			Link: "task_information",
 		},
 		{
-			Name: "общая статистика расходования памяти",
+			Name: "расходование памяти",
 			Link: "memory_statistics",
 		},
 		{
-			Name: "ручной запуск задачи",
+			Name: "запуск задачи",
 			Link: "manually_task_starting",
 		},
 		{
-			Name: "логи приложения",
+			Name: "логи",
 			Link: "logs",
 		},
 	}
@@ -146,7 +145,7 @@ func (is *InformationServer) getBasePage(tmpComponent templ.Component, component
 	return templ.Handler(
 		components.TemplateBasePage(datamodels.TemplBasePage{
 			Title:      appname.GetName(),
-			AppName:    strings.ToUpper(appname.GetName()),
+			AppName:    fmt.Sprintf("%s%s", strings.ToUpper(appname.GetName()[:1]), appname.GetName()[1:]),
 			AppVersion: is.getAppVersion(),
 			//AppShortInfo: hellowMsg,
 			MenuLinks: links,

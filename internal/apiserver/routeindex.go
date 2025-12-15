@@ -25,7 +25,7 @@ func (is *InformationServer) RouteIndex(w http.ResponseWriter, r *http.Request) 
 	}
 
 	hellowMsg := fmt.Sprintf(
-		"Статус приложения: '%s'. Прошло времени с момента запуска приложения: %s.",
+		"Статус приложения: '%s'. Время, прошедшее с момента запуска приложения: %s.",
 		status,
 		time.Since(is.timeStart).String(),
 	)

@@ -134,9 +134,8 @@ script BaseComponentScripts(){
                 <div>
                     <span class="log-timestamp">${formatTimestamp(log.timestamp)}</span>
                     <span class="log-level ${getLevelColorClass(log.level)}">${log.level}</span>
-                    <span class="log-source">[${log.source}]</span>
+                    <span class="log-message">${log.message}</span>
                 </div>
-                <div class="log-message">${log.message}</div>
                 ${log.details ? `<div class="log-details"><small>${log.details}</small></div>` : ''}
                 ${log.user ? `<div class="log-user"><small>Пользователь: ${log.user}</small></div>` : ''}
             `;
