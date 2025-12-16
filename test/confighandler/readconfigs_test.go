@@ -43,6 +43,7 @@ func TestReadConfigHandler(t *testing.T) {
 		t.Run("Тест 1. Проверка аутентификационных данных", func(t *testing.T) {
 			assert.NotEmpty(t, conf.GetAuthenticationData().NetBoxPasswd)
 			assert.NotEmpty(t, conf.GetAuthenticationData().ZabbixPasswd)
+			assert.NotEmpty(t, conf.GetAuthenticationData().APIServerToken)
 			assert.NotEmpty(t, conf.GetAuthenticationData().WriteLogBDPasswd)
 		})
 
@@ -94,10 +95,12 @@ func TestReadConfigHandler(t *testing.T) {
 		t.Run("Тест 0. Проверка аутентификационных данных", func(t *testing.T) {
 			passwdNetBox := "c8wyfihi8fdy9r8feguf82ry2r23"
 			passwdZabbix := "superStrongPassWd"
+			apiServerToken := "superStrongTokenForApiServer"
 			passwdForLogDb := "superStrongPassWdForDatabAse"
 
-			os.Setenv("GO_"+constants.App_Environment_Name+"_NBPASSWD", passwdNetBox)
 			os.Setenv("GO_"+constants.App_Environment_Name+"_ZPASSWD", passwdZabbix)
+			os.Setenv("GO_"+constants.App_Environment_Name+"_NBPASSWD", passwdNetBox)
+			os.Setenv("GO_"+constants.App_Environment_Name+"_APISERVERTOKEN", apiServerToken)
 			os.Setenv("GO_"+constants.App_Environment_Name+"_DBWLOGPASSWD", passwdForLogDb)
 
 			conf, err := confighandler.New(constants.Root_Dir)
@@ -105,6 +108,7 @@ func TestReadConfigHandler(t *testing.T) {
 
 			assert.Equal(t, conf.GetAuthenticationData().NetBoxPasswd, passwdNetBox)
 			assert.Equal(t, conf.GetAuthenticationData().ZabbixPasswd, passwdZabbix)
+			assert.Equal(t, conf.GetAuthenticationData().APIServerToken, apiServerToken)
 			assert.Equal(t, conf.GetAuthenticationData().WriteLogBDPasswd, passwdForLogDb)
 		})
 
@@ -198,7 +202,8 @@ func unSetEnviroment() {
 	os.Unsetenv("GO_" + constants.App_Environment_Name + "_DBWLOGSTORAGENAME")
 
 	// Авторизационные данные
-	os.Unsetenv("GO_" + constants.App_Environment_Name + "_NBPASSWD")
 	os.Unsetenv("GO_" + constants.App_Environment_Name + "_ZPASSWD")
+	os.Unsetenv("GO_" + constants.App_Environment_Name + "_NBPASSWD")
+	os.Unsetenv("GO_" + constants.App_Environment_Name + "_APISERVERTOKEN")
 	os.Unsetenv("GO_" + constants.App_Environment_Name + "_DBWLOGPASSWD")
 }

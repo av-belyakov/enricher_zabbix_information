@@ -1,6 +1,7 @@
 package apiserver
 
 import (
+	"errors"
 	"time"
 
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
@@ -54,6 +55,20 @@ func WithHost(v string) informationServerOptions {
 	}
 }
 
+// WithAuthTokn устанавливает авторизационный токен
+// это позволяет взаимодействовать с модулем из веб-интерфейса
+func WithAuthToken(v string) informationServerOptions {
+	return func(is *InformationServer) error {
+		if v == "" {
+			return errors.New("the authorization token cannot be empty")
+		}
+
+		is.authToken = v
+
+		return nil
+	}
+}
+
 // WithVersion устанавливает версию модуля (опционально)
 func WithVersion(v string) informationServerOptions {
 	return func(is *InformationServer) error {
@@ -62,29 +77,3 @@ func WithVersion(v string) informationServerOptions {
 		return nil
 	}
 }
-
-// WithTransmitterToModule устанавливает интерфейс для взаимодействия с модулем
-/*func WithChToModule(v interfaces.BytesTransmitter) informationServerOptions {
-	return func(is *InformationServer) error {
-		if v != nil {
-			is.transmitterToFrontend = v
-
-			return nil
-		} else {
-			return errors.New("the transmitter for interaction with the module must be initialized")
-		}
-	}
-}
-
-// WithTransmitterFromModule устанавливает интерфейс для получения данных из модуля
-func WithChFromModule(v interfaces.BytesTransmitter) informationServerOptions {
-	return func(is *InformationServer) error {
-		if v != nil {
-			is.transmitterFromFrontend = v
-
-			return nil
-		} else {
-			return errors.New("the transmitter for receiving data from the module must be initialized")
-		}
-	}
-}*/

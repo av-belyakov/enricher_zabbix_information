@@ -11,10 +11,14 @@ import (
 	zconnection "github.com/av-belyakov/zabbixapicommunicator/v2/cmd/connectionjsonrpc"
 
 	"github.com/av-belyakov/enricher_zabbix_information/constants"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/apiserver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appname"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/appversion"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/confighandler"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/elasticsearchapi"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/logginghandler"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/schedulehandler"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
 )
@@ -30,6 +34,11 @@ func app(ctx context.Context) {
 	rootPath, err := supportingfunctions.GetRootPath(constants.Root_Dir)
 	if err != nil {
 		log.Fatalf("error, it is impossible to form root path (%s)", err.Error())
+	}
+
+	versionApp, err := appversion.GetVersion()
+	if err != nil {
+		versionApp = "v0.0.0"
 	}
 
 	// ****************************************************************************
@@ -89,46 +98,55 @@ func app(ctx context.Context) {
 	}
 
 	//*********************************************************************************
+	//********************** инициализация временного хранилища ***********************
+	storageTemp := storage.NewShortTermStorage()
+
+	//*********************************************************************************
 	//***************** инициализация обработчика логирования данных ******************
 	logging := logginghandler.New(simpleLogger)
 	logging.Start(ctx)
 
 	//*********************************************************************************
-	//******************** инициализация обработчика рассписаний **********************
-	/*sw, err := schedulehandler.NewScheduleHandler(
+	//******************** инициализация API сервера (web-server) *********************
+	api, err := apiserver.New(
+		logging,
+		storageTemp,
+		apiserver.WithHost(conf.GetInformationServerApi().Host),
+		apiserver.WithPort(conf.GetInformationServerApi().Port),
+		apiserver.WithAuthToken(conf.GetAuthenticationData().APIServerToken),
+		apiserver.WithVersion(versionApp),
+	)
+	if err != nil {
+		log.Fatalf("error initializing the api server: %v", err)
+	}
+	//запуск сервера
+	go api.Start(ctx)
+
+	// добавляем логирование в API сервер (вывод логов на веб-странице)
+	logging.AddTransmitters(api)
+
+	//********************************************************************************
+	//********************** инициализация обработчика задач *************************
+	// это фактически то что будет выполнятся по рассписанию или при ручной инициализации
+	taskHandler := NewTaskHandler(logging, api)
+
+	//********************************************************************************
+	//******************** инициализация обработчика расписаний **********************
+	sw, err := schedulehandler.NewScheduleHandler(
 		schedulehandler.WithTimerJob(conf.Schedule.TimerJob),
 		schedulehandler.WithDailyJob(conf.Schedule.DailyJob),
 	)
 	if err != nil {
 		log.Fatalf("error module 'schedulehandler': '%v'", err)
 	}
+	//запуск обработчика заданий
 	if err = sw.Start(
 		ctx,
 		func() error {
-			// !!!!! инициализация словарей !!!!!!
-	// Думаю что чтение словарей должно быть каждый раз при запуске задачи, это
-	// позволит измениять состав словарей не перезапуская приложение. Кроме того
-	// следует обратить внимание на то что если словари не будут найдены или
-	// они будут пустыми то из zabbix забираем все данные по хостам. Отсутствие
-	// словарей не является критической ошибкой.
-	// Таким образом место чтения словарей в обработчике задач.
-	//dicts, err := dictionarieshandler.Read("config/dictionary.yml")
-	//if err != nil {
-	//	simpleLogger.Write("error", wrappers.WrapperError(err).Error())
-	//}
-	//fmt.Println("Dictionaries:", dicts)
-
-			//
-			//
-			//   тут надо добавить обработчик который запускается по расписанию
-			//
-			//
-			fmt.Println("START worker to 'schedule', current time:", time.Now())
-
-			return nil
+			return taskHandler.majorTask(ctx)
 		}); err != nil {
 		log.Fatalf("error start module 'schedulehandler': %v", err)
-	}*/
+	}
 
 	// получаем дополнительную информацию о Zabbix нужную для вывода в информационном сообщении
 	b, err := zabbixConn.GetAPIInfo(ctx)

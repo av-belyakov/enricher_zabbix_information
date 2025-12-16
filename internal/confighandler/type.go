@@ -72,5 +72,6 @@ type CfgInformationServerApi struct {
 type CfgAuthenticationData struct {
 	NetBoxPasswd     string `validate:"required"`
 	ZabbixPasswd     string `validate:"required"`
+	APIServerToken   string `validate:"required"`
 	WriteLogBDPasswd string `yaml:"passwd"`
 }

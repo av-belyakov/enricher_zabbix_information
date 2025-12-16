@@ -45,6 +45,7 @@ type StorageInformation interface {
 
 // ************** передача данных ***************
 type BytesTransmitter interface {
-	Send([]byte)
-	Receive() []byte
+	SendData([]byte)
+	GetTypeTransmitter() string
+	//ReceiveData() []byte
 }

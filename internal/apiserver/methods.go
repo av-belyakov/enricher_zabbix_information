@@ -114,6 +114,17 @@ func (is *InformationServer) GetChannelOutgoingData() <-chan []byte {
 	return is.chOutput
 }
 
+// GetTypeTransmitter тип транспорта (что бы соответствовать интерфейсу BytesTransmitter)
+func (is *InformationServer) GetTypeTransmitter() string {
+	return "apiServer"
+}
+
+// CheckAuthToken проверка токена
+// сравнивает полученный токен с токеном в настройках модуля
+func (is *InformationServer) CheckAuthToken(t string) bool {
+	return is.authToken == t
+}
+
 func (is *InformationServer) getBasePage(tmpComponent templ.Component, componentScript templ.ComponentScript) *templ.ComponentHandler {
 	links := []struct {
 		Name string
