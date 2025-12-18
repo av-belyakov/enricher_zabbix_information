@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/av-belyakov/simplelogger"
-	zconnection "github.com/av-belyakov/zabbixapicommunicator/v2/cmd/connectionjsonrpc"
+	"github.com/av-belyakov/zabbixapicommunicator/v2/cmd/connectionjsonrpc"
 
 	"github.com/av-belyakov/enricher_zabbix_information/constants"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/apiserver"
@@ -79,14 +79,14 @@ func app(ctx context.Context) {
 
 	//*********************************************************************************
 	//***************** инициализация модуля-обёртки соединения с Zabbix **************
-	zabbixConn, err := zconnection.NewConnect(
-		zconnection.WithTLS(),
-		zconnection.WithInsecureSkipVerify(),
-		zconnection.WithHost(conf.GetZabbix().Host),
-		zconnection.WithPort(conf.GetZabbix().Port),
-		zconnection.WithLogin(conf.GetZabbix().User),
-		zconnection.WithPasswd(conf.GetAuthenticationData().ZabbixPasswd),
-		zconnection.WithConnectionTimeout(cmp.Or(conf.GetZabbix().Timeout, 10)),
+	zabbixConn, err := connectionjsonrpc.NewConnect(
+		connectionjsonrpc.WithTLS(),
+		connectionjsonrpc.WithInsecureSkipVerify(),
+		connectionjsonrpc.WithHost(conf.GetZabbix().Host),
+		connectionjsonrpc.WithPort(conf.GetZabbix().Port),
+		connectionjsonrpc.WithLogin(conf.GetZabbix().User),
+		connectionjsonrpc.WithPasswd(conf.GetAuthenticationData().ZabbixPasswd),
+		connectionjsonrpc.WithConnectionTimeout(cmp.Or(conf.GetZabbix().Timeout, 10)),
 	)
 	if err != nil {
 		log.Fatalf("error zabbix connection: %v", err)
@@ -119,7 +119,7 @@ func app(ctx context.Context) {
 	if err != nil {
 		log.Fatalf("error initializing the api server: %v", err)
 	}
-	//запуск сервера
+	// запуск сервера
 	go api.Start(ctx)
 
 	// добавляем логирование в API сервер (вывод логов на веб-странице)
@@ -139,21 +139,25 @@ func app(ctx context.Context) {
 	if err != nil {
 		log.Fatalf("error module 'schedulehandler': '%v'", err)
 	}
-	//запуск обработчика заданий
+	// запуск автоматического обработчика заданий
 	if err = sw.Start(
 		ctx,
 		func() error {
-			return taskHandler.majorTask(ctx)
+			return taskHandler.AutoTaskHandler(ctx)
 		}); err != nil {
 		log.Fatalf("error start module 'schedulehandler': %v", err)
 	}
+
+	// запуск ручного обработчика заданий
+	// отслеживает инициализацию выполнения задачи через веб-интерфейс
+	taskHandler.ManualTaskHandler(ctx)
 
 	// получаем дополнительную информацию о Zabbix нужную для вывода в информационном сообщении
 	b, err := zabbixConn.GetAPIInfo(ctx)
 	if err != nil {
 		log.Fatalf("error zabbix connection: %v", err)
 	}
-	zabbixApiInfo, errMsg, err := zconnection.NewResponseAPIInfo().Get(b)
+	zabbixApiInfo, errMsg, err := connectionjsonrpc.NewResponseAPIInfo().Get(b)
 	if err != nil {
 		simpleLogger.Write("error", wrappers.WrapperError(err).Error())
 	}
