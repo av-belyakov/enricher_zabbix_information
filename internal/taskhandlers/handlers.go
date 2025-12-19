@@ -183,7 +183,7 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 		if hostId, err := strconv.Atoi(host.HostId); err == nil {
 			ths.storage.Add(datamodels.HostDetailedInformation{
 				HostId:       hostId,
-				OriginalHost: host.Name,
+				OriginalHost: host.Host,
 			})
 		}
 	}
