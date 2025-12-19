@@ -20,6 +20,7 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/internal/schedulehandler"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/taskhandlers"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
 )
 
@@ -128,7 +129,7 @@ func app(ctx context.Context) {
 	//********************************************************************************
 	//********************** инициализация обработчика задач *************************
 	// это фактически то что будет выполнятся по рассписанию или при ручной инициализации
-	taskHandler := NewTaskHandler(zabbixConn, api, storageTemp, logging)
+	taskHandler := taskhandlers.NewTaskHandler(zabbixConn, api, storageTemp, logging)
 
 	//********************************************************************************
 	//******************** инициализация обработчика расписаний **********************
@@ -143,7 +144,7 @@ func app(ctx context.Context) {
 	if err = sw.Start(
 		ctx,
 		func() {
-			if err := taskHandler.AutoTaskHandler(ctx); err != nil {
+			if err := taskHandler.TaskHandler(ctx); err != nil {
 				logging.Send("error", wrappers.WrapperError(err).Error())
 			}
 		}); err != nil {

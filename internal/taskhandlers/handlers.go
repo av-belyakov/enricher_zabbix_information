@@ -1,4 +1,4 @@
-package main
+package taskhandlers
 
 import (
 	"context"
@@ -19,14 +19,6 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
 )
 
-/*
-		!!!!!!!
-	TaskHandler не очень мне нравится когда все инициализированные модули
-	свалены в одном месте. Думаю надо постараться как то обезличить, необходимые
-	для выполнения задачи модули, с помощью интерфейсов и каналов
-		!!!!!!
-*/
-
 func NewTaskHandler(
 	zabbixConn *connectionjsonrpc.ZabbixConnectionJsonRPC,
 	api *apiserver.InformationServer,
@@ -43,7 +35,7 @@ func NewTaskHandler(
 }
 
 // autoTaskHandler автоматический обработчик задач, задачи запускаются по расписанию
-func (ths *TaskHandlerSettings) AutoTaskHandler(ctx context.Context) error {
+func (ths *TaskHandlerSettings) TaskHandler(ctx context.Context) error {
 	return wrappers.WrapperError(ths.start(ctx))
 }
 
@@ -115,6 +107,11 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 		ths.logger.Send("warning", errMsg.Error.Message)
 	}
 
+	//fmt.Println("method 'TaskHandlerSettings.start' full host group list:")
+	//for k, host := range hostGroupList.Result {
+	//	fmt.Printf("%d.\n\tname:'%s'\n", k+1, host.Name)
+	//}
+
 	//проверяем наличие списка групп хостов
 	if len(hostGroupList.Result) == 0 {
 		return errors.New("an empty list of host groups has been received, no further processing of the task is possible")
@@ -133,6 +130,8 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 		ths.logger.Send("error", wrappers.WrapperError(err).Error())
 	}
 	dictsSize := len(dicts.Dictionaries.WebSiteGroupMonitoring)
+
+	//fmt.Println("method 'TaskHandlerSettings.start' dictsSize:", dictsSize)
 
 	var listGroupsId []string
 	for _, host := range hostGroupList.Result {
@@ -158,6 +157,8 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 		listGroupsId = append(listGroupsId, host.GroupId)
 	}
 
+	fmt.Println("method 'TaskHandlerSettings.start' listGroupsId:", listGroupsId)
+
 	// получаем список хостов или которые есть в словарях, если словари
 	// не пусты, или все хосты
 	res, err = ths.zabbixConn.GetHostList(ctx, listGroupsId...)
@@ -170,6 +171,8 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 		return err
 	}
 
+	fmt.Println("method 'TaskHandlerSettings.start' hostList:", hostList)
+
 	//очищаем хранилище от предыдущих данных (что бы не смешивать старые и новые данные)
 	ths.storage.DeleteAll()
 	// устанавливаем дату начала выполнения задачи
@@ -177,14 +180,15 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 
 	// заполняем хранилище данными о хостах
 	for _, host := range hostList.Result {
-		if hostId, err := strconv.Atoi(host.HostId); err != nil {
+		if hostId, err := strconv.Atoi(host.HostId); err == nil {
 			ths.storage.Add(datamodels.HostDetailedInformation{
 				HostId:       hostId,
-				OriginalHost: host.Name,
+				OriginalHost: host.Host,
 			})
 		}
-
 	}
+
+	fmt.Printf("method 'TaskHandlerSettings.start' count hosts:'%d'\n", len(ths.storage.GetList()))
 
 	// инициализируем поиск через DNS resolver
 	dnsRes, err := dnsresolver.New(
