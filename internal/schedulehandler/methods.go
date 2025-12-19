@@ -9,7 +9,7 @@ import (
 )
 
 // Start запуск обработчика расписания
-func (sw *ScheduleWrapper) Start(ctx context.Context, f func() error) error {
+func (sw *ScheduleWrapper) Start(ctx context.Context, f func()) error {
 	withClock := gocron.WithClock(clockwork.NewRealClock())
 
 	// для тестов будет использоватся фейковое время

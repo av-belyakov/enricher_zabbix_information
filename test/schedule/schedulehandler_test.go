@@ -60,15 +60,13 @@ func TestScheduleHandler(t *testing.T) {
 		wg.Add(1)
 		sw.Start(
 			t.Context(),
-			func() error {
+			func() {
 				fmt.Println("Start worker 'DailyJob', fakeClock:", sw.ClockWork.Now())
 				fmt.Println("Really date:", time.Now())
 
 				assert.True(t, time.Now().Add(td).After(sw.ClockWork.Now()))
 
 				wg.Done()
-
-				return nil
 			})
 
 		// смотрим количество job
@@ -97,15 +95,13 @@ func TestScheduleHandler(t *testing.T) {
 		wg.Add(1)
 		sw.Start(
 			t.Context(),
-			func() error {
+			func() {
 				fmt.Println("Start worker 'DurationJob', fakeClock:", sw.ClockWork.Now())
 				fmt.Println("Really date:", time.Now())
 
 				assert.True(t, time.Now().Add(sw.TimerJob).After(sw.ClockWork.Now()))
 
 				wg.Done()
-
-				return nil
 			})
 
 		// смотрим количество job

@@ -12,7 +12,11 @@ import (
 )
 
 func Read(pathToFileDts string) (*ListDictionaries, error) {
-	ld := &ListDictionaries{}
+	ld := &ListDictionaries{
+		Dictionaries: Dictionaries{
+			WebSiteGroupMonitoring: make([]WebSiteMonitoring, 0),
+		},
+	}
 
 	if pathToFileDts == "" {
 		return ld, wrappers.WrapperError(errors.New("parameter 'pathToFileDts' cannot be empty"))

@@ -7,7 +7,7 @@ require (
 	github.com/av-belyakov/simplelogger v0.0.0-20250924090323-6ab0607b4a4b
 	github.com/av-belyakov/zabbixapicommunicator/v2 v2.3.4
 	github.com/elastic/go-elasticsearch/v8 v8.19.0
-	github.com/go-co-op/gocron/v2 v2.18.0
+	github.com/go-co-op/gocron/v2 v2.19.0
 	github.com/go-playground/validator/v10 v10.28.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/joho/godotenv v1.5.1

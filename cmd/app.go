@@ -128,7 +128,7 @@ func app(ctx context.Context) {
 	//********************************************************************************
 	//********************** инициализация обработчика задач *************************
 	// это фактически то что будет выполнятся по рассписанию или при ручной инициализации
-	taskHandler := NewTaskHandler(logging, api)
+	taskHandler := NewTaskHandler(zabbixConn, api, storageTemp, logging)
 
 	//********************************************************************************
 	//******************** инициализация обработчика расписаний **********************
@@ -142,8 +142,10 @@ func app(ctx context.Context) {
 	// запуск автоматического обработчика заданий
 	if err = sw.Start(
 		ctx,
-		func() error {
-			return taskHandler.AutoTaskHandler(ctx)
+		func() {
+			if err := taskHandler.AutoTaskHandler(ctx); err != nil {
+				logging.Send("error", wrappers.WrapperError(err).Error())
+			}
 		}); err != nil {
 		log.Fatalf("error start module 'schedulehandler': %v", err)
 	}

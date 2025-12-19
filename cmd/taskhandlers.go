@@ -6,12 +6,15 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"strconv"
 
 	"github.com/av-belyakov/zabbixapicommunicator/v2/cmd/connectionjsonrpc"
 
+	"github.com/av-belyakov/enricher_zabbix_information/datamodels"
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/apiserver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dictionarieshandler"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/dnsresolver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
 )
@@ -41,7 +44,7 @@ func NewTaskHandler(
 
 // autoTaskHandler автоматический обработчик задач, задачи запускаются по расписанию
 func (ths *TaskHandlerSettings) AutoTaskHandler(ctx context.Context) error {
-	return ths.start(ctx)
+	return wrappers.WrapperError(ths.start(ctx))
 }
 
 // manualTaskHandler ручной обработчик задач, задачи запускаются при их
@@ -98,26 +101,24 @@ func (ths *TaskHandlerSettings) ManualTaskHandler(ctx context.Context) error {
 }
 
 func (ths *TaskHandlerSettings) start(ctx context.Context) error {
+	//получаем полный список групп хостов
+	res, err := ths.zabbixConn.GetFullHostGroupList(ctx)
+	if err != nil {
+		return err
+	}
 
-	/*
-		ну и тут все надо сделать, пока что тут все свалено в кучу
+	hostGroupList, errMsg, err := connectionjsonrpc.NewResponseGetHostGroupList().Get(res)
+	if err != nil {
+		return err
+	}
+	if errMsg.Error.Message != "" {
+		ths.logger.Send("warning", errMsg.Error.Message)
+	}
 
-		порядок действий:
-		1. считать словари;
-		2. получить информацию из zabbix по хостам соответствующим пунктам словоря,
-		если словари не найдены или пустые то получить информацию из zabbix по всем хостам;
-		3. сохранить полученный из zabbix, результат во временном хранилище ShortTermStorage;
-		4. запустить dnsresolver для преобразования доменных имен из информации
-		о хостах, хранящейся в ShortTermStorage, в ip адреса, сохранить информацию
-		во временном хранилище;
-		5. выполнить поиск ip адресов в Netbox для того что бы проверить входят ли
-		полученные ранее ip адреса в контролируемые сетевые диапазоны, при этом
-		от Netbox нужно получить не только входят/не входят но и id сенсора который
-		контролирует данный ip адрес;
-		6. добавить теги содержащие id сенсора в информацию о хосте в Zabbix;
-		7. если задача была инициализирована вручную, через веб-интерфейс, то
-		отправить результат на api сервер.
-	*/
+	//проверяем наличие списка групп хостов
+	if len(hostGroupList.Result) == 0 {
+		return errors.New("an empty list of host groups has been received, no further processing of the task is possible")
+	}
 
 	// инициализация словарей
 	//
@@ -129,49 +130,102 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 	// Таким образом место чтения словарей в обработчике задач.
 	dicts, err := dictionarieshandler.Read("config/dictionary.yml")
 	if err != nil {
-		return err
+		ths.logger.Send("error", wrappers.WrapperError(err).Error())
 	}
+	dictsSize := len(dicts.Dictionaries.WebSiteGroupMonitoring)
 
-	//получаем полный список групп хостов
-	res, err := ths.zabbixConn.GetFullHostGroupList(ctx)
-	if err != nil {
-		return err
-	}
+	var listGroupsId []string
+	for _, host := range hostGroupList.Result {
+		if dictsSize == 0 {
+			listGroupsId = append(listGroupsId, host.GroupId)
 
-	data, errMsg, err := connectionjsonrpc.NewResponseGetHostGroupList().Get(res)
-	if err != nil {
-		return err
-	}
-	if errMsg.Error.Message != "" {
-		ths.logger.Send("warning", wrappers.WrapperError(errors.New(errMsg.Error.Message)).Error())
-	}
+			continue
+		}
 
-	//проверяем наличие списка групп хостов
-	if len(data.Result) == 0 {
-		return errors.New("an empty list of host groups has been received, no further processing of the task is possible")
-	}
-
-	if len(dicts.Dictionaries.WebSiteGroupMonitoring) != 0 {
-		for _, host := range data.Result {
-			if slices.ContainsFunc(dicts.Dictionaries.WebSiteGroupMonitoring, func(dict dictionarieshandler.Dictionaries) bool {
-				if dict.Name == host.Name {
+		if !slices.ContainsFunc(
+			dicts.Dictionaries.WebSiteGroupMonitoring,
+			func(v dictionarieshandler.WebSiteMonitoring) bool {
+				if v.Name == host.Name {
 					return true
 				}
 
 				return false
-			}) {
-
-			}
-
-			//получаем список хостов по группе
-			res, err := ths.zabbixConn.GetHostListByGroup(ctx, dict.Name)
-			if err != nil {
-				return err
-			}
+			},
+		) {
+			continue
 		}
+
+		listGroupsId = append(listGroupsId, host.GroupId)
 	}
 
-	api.SendData(b)
+	// получаем список хостов или которые есть в словарях, если словари
+	// не пусты, или все хосты
+	res, err = ths.zabbixConn.GetHostList(ctx, listGroupsId...)
+	if err != nil {
+		return err
+	}
+
+	hostList, errMsg, err := connectionjsonrpc.NewResponseGetHostList().Get(res)
+	if err != nil {
+		return err
+	}
+
+	//очищаем хранилище от предыдущих данных (что бы не смешивать старые и новые данные)
+	ths.storage.DeleteAll()
+	// устанавливаем дату начала выполнения задачи
+	ths.storage.SetStartDateExecution()
+
+	// заполняем хранилище данными о хостах
+	for _, host := range hostList.Result {
+		if hostId, err := strconv.Atoi(host.HostId); err != nil {
+			ths.storage.Add(datamodels.HostDetailedInformation{
+				HostId:       hostId,
+				OriginalHost: host.Name,
+			})
+		}
+
+	}
+
+	// инициализируем поиск через DNS resolver
+	dnsRes, err := dnsresolver.New(
+		ths.storage,
+		ths.logger,
+		dnsresolver.WithTimeout(10),
+	)
+	if err != nil {
+		return err
+	}
+
+	// меняем статус задачи на "выполняется"
+	ths.storage.SetProcessRunning()
+
+	chDone := make(chan struct{})
+	// запускаем поиск через DNS resolver
+	go dnsRes.Run(ctx, chDone)
+	<-chDone
+
+	// логируем ошибки при выполнении DNS преобразования доменных имён в ip адреса
+	errList := ths.storage.GetListErrors()
+	for _, v := range errList {
+		ths.logger.Send("warning", fmt.Sprintf("error DNS resolve '%s', description:'%s'", v.OriginalHost, v.Error.Error()))
+	}
+
+	/*
+		Далее нужно:
+			1. выполнить поиск ip адресов в Netbox для того что бы проверить входят ли
+			полученные ранее ip адреса в контролируемые сетевые диапазоны, при этом
+			от Netbox нужно получить не только входят/не входят но и id сенсора который
+			контролирует данный ip адрес;
+			2. добавить теги содержащие id сенсора в информацию о хосте в Zabbix;
+			3. если задача была инициализирована вручную, через веб-интерфейс, то
+			отправить результат на api сервер.
+
+	*/
+
+	// меняем статус задачи на "не выполняется"
+	ths.storage.SetProcessNotRunning()
+
+	//api.SendData(b)
 
 	return nil
 }

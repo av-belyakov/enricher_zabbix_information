@@ -7,10 +7,13 @@ type ListDictionaries struct {
 
 // Dictionaries словари
 type Dictionaries struct {
-	WebSiteGroupMonitoring []struct {
-		URLs        []string `yaml:"urls"`
-		Name        string   `yaml:"name"`
-		Description string   `yaml:"description"`
-	} `mapstructure:"websites_group_monitoring"`
-	Version string `yaml:"version"`
+	WebSiteGroupMonitoring []WebSiteMonitoring `mapstructure:"websites_group_monitoring"`
+	Version                string              `yaml:"version"`
+}
+
+// WebSiteMonitoring информация о сайте для мониторинга
+type WebSiteMonitoring struct {
+	URLs        []string `yaml:"urls"`
+	Name        string   `yaml:"name"`
+	Description string   `yaml:"description"`
 }
