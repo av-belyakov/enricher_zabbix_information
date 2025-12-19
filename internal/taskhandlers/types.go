@@ -1,4 +1,4 @@
-package main
+package taskhandlers
 
 import (
 	zconnection "github.com/av-belyakov/zabbixapicommunicator/v2/cmd/connectionjsonrpc"
