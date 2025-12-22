@@ -41,7 +41,11 @@ func NewTaskHandler(
 
 // autoTaskHandler простой обработчик задач
 func (ths *TaskHandlerSettings) TaskHandler(ctx context.Context) error {
-	return wrappers.WrapperError(ths.start(ctx))
+	if err := ths.start(ctx); err != nil {
+		return wrappers.WrapperError(err)
+	}
+
+	return nil
 }
 
 // manualTaskHandler ручной обработчик задач, задачи запускаются при их
@@ -147,11 +151,6 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 		ths.logger.Send("warning", errMsg.Error.Message)
 	}
 
-	//fmt.Println("method 'TaskHandlerSettings.start' full host group list:")
-	//for k, host := range hostGroupList.Result {
-	//	fmt.Printf("%d.\n\tname:'%s'\n", k+1, host.Name)
-	//}
-
 	//проверяем наличие списка групп хостов
 	if len(hostGroupList.Result) == 0 {
 		return errors.New("an empty list of host groups has been received, no further processing of the task is possible")
@@ -181,10 +180,10 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 			continue
 		}
 
-		if slices.ContainsFunc(
+		if !slices.ContainsFunc(
 			dicts.Dictionaries.WebSiteGroupMonitoring,
 			func(v dictionarieshandler.WebSiteMonitoring) bool {
-				return v.Name != host.Name
+				return v.Name == host.Name
 			},
 		) {
 			continue
@@ -193,7 +192,7 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 		listGroupsId = append(listGroupsId, host.GroupId)
 	}
 
-	fmt.Println("method 'TaskHandlerSettings.start' listGroupsId:", listGroupsId)
+	//fmt.Println("method 'TaskHandlerSettings.start' listGroupsId:", listGroupsId)
 
 	// получаем список хостов или которые есть в словарях, если словари
 	// не пусты, или все хосты
@@ -207,7 +206,7 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 		return err
 	}
 
-	fmt.Println("method 'TaskHandlerSettings.start' hostList:", hostList)
+	//fmt.Println("method 'TaskHandlerSettings.start' hostList:", hostList)
 
 	//очищаем хранилище от предыдущих данных (что бы не смешивать старые и новые данные)
 	ths.storage.DeleteAll()
@@ -224,7 +223,7 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 		}
 	}
 
-	fmt.Printf("method 'TaskHandlerSettings.start' count hosts:'%d'\n", len(ths.storage.GetList()))
+	//fmt.Printf("method 'TaskHandlerSettings.start' count hosts:'%d'\n", len(ths.storage.GetList()))
 
 	// инициализируем поиск через DNS resolver
 	dnsRes, err := dnsresolver.New(
@@ -272,8 +271,6 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 
 	// меняем статус задачи на "не выполняется"
 	ths.storage.SetProcessNotRunning()
-
-	//api.SendData(b)
 
 	return nil
 }

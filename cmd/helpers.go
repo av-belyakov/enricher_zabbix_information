@@ -96,7 +96,7 @@ func getSchedule(conf *confighandler.CfgSchedule) string {
 			if v != "" {
 				s.WriteString(
 					fmt.Sprintf(
-						"%v%d. %v%s%v\n",
+						"  %v%d. %v%s%v\n",
 						constants.Ansi_Dark_Gray,
 						k+1,
 						constants.Ansi_Bright_Magenta,

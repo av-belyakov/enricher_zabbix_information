@@ -10,8 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 func BaseComponentScripts() templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_BaseComponentScripts_9697`,
-		Function: `function __templ_BaseComponentScripts_9697(){const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+		Name: `__templ_BaseComponentScripts_ef15`,
+		Function: `function __templ_BaseComponentScripts_ef15(){const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = ` + "`" + `${wsProtocol}//${window.location.host}/ws` + "`" + `;
     let arrLogs = [];
     let socket = new WebSocket(wsUrl);
@@ -84,6 +84,12 @@ func BaseComponentScripts() templ.ComponentScript {
 
             //делать доступными для взаимодействия кнопку и поле ввода
             //только после выполнения задачи
+        }
+
+        if (jsonObj.type == "ask_manually_task") {
+            console.log("--------");
+            console.log(jsonObj.data);
+            console.log("--------");
         }
     }
 
@@ -221,8 +227,8 @@ func BaseComponentScripts() templ.ComponentScript {
     //обработчик на кнопку отправляющую токен на сервер
     setHandlerForButtonSendToken();
 }`,
-		Call:       templ.SafeScript(`__templ_BaseComponentScripts_9697`),
-		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_9697`),
+		Call:       templ.SafeScript(`__templ_BaseComponentScripts_ef15`),
+		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_ef15`),
 	}
 }
 
