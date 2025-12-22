@@ -75,6 +75,12 @@ script BaseComponentScripts(){
             //делать доступными для взаимодействия кнопку и поле ввода
             //только после выполнения задачи
         }
+
+        if (jsonObj.type == "ask_manually_task") {
+            console.log("--------");
+            console.log(jsonObj.data);
+            console.log("--------");
+        }
     }
 
     // форматирования времени
