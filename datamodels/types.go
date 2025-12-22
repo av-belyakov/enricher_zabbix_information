@@ -31,8 +31,8 @@ type TemplBasePage struct {
 type TemplTaskCompletionsStatistics struct {
 	Hosts []struct {
 		Name  string `json:"name"`
-		Error error  `json:"error"`
-	}
+		Error string `json:"error"`
+	} `json:"hosts"`
 	DataStart             string `json:"data_start"`
 	DataEnd               string `json:"data_end"`
 	DiffTime              string `json:"diff_time"`

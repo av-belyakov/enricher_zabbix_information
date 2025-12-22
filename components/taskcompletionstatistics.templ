@@ -15,7 +15,7 @@ templ TemplateTaskCompletionStatistics(ttcs datamodels.TemplTaskCompletionsStati
         <div style="padding-left: 20px; margin: 10px 0;">
 			<ol>
 				for _, v := range ttcs.Hosts {
-					<li><b>{v.Name}</b>, error: {v.Error.Error()}</li>
+					<li><b>{v.Name}</b>, error: {v.Error}</li>
 				}
 			</ol>
 		</div>

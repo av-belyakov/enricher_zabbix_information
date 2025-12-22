@@ -54,8 +54,8 @@ func (lc *LoggingChan) Start(ctx context.Context) {
 								"message": "%s"
 							}
 						}`,
-							strings.ToUpper(msg.GetType()),
 							time.Now().Format(time.RFC3339),
+							strings.ToUpper(msg.GetType()),
 							msg.GetMessage(),
 						))
 					}

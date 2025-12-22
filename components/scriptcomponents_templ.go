@@ -10,8 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 func BaseComponentScripts() templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_BaseComponentScripts_ef15`,
-		Function: `function __templ_BaseComponentScripts_ef15(){const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+		Name: `__templ_BaseComponentScripts_713f`,
+		Function: `function __templ_BaseComponentScripts_713f(){const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = ` + "`" + `${wsProtocol}//${window.location.host}/ws` + "`" + `;
     let arrLogs = [];
     let socket = new WebSocket(wsUrl);
@@ -90,6 +90,39 @@ func BaseComponentScripts() templ.ComponentScript {
             console.log("--------");
             console.log(jsonObj.data);
             console.log("--------");
+
+            //разблокируем кнопку отправить и поле ввода токена
+            if(jsonObj.data.execution_status == "завершена") {
+                disabledInputAndButtonSendToken(false);
+            }
+
+            let infoField = document.getElementById("informationArea");
+
+            console.log("infoField =", infoField)
+
+            infoField.innerHTML = ` + "`" + `
+                <div>
+                    <p>Статистика выполнения задачи:</p>		
+                    <div>Статус задачи: <u>${jsonObj.data.execution_status}</u></div>
+                    <div>Время начала выполнения: ${jsonObj.data.data_start}</div>
+                    <div>Время завершения выполнения: ${jsonObj.data.data_end}</div>
+                    <div>Время на выполнение задачи: ${jsonObj.data.diff_time}</div>
+                    <div>Всего доменных имён: ${jsonObj.data.count_hosts}</div>
+                    <div>Количество обработанных доменных имён: ${jsonObj.data.count_hosts_is_processed}</div>
+                    <div>Количество доменных имён обработанных с ошибкой: ${jsonObj.data.count_hosts_error}</div>
+                    <div>Список доменных имён при обработки которых возникли ошибки:</div>
+                    <div style="padding-left: 20px; margin: 10px 0;">
+                        <ol id="listDomainName"></ol>
+                    </div>
+                </div>
+            ` + "`" + `
+
+            let listDomainName = document.getElementById("listDomainName");     
+            jsonObj.data.hosts.forEach(host => {
+                let elemLi = document.createElement("li");
+                elemLi.innerHTML = ` + "`" + `<b>${host.name}</b>, error: ${host.error}` + "`" + `; 
+                listDomainName.appendChild(elemLi);
+            });
         }
     }
 
@@ -186,6 +219,7 @@ func BaseComponentScripts() templ.ComponentScript {
             }
         });
 
+        printErrorMessage(false);
         socket.send(jsonData)
 
         //временно выключаем поле ввода токена и кнопку его отправки
@@ -227,8 +261,8 @@ func BaseComponentScripts() templ.ComponentScript {
     //обработчик на кнопку отправляющую токен на сервер
     setHandlerForButtonSendToken();
 }`,
-		Call:       templ.SafeScript(`__templ_BaseComponentScripts_ef15`),
-		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_ef15`),
+		Call:       templ.SafeScript(`__templ_BaseComponentScripts_713f`),
+		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_713f`),
 	}
 }
 

@@ -59,7 +59,7 @@ func (is *InformationServer) Start(ctx context.Context) error {
 	}
 
 	//инициализируем обработчик статических файлов
-	fs := http.FileServer(http.Dir("../../static"))
+	fs := http.FileServer(http.Dir("./static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	//инициализируем api сервер

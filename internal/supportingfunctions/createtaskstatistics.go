@@ -23,7 +23,7 @@ func CreateTaskStatistics(storage interfaces.StorageInformation) datamodels.Temp
 
 	listHostsError := []struct {
 		Name  string `json:"name"`
-		Error error  `json:"error"`
+		Error string `json:"error"`
 	}{}
 	hosts := storage.GetList()
 	var countHostIsProcessed int
@@ -40,10 +40,10 @@ func CreateTaskStatistics(storage interfaces.StorageInformation) datamodels.Temp
 			listHostsError,
 			struct {
 				Name  string `json:"name"`
-				Error error  `json:"error"`
+				Error string `json:"error"`
 			}{
 				Name:  v.OriginalHost,
-				Error: v.Error,
+				Error: v.Error.Error(),
 			})
 	}
 
