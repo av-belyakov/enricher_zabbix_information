@@ -13,6 +13,7 @@ type Settings struct {
 	storage  interfaces.StorageDNSResolver
 	logger   interfaces.Logger
 	timeout  time.Duration
+	chSignal chan<- struct{} // канал информирующий о произошедших изменениях внутри модуля
 }
 
 type Options func(*Settings) error

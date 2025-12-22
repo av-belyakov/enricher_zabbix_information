@@ -16,7 +16,12 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dictionarieshandler"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dnsresolver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
+)
+
+var (
+	chCtxKey = channelContextKey("channel for signal")
 )
 
 func NewTaskHandler(
@@ -34,7 +39,7 @@ func NewTaskHandler(
 	}
 }
 
-// autoTaskHandler автоматический обработчик задач, задачи запускаются по расписанию
+// autoTaskHandler простой обработчик задач
 func (ths *TaskHandlerSettings) TaskHandler(ctx context.Context) error {
 	return wrappers.WrapperError(ths.start(ctx))
 }
@@ -42,17 +47,37 @@ func (ths *TaskHandlerSettings) TaskHandler(ctx context.Context) error {
 // manualTaskHandler ручной обработчик задач, задачи запускаются при их
 // инициализации через веб-интерфейс
 func (ths *TaskHandlerSettings) ManualTaskHandler(ctx context.Context) error {
+	chanSignal := make(chan struct{})
+	ctxValue := context.WithValue(ctx, chCtxKey, chanSignal)
+
 	go func() {
 		for {
 			select {
 			case <-ctx.Done():
+				close(chanSignal)
+
 				return
 
-			case b := <-ths.apiServer.GetChannelOutgoingData():
-				fmt.Println("TEST - Outgoing data from API server:", string(b))
+			case <-chanSignal:
+				// здесь отправляем данные из storage в api server
+				b, err := json.Marshal(ResponseTaskHandler{
+					Type: "ask_manually_task",
+					Data: supportingfunctions.CreateTaskStatistics(ths.storage),
+				})
+				if err != nil {
+					ths.logger.Send("error", wrappers.WrapperError(err).Error())
+
+					continue
+				}
+
+				ths.apiServer.SendData(b)
+
+			case msg := <-ths.apiServer.GetChannelOutgoingData():
+
+				fmt.Println("method 'TaskHandlerSettings.ManualTaskHandler' - Outgoing data from API server:", string(msg))
 
 				elmManualTask := apiserver.ElementManuallyTask{}
-				if err := json.Unmarshal(b, &elmManualTask); err != nil {
+				if err := json.Unmarshal(msg, &elmManualTask); err != nil {
 					ths.logger.Send("error", wrappers.WrapperError(err).Error())
 
 					continue
@@ -64,6 +89,9 @@ func (ths *TaskHandlerSettings) ManualTaskHandler(ctx context.Context) error {
 
 				// проверка токена доступа
 				if !ths.apiServer.CheckAuthToken(elmManualTask.Settings.Token) {
+
+					fmt.Println("method 'TaskHandlerSettings.ManualTaskHandler' - invalid apiserver access token received")
+
 					ths.logger.Send("error", wrappers.WrapperError(errors.New("invalid apiserver access token received")).Error())
 
 					b, err := json.Marshal(apiserver.ElementManuallyTask{
@@ -82,9 +110,21 @@ func (ths *TaskHandlerSettings) ManualTaskHandler(ctx context.Context) error {
 					continue
 				}
 
-				if err := ths.start(ctx); err != nil {
+				if err := ths.start(ctxValue); err != nil {
 					ths.logger.Send("error", wrappers.WrapperError(err).Error())
 				}
+
+				b, err := json.Marshal(ResponseTaskHandler{
+					Type: "ask_manually_task",
+					Data: supportingfunctions.CreateTaskStatistics(ths.storage),
+				})
+				if err != nil {
+					ths.logger.Send("error", wrappers.WrapperError(err).Error())
+
+					continue
+				}
+
+				ths.apiServer.SendData(b)
 			}
 		}
 	}()
@@ -141,14 +181,10 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 			continue
 		}
 
-		if !slices.ContainsFunc(
+		if slices.ContainsFunc(
 			dicts.Dictionaries.WebSiteGroupMonitoring,
 			func(v dictionarieshandler.WebSiteMonitoring) bool {
-				if v.Name == host.Name {
-					return true
-				}
-
-				return false
+				return v.Name != host.Name
 			},
 		) {
 			continue
@@ -198,6 +234,14 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 	)
 	if err != nil {
 		return err
+	}
+
+	// если есть канал для информирования внешних систем о произошедших изменениях
+	// добавляем его в dns resolver
+	if v := ctx.Value(chCtxKey); v != nil {
+		if chSig, ok := v.(chan struct{}); ok {
+			dnsRes.AddChanSignal(chSig)
+		}
 	}
 
 	// меняем статус задачи на "выполняется"

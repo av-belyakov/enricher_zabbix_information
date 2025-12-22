@@ -11,6 +11,7 @@ type HostDetailedInformation struct {
 	DomainName   string       // доменное имя
 	Error        error        // ошибка
 	HostId       int          // id хоста
+	IsProcessed  bool         // флаг обработан ли хост
 }
 
 // TemplBasePage тип для templ, базовая страница
@@ -29,13 +30,14 @@ type TemplBasePage struct {
 // TemplTaskCompletionsStatistics тип для templ, статистика выполненной задачи
 type TemplTaskCompletionsStatistics struct {
 	Hosts []struct {
-		Name  string
-		Error error
+		Name  string `json:"name"`
+		Error error  `json:"error"`
 	}
-	DataStart       string
-	DataEnd         string
-	DiffTime        string
-	ExecutionStatus string
-	CountHosts      int
-	CountHostsError int
+	DataStart             string `json:"data_start"`
+	DataEnd               string `json:"data_end"`
+	DiffTime              string `json:"diff_time"`
+	ExecutionStatus       string `json:"execution_status"`
+	CountHosts            int    `json:"count_hosts"`
+	CountHostsError       int    `json:"count_hosts_error"`
+	CountHostsIsProcessed int    `json:"count_hosts_is_processed"`
 }
