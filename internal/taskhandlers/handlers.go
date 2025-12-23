@@ -231,7 +231,6 @@ func (th *TaskHandler) start() error {
 	// инициализируем поиск через DNS resolver
 	dnsRes, err := dnsresolver.New(
 		th.settings.storage,
-		th.settings.logger,
 		dnsresolver.WithTimeout(10),
 	)
 	if err != nil {
@@ -256,6 +255,8 @@ func (th *TaskHandler) start() error {
 			if err := th.settings.storage.SetError(msg.HostId, customerrors.NewErrorNoValidUrl(msg.OriginalHost, err)); err != nil {
 				th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
 			}
+
+			continue
 		}
 
 		if err := th.settings.storage.SetDomainName(msg.HostId, msg.DomainName); err != nil {
