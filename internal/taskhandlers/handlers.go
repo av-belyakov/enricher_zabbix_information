@@ -48,7 +48,7 @@ func (ths TaskHandlerSettings) Init(ctx context.Context) *TaskHandler {
 				return
 
 			case msg := <-chanSignal:
-				fmt.Println("method 'TaskHandlerSettings.ManualTaskHandler' - chan signal message:", msg)
+				fmt.Println("method 'TaskHandlerSettings.ManualTaskHandler' - chan signal message:", string(msg.Data))
 
 				if msg.ForWhom == "web" {
 					fmt.Println("method 'TaskHandlerSettings.ManualTaskHandler' - sending data to web")
