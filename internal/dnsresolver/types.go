@@ -2,6 +2,7 @@ package dnsresolver
 
 import (
 	"net"
+	"net/netip"
 	"time"
 
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
@@ -13,7 +14,12 @@ type Settings struct {
 	storage  interfaces.StorageDNSResolver
 	logger   interfaces.Logger
 	timeout  time.Duration
-	chSignal chan<- struct{} // канал информирующий о произошедших изменениях внутри модуля
 }
 
 type Options func(*Settings) error
+
+type InfoFromDNSResolver struct {
+	Ips        []netip.Addr
+	Error      error
+	DomainName string
+}
