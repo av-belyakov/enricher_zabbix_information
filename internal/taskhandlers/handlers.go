@@ -10,7 +10,6 @@ import (
 
 	"github.com/av-belyakov/zabbixapicommunicator/v2/cmd/connectionjsonrpc"
 
-	"github.com/av-belyakov/enricher_zabbix_information/datamodels"
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/apiserver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dictionarieshandler"
@@ -63,6 +62,8 @@ func (ths *TaskHandlerSettings) ManualTaskHandler(ctx context.Context) error {
 				return
 
 			case <-chanSignal:
+				fmt.Println("method 'TaskHandlerSettings.ManualTaskHandler' - chan signal")
+
 				// здесь отправляем данные из storage в api server
 				b, err := json.Marshal(ResponseTaskHandler{
 					Type: "ask_manually_task",
@@ -74,11 +75,13 @@ func (ths *TaskHandlerSettings) ManualTaskHandler(ctx context.Context) error {
 					continue
 				}
 
+				fmt.Println("method 'TaskHandlerSettings.ManualTaskHandler' - send data to web")
+
 				ths.apiServer.SendData(b)
 
 			case msg := <-ths.apiServer.GetChannelOutgoingData():
 
-				fmt.Println("method 'TaskHandlerSettings.ManualTaskHandler' - Outgoing data from API server:", string(msg))
+				fmt.Println("method 'TaskHandlerSettings.ManualTaskHandler' - Outgoing data from API server:")
 
 				elmManualTask := apiserver.ElementManuallyTask{}
 				if err := json.Unmarshal(msg, &elmManualTask); err != nil {
@@ -170,8 +173,6 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 	}
 	dictsSize := len(dicts.Dictionaries.WebSiteGroupMonitoring)
 
-	//fmt.Println("method 'TaskHandlerSettings.start' dictsSize:", dictsSize)
-
 	var listGroupsId []string
 	for _, host := range hostGroupList.Result {
 		if dictsSize == 0 {
@@ -194,7 +195,7 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 
 	//fmt.Println("method 'TaskHandlerSettings.start' listGroupsId:", listGroupsId)
 
-	// получаем список хостов или которые есть в словарях, если словари
+	// получаем список хостов которые есть в словарях, если словари
 	// не пусты, или все хосты
 	res, err = ths.zabbixConn.GetHostList(ctx, listGroupsId...)
 	if err != nil {
@@ -216,7 +217,7 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 	// заполняем хранилище данными о хостах
 	for _, host := range hostList.Result {
 		if hostId, err := strconv.Atoi(host.HostId); err == nil {
-			ths.storage.Add(datamodels.HostDetailedInformation{
+			ths.storage.Add(storage.HostDetailedInformation{
 				HostId:       hostId,
 				OriginalHost: host.Host,
 			})
@@ -236,9 +237,11 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 	}
 
 	// если есть канал для информирования внешних систем о произошедших изменениях
-	// добавляем его в dns resolver
+	// добавляем его в DNS resolver
 	if v := ctx.Value(chCtxKey); v != nil {
 		if chSig, ok := v.(chan struct{}); ok {
+			fmt.Printf("method 'TaskHandlerSettings.start' add channel to DNS Resolver, chSig:'%v'\n", chSig)
+
 			dnsRes.AddChanSignal(chSig)
 		}
 	}

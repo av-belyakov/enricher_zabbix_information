@@ -13,7 +13,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/av-belyakov/enricher_zabbix_information/datamodels"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 	"github.com/av-belyakov/enricher_zabbix_information/test/helpersfile"
 )
@@ -50,7 +49,7 @@ func TestStorage(t *testing.T) {
 			hostId, err := strconv.Atoi(v.HostId)
 			assert.NoError(t, err)
 
-			sts.Add(datamodels.HostDetailedInformation{
+			sts.Add(storage.HostDetailedInformation{
 				HostId:       hostId,
 				OriginalHost: v.Host,
 			})
@@ -105,7 +104,7 @@ func TestStorage(t *testing.T) {
 		hostId := 123456789
 		ipHost, err := netip.ParseAddr("65.33.110.3")
 		assert.NoError(t, err)
-		sts.Add(datamodels.HostDetailedInformation{
+		sts.Add(storage.HostDetailedInformation{
 			Ips:          []netip.Addr{ipHost},
 			HostId:       hostId,
 			OriginalHost: "test.ru/anything&name=aa",
@@ -125,7 +124,7 @@ func TestStorage(t *testing.T) {
 		orgHost := "example-domain.ru/anything&name=aa"
 		domainName := "example-domain.ru"
 
-		sts.Add(datamodels.HostDetailedInformation{
+		sts.Add(storage.HostDetailedInformation{
 			HostId:       hostId,
 			OriginalHost: orgHost,
 		})

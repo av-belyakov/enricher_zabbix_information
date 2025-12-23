@@ -12,7 +12,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/av-belyakov/enricher_zabbix_information/datamodels"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dnsresolver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 	"github.com/av-belyakov/enricher_zabbix_information/test/helpers"
@@ -40,7 +39,7 @@ func TestDnsResolver(t *testing.T) {
 		hostId, err := strconv.Atoi(v.HostId)
 		assert.NoError(t, err)
 
-		sts.Add(datamodels.HostDetailedInformation{
+		sts.Add(storage.HostDetailedInformation{
 			HostId:       hostId,
 			OriginalHost: v.Host,
 		})
