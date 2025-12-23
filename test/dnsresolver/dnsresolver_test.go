@@ -81,9 +81,12 @@ func TestDnsResolver(t *testing.T) {
 		sts.SetProcessRunning()
 		assert.True(t, sts.GetStatusProcessRunning())
 
-		chDone := make(chan struct{})
-		go dnsRes.Run(ctx, chDone)
-		<-chDone
+		chOutput, err := dnsRes.Run(ctx)
+		assert.NoError(t, err)
+
+		for msg := range chOutput {
+			fmt.Printf("%s, ips:%v (error: %v)\n", msg.DomainName, msg.Ips, msg.Error)
+		}
 
 		//изменить статус выполнения процесса
 		sts.SetProcessNotRunning()
