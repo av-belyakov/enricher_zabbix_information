@@ -12,6 +12,7 @@ import (
 
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/apiserver"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/customerrors"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dictionarieshandler"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dnsresolver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
@@ -230,30 +231,42 @@ func (th *TaskHandler) start() error {
 	// инициализируем поиск через DNS resolver
 	dnsRes, err := dnsresolver.New(
 		th.settings.storage,
-		th.settings.logger,
 		dnsresolver.WithTimeout(10),
 	)
 	if err != nil {
 		return err
 	}
 
-	// если есть канал для информирования внешних систем о произошедших изменениях
-	// добавляем его в DNS resolver
-	if v := ctx.Value(chCtxKey); v != nil {
-		if chSig, ok := v.(chan struct{}); ok {
-			fmt.Printf("method 'TaskHandlerSettings.start' add channel to DNS Resolver, chSig:'%v'\n", chSig)
-
-			dnsRes.AddChanSignal(chSig)
-		}
-	}
-
 	// меняем статус задачи на "выполняется"
 	th.settings.storage.SetProcessRunning()
 
-	chDone := make(chan struct{})
 	// запускаем поиск через DNS resolver
-	go dnsRes.Run(th.ctx, chDone)
-	<-chDone
+	chInfo, err := dnsRes.Run(th.ctx)
+	if err != nil {
+		return err
+	}
+
+	for msg := range chInfo {
+		if err := th.settings.storage.SetIsProcessed(msg.HostId); err != nil {
+			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+		}
+
+		if msg.Error != nil {
+			if err := th.settings.storage.SetError(msg.HostId, customerrors.NewErrorNoValidUrl(msg.OriginalHost, err)); err != nil {
+				th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+			}
+
+			continue
+		}
+
+		if err := th.settings.storage.SetDomainName(msg.HostId, msg.DomainName); err != nil {
+			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+		}
+
+		if err := th.settings.storage.SetIps(msg.HostId, msg.Ips[0], msg.Ips...); err != nil {
+			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+		}
+	}
 
 	// логируем ошибки при выполнении DNS преобразования доменных имён в ip адреса
 	errList := th.settings.storage.GetListErrors()

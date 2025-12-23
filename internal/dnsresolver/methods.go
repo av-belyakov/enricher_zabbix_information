@@ -25,11 +25,8 @@ func (s *Settings) Run(ctx context.Context) (<-chan InfoFromDNSResolver, error) 
 
 		for hostId, originalHost := range hostList {
 			idns := InfoFromDNSResolver{
-				DomainName: originalHost,
-			}
-
-			if err := s.storage.SetIsProcessed(hostId); err != nil {
-				s.logger.Send("error", wrappers.WrapperError(err).Error())
+				HostId:       hostId,
+				OriginalHost: originalHost,
 			}
 
 			if !strings.Contains(originalHost, "http://") {
@@ -38,38 +35,24 @@ func (s *Settings) Run(ctx context.Context) (<-chan InfoFromDNSResolver, error) 
 
 			urlHost, err := url.Parse(originalHost)
 			if err != nil {
-				if err := s.storage.SetError(hostId, customerrors.NewErrorNoValidUrl(originalHost, err)); err != nil {
-					s.logger.Send("error", wrappers.WrapperError(err).Error())
-				}
-
 				idns.Error = customerrors.NewErrorNoValidUrl(originalHost, err)
 				chSendData <- idns
 
 				continue
 			}
 
+			idns.DomainName = urlHost.Host
+
 			// DNS resolve
 			ips, err := s.resolver.LookupHost(ctx, urlHost.Host)
 			if err != nil {
-				if err := s.storage.SetError(hostId, customerrors.NewErrorUrlNotFound(originalHost, err)); err != nil {
-					s.logger.Send("error", wrappers.WrapperError(err).Error())
-				}
-
 				idns.Error = customerrors.NewErrorUrlNotFound(originalHost, err)
 				chSendData <- idns
 
 				continue
 			}
 
-			if err := s.storage.SetDomainName(hostId, urlHost.Host); err != nil {
-				s.logger.Send("error", wrappers.WrapperError(err).Error())
-			}
-
 			if len(ips) == 0 {
-				if err := s.storage.SetError(hostId, customerrors.NewErrorUrlNotFound(urlHost.Host, err)); err != nil {
-					s.logger.Send("error", wrappers.WrapperError(err).Error())
-				}
-
 				idns.Error = customerrors.NewErrorUrlNotFound(originalHost, err)
 				chSendData <- idns
 
@@ -80,18 +63,13 @@ func (s *Settings) Run(ctx context.Context) (<-chan InfoFromDNSResolver, error) 
 			for _, ip := range ips {
 				ipaddr, err := netip.ParseAddr(ip)
 				if err != nil {
-					if err := s.storage.SetError(hostId, customerrors.NewErrorIpInvalid(ip, err)); err != nil {
-						s.logger.Send("error", wrappers.WrapperError(err).Error())
-					}
+					idns.Error = customerrors.NewErrorIpInvalid(ip, err)
+					chSendData <- idns
 
 					continue
 				}
 
 				hostIps = append(hostIps, ipaddr)
-			}
-
-			if err := s.storage.SetIps(hostId, hostIps[0], hostIps...); err != nil {
-				s.logger.Send("error", wrappers.WrapperError(err).Error())
 			}
 
 			idns.Ips = hostIps

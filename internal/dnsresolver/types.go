@@ -12,14 +12,15 @@ import (
 type Settings struct {
 	resolver *net.Resolver
 	storage  interfaces.StorageDNSResolver
-	logger   interfaces.Logger
 	timeout  time.Duration
 }
 
 type Options func(*Settings) error
 
 type InfoFromDNSResolver struct {
-	Ips        []netip.Addr
-	Error      error
-	DomainName string
+	Ips          []netip.Addr
+	Error        error
+	OriginalHost string
+	DomainName   string
+	HostId       int
 }

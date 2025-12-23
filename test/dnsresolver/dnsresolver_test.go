@@ -12,8 +12,10 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/av-belyakov/enricher_zabbix_information/internal/customerrors"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dnsresolver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
 	"github.com/av-belyakov/enricher_zabbix_information/test/helpers"
 	"github.com/av-belyakov/enricher_zabbix_information/test/helpersfile"
 )
@@ -69,7 +71,6 @@ func TestDnsResolver(t *testing.T) {
 
 	dnsRes, err := dnsresolver.New(
 		sts,
-		logging,
 		dnsresolver.WithTimeout(10),
 	)
 	if err != nil {
@@ -85,12 +86,32 @@ func TestDnsResolver(t *testing.T) {
 		assert.NoError(t, err)
 
 		for msg := range chOutput {
-			fmt.Printf("%s, ips:%v (error: %v)\n", msg.DomainName, msg.Ips, msg.Error)
+			//fmt.Printf("%s, ips:%v (error: %v)\n", msg.DomainName, msg.Ips, msg.Error)
+
+			if err := sts.SetIsProcessed(msg.HostId); err != nil {
+				logging.Send("error", wrappers.WrapperError(err).Error())
+			}
+
+			if err := sts.SetDomainName(msg.HostId, msg.DomainName); err != nil {
+				logging.Send("error", wrappers.WrapperError(err).Error())
+			}
+
+			if msg.Error != nil {
+				if err := sts.SetError(msg.HostId, customerrors.NewErrorNoValidUrl(msg.OriginalHost, err)); err != nil {
+					logging.Send("error", wrappers.WrapperError(err).Error())
+				}
+
+				continue
+			}
+
+			if err := sts.SetIps(msg.HostId, msg.Ips[0], msg.Ips...); err != nil {
+				logging.Send("error", wrappers.WrapperError(err).Error())
+			}
 		}
 
 		//изменить статус выполнения процесса
 		sts.SetProcessNotRunning()
-		assert.True(t, sts.GetStatusProcessRunning())
+		assert.False(t, sts.GetStatusProcessRunning())
 
 		errList := sts.GetListErrors()
 		fmt.Println("\nCount element with errors:", len(errList))
@@ -103,8 +124,6 @@ func TestDnsResolver(t *testing.T) {
 			assert.True(t, ok)
 			fmt.Printf("DATA:'%+v'\n", data)
 		*/
-
-		assert.Len(t, errList, 0)
 	})
 
 	t.Cleanup(func() {

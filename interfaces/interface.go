@@ -1,7 +1,6 @@
 package interfaces
 
 import (
-	"net/netip"
 	"time"
 
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
@@ -32,10 +31,10 @@ type WriterLoggingData interface {
 // ************** хранилище ***************
 type StorageDNSResolver interface {
 	GetHosts() map[int]string
-	SetIps(hostId int, ip netip.Addr, ips ...netip.Addr) error
-	SetError(hostId int, err error) error
-	SetDomainName(hostId int, domainName string) error
-	SetIsProcessed(hostId int) error
+	// SetIps(hostId int, ip netip.Addr, ips ...netip.Addr) error
+	// SetError(hostId int, err error) error
+	// SetDomainName(hostId int, domainName string) error
+	// SetIsProcessed(hostId int) error
 }
 
 type StorageInformation interface {
