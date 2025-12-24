@@ -25,7 +25,7 @@
 #### Переменные окружения отвечающие за ограничение доступа
 
 - 'GO_ENRICHERZI_ZPASSWD' - пароль для доступа к Zabbix
-- 'GO_ENRICHERZI_NBPASSWD' - пароль для доступа к NetBox
+- 'GO_ENRICHERZI_NBTOKEN' - пароль для доступа к NetBox
 - 'GO_ENRICHERZI_DBWLOGPASSWD' - пароль для доступа к БД логирования
 - 'GO_ENRICHERZI_APISERVERTOKEN' - токен доступа из веб-интерфейса
 

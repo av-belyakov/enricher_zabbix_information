@@ -25,7 +25,7 @@ func New(rootDir string) (*ConfigApp, error) {
 
 			// Получение авторизационных данных
 			"GO_" + constants.App_Environment_Name + "_ZPASSWD":        "",
-			"GO_" + constants.App_Environment_Name + "_NBPASSWD":       "",
+			"GO_" + constants.App_Environment_Name + "_NBTOKEN":        "",
 			"GO_" + constants.App_Environment_Name + "_APISERVERTOKEN": "",
 			"GO_" + constants.App_Environment_Name + "_DBWLOGPASSWD":   "",
 
@@ -210,8 +210,8 @@ func New(rootDir string) (*ConfigApp, error) {
 		conf.AuthenticationData.ZabbixPasswd = envList["GO_"+constants.App_Environment_Name+"_ZPASSWD"]
 	}
 	//для Netbox
-	if envList["GO_"+constants.App_Environment_Name+"_NBPASSWD"] != "" {
-		conf.AuthenticationData.NetBoxPasswd = envList["GO_"+constants.App_Environment_Name+"_NBPASSWD"]
+	if envList["GO_"+constants.App_Environment_Name+"_NBTOKEN"] != "" {
+		conf.AuthenticationData.NetBoxToken = envList["GO_"+constants.App_Environment_Name+"_NBTOKEN"]
 	}
 	//для ApiServer
 	if envList["GO_"+constants.App_Environment_Name+"_APISERVERTOKEN"] != "" {
