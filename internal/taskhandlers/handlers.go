@@ -48,11 +48,7 @@ func (ths TaskHandlerSettings) Init(ctx context.Context) *TaskHandler {
 				return
 
 			case msg := <-chanSignal:
-				fmt.Println("method 'TaskHandlerSettings.ManualTaskHandler' - chan signal message:", string(msg.Data))
-
 				if msg.ForWhom == "web" {
-					fmt.Println("method 'TaskHandlerSettings.ManualTaskHandler' - sending data to web")
-
 					ths.apiServer.SendData(msg.Data)
 				}
 			}
@@ -80,8 +76,6 @@ func (th *TaskHandler) SimpleTaskHandler() error {
 func (th *TaskHandler) TaskHandlerInitiatedThroughChannel() error {
 	go func() {
 		for msg := range th.settings.apiServer.GetChannelOutgoingData() {
-			fmt.Println("method 'TaskHandlerSettings.ManualTaskHandler' - Outgoing data from API server:")
-
 			elmManualTask := apiserver.ElementManuallyTask{}
 			if err := json.Unmarshal(msg, &elmManualTask); err != nil {
 				th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
@@ -119,21 +113,6 @@ func (th *TaskHandler) TaskHandlerInitiatedThroughChannel() error {
 
 			if err := th.start(); err != nil {
 				th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
-			}
-
-			b, err := json.Marshal(ResponseTaskHandler{
-				Type: "ask_manually_task",
-				Data: supportingfunctions.CreateTaskStatistics(th.settings.storage),
-			})
-			if err != nil {
-				th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
-
-				continue
-			}
-
-			th.chanSignal <- ChanSignalSettings{
-				ForWhom: "web",
-				Data:    b,
 			}
 		}
 	}()
@@ -266,6 +245,21 @@ func (th *TaskHandler) start() error {
 		if err := th.settings.storage.SetIps(msg.HostId, msg.Ips[0], msg.Ips...); err != nil {
 			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
 		}
+
+		b, err := json.Marshal(ResponseTaskHandler{
+			Type: "ask_manually_task",
+			Data: supportingfunctions.CreateTaskStatistics(th.settings.storage),
+		})
+		if err != nil {
+			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+
+			continue
+		}
+
+		th.chanSignal <- ChanSignalSettings{
+			ForWhom: "web",
+			Data:    b,
+		}
 	}
 
 	// логируем ошибки при выполнении DNS преобразования доменных имён в ip адреса
@@ -288,6 +282,19 @@ func (th *TaskHandler) start() error {
 
 	// меняем статус задачи на "не выполняется"
 	th.settings.storage.SetProcessNotRunning()
+
+	b, err := json.Marshal(ResponseTaskHandler{
+		Type: "ask_manually_task",
+		Data: supportingfunctions.CreateTaskStatistics(th.settings.storage),
+	})
+	if err != nil {
+		return err
+	}
+
+	th.chanSignal <- ChanSignalSettings{
+		ForWhom: "web",
+		Data:    b,
+	}
 
 	return nil
 }

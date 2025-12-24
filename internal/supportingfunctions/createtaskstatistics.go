@@ -5,6 +5,8 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
 )
 
+const Zero_Pattern = "00:00:00 0001-01-01"
+
 // CreateTaskStatistics создание статистики по выполняемой задаче
 func CreateTaskStatistics(storage interfaces.StorageInformation) datamodels.TemplTaskCompletionsStatistics {
 	taskStatus := "завершена"
@@ -14,10 +16,9 @@ func CreateTaskStatistics(storage interfaces.StorageInformation) datamodels.Temp
 
 	start, end := storage.GetDateExecution()
 	dateStart := start.Format("15:04:05 2006-01-02")
-	dateEnd := "-"
+	dateEnd := end.Format("15:04:05 2006-01-02")
 	diffTime := "-"
-	if end.String() != "00:00:00 0001-01-01" {
-		dateEnd = end.Format("15:04:05 2006-01-02")
+	if dateEnd != Zero_Pattern {
 		diffTime = end.Sub(start).String()
 	}
 
@@ -47,9 +48,14 @@ func CreateTaskStatistics(storage interfaces.StorageInformation) datamodels.Temp
 			})
 	}
 
+	dEnd := "-"
+	if dateEnd != Zero_Pattern {
+		dEnd = dateEnd
+	}
+
 	return datamodels.TemplTaskCompletionsStatistics{
 		DataStart:             dateStart,
-		DataEnd:               dateEnd,
+		DataEnd:               dEnd,
 		DiffTime:              diffTime,
 		ExecutionStatus:       taskStatus,
 		CountHosts:            len(hosts),
