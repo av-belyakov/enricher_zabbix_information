@@ -10,16 +10,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/av-belyakov/enricher_zabbix_information/internal/netboxapi"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/av-belyakov/enricher_zabbix_information/internal/netboxapi"
 )
 
 func TestGetIPAddresses(t *testing.T) {
 	var (
 		host    string = "netbox.cloud.gcm"
 		port    int    = 8005
-		request string = "/api/ipam/ip-addresses/?limit=150"
+		request string = "/api/ipam/ip-addresses/?limit=30&offset=302"
 	)
 
 	if err := godotenv.Load("../../.env"); err != nil {
@@ -49,6 +50,8 @@ func TestGetIPAddresses(t *testing.T) {
 	resBody, err := io.ReadAll(res.Body)
 	assert.NoError(t, err)
 
+	fmt.Printf("RESPONSE:\n'%s'\n", string(resBody))
+
 	listPrefixes := netboxapi.ListPrefixes{}
 	err = json.Unmarshal(resBody, &listPrefixes)
 	assert.NoError(t, err)
@@ -64,7 +67,7 @@ func TestGetIPAddresses(t *testing.T) {
 		os.Unsetenv("GO_ENRICHERZI_MAIN")
 
 		os.Unsetenv("GO_ENRICHERZI_ZPASSWD")
-		//os.Unsetenv("GO_ENRICHERZI_NBTOKEN")
+		os.Unsetenv("GO_ENRICHERZI_NBTOKEN")
 		os.Unsetenv("GO_ENRICHERZI_DBWLOGPASSWD")
 		os.Unsetenv("GO_ENRICHERZI_APISERVERTOKEN")
 	})

@@ -2,19 +2,32 @@ package netboxapi
 
 import (
 	"net/http"
+	"net/netip"
 )
 
 // Settings настройки для подключения к Netbox
 type Settings struct {
-	Token string
-	Host  string
-	Port  int
+	token string
+	host  string
+	port  int
 }
 
 // Client клиент для работы с Netbox
 type Client struct {
 	client   *http.Client
-	Settings Settings
+	settings Settings
+}
+
+type ShorPrefixList struct {
+	Prefixes []ShorPrefixInfo
+	Count    int
+}
+
+type ShorPrefixInfo struct {
+	Status   string
+	Prefix   netip.Prefix
+	Id       int
+	SensorId string
 }
 
 type ListPrefixes struct {
@@ -30,9 +43,38 @@ type Prefixes struct {
 	Status struct {
 		Value string `json:"value"`
 	} `json:"status"`
-	Url          string `json:"url"`
-	Prefix       string `json:"prefix"`
-	Display      string `json:"display"`
+	Tags []struct {
+		Id      int    `json:"id"`
+		Url     string `json:"url"`
+		Display string `json:"display"`
+		Name    string `json:"name"`
+		Slug    string `json:"slug"`
+		Color   string `json:"color"`
+	} `json:"tags"`
+	Url     string `json:"url"`
+	Address string `json:"address"`
+	Prefix  string `json:"prefix"`
+	Display string `json:"display"`
+	Vrf     struct {
+		URL         string `json:"url"`
+		Display     string `json:"display"`
+		Name        string `json:"name"`
+		Rd          string `json:"rd"`
+		Description string `json:"description"`
+		Id          int    `json:"id"`
+	} `json:"vrf"`
+	Tenant struct {
+		URL         string `json:"url"`
+		Display     string `json:"display"`
+		Name        string `json:"name"`
+		Slug        string `json:"slug"`
+		Description string `json:"description"`
+		Id          int    `json:"id"`
+	} `json:"tenant"`
+	Family struct {
+		Label string `json:"label"`
+		Value int    `json:"value"`
+	} `json:"family"`
 	CustomFields struct {
 		Sensors []struct {
 			Url         string `json:"url"`
