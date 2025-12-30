@@ -1,10 +1,9 @@
 package interfaces
 
 import (
-	"net/netip"
 	"time"
 
-	"github.com/av-belyakov/enricher_zabbix_information/datamodels"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 )
 
 // **************** счётчик *****************
@@ -32,15 +31,12 @@ type WriterLoggingData interface {
 // ************** хранилище ***************
 type StorageDNSResolver interface {
 	GetHosts() map[int]string
-	SetIps(hostId int, ip netip.Addr, ips ...netip.Addr) error
-	SetError(hostId int, err error) error
-	SetDomainName(hostId int, domainName string) error
 }
 
 type StorageInformation interface {
 	GetStatusProcessRunning() bool
 	GetDateExecution() (start, end time.Time)
-	GetList() []datamodels.HostDetailedInformation
+	GetList() []storage.HostDetailedInformation
 }
 
 // ************** передача данных ***************

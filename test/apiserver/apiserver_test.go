@@ -15,7 +15,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/av-belyakov/enricher_zabbix_information/datamodels"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/apiserver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appversion"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
@@ -185,7 +184,7 @@ func TestApiServer(t *testing.T) {
 }
 
 func fillInStorage(s *storage.ShortTermStorage) {
-	testList := []datamodels.HostDetailedInformation{
+	testList := []storage.HostDetailedInformation{
 		{
 			HostId:       14421,
 			OriginalHost: "1yar.tv",

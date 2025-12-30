@@ -10,9 +10,8 @@ import (
 )
 
 // New конструктор
-func New(storage interfaces.StorageDNSResolver, logger interfaces.Logger, opts ...Options) (*Settings, error) {
+func New(storage interfaces.StorageDNSResolver, opts ...Options) (*Settings, error) {
 	settings := &Settings{
-		logger:  logger,
 		storage: storage,
 		resolver: &net.Resolver{
 			PreferGo: true,

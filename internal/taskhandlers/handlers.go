@@ -10,9 +10,9 @@ import (
 
 	"github.com/av-belyakov/zabbixapicommunicator/v2/cmd/connectionjsonrpc"
 
-	"github.com/av-belyakov/enricher_zabbix_information/datamodels"
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/apiserver"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/customerrors"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dictionarieshandler"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dnsresolver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
@@ -20,11 +20,7 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
 )
 
-var (
-	chCtxKey = channelContextKey("channel for signal")
-)
-
-func NewTaskHandler(
+func NewSettings(
 	zabbixConn *connectionjsonrpc.ZabbixConnectionJsonRPC,
 	api *apiserver.InformationServer,
 	storage *storage.ShortTermStorage,
@@ -39,20 +35,9 @@ func NewTaskHandler(
 	}
 }
 
-// autoTaskHandler простой обработчик задач
-func (ths *TaskHandlerSettings) TaskHandler(ctx context.Context) error {
-	if err := ths.start(ctx); err != nil {
-		return wrappers.WrapperError(err)
-	}
-
-	return nil
-}
-
-// manualTaskHandler ручной обработчик задач, задачи запускаются при их
-// инициализации через веб-интерфейс
-func (ths *TaskHandlerSettings) ManualTaskHandler(ctx context.Context) error {
-	chanSignal := make(chan struct{})
-	ctxValue := context.WithValue(ctx, chCtxKey, chanSignal)
+// Init инициализация обработчика задач
+func (ths TaskHandlerSettings) Init(ctx context.Context) *TaskHandler {
+	chanSignal := make(chan ChanSignalSettings)
 
 	go func() {
 		for {
@@ -62,73 +47,72 @@ func (ths *TaskHandlerSettings) ManualTaskHandler(ctx context.Context) error {
 
 				return
 
-			case <-chanSignal:
-				// здесь отправляем данные из storage в api server
-				b, err := json.Marshal(ResponseTaskHandler{
-					Type: "ask_manually_task",
-					Data: supportingfunctions.CreateTaskStatistics(ths.storage),
+			case msg := <-chanSignal:
+				if msg.ForWhom == "web" {
+					ths.apiServer.SendData(msg.Data)
+				}
+			}
+		}
+	}()
+
+	return &TaskHandler{
+		settings:   ths,
+		chanSignal: chanSignal,
+		ctx:        ctx,
+	}
+}
+
+// SimpleTaskHandler простой обработчик задач
+func (th *TaskHandler) SimpleTaskHandler() error {
+	if err := th.start(); err != nil {
+		return wrappers.WrapperError(err)
+	}
+
+	return nil
+}
+
+// TaskHandlerInitiatedThroughChannel обработчик задач, задачи запускаются
+// при их инициализации через веб-интерфейс
+func (th *TaskHandler) TaskHandlerInitiatedThroughChannel() error {
+	go func() {
+		for msg := range th.settings.apiServer.GetChannelOutgoingData() {
+			elmManualTask := apiserver.ElementManuallyTask{}
+			if err := json.Unmarshal(msg, &elmManualTask); err != nil {
+				th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+
+				continue
+			}
+
+			if elmManualTask.Type != "manually_task" {
+				continue
+			}
+
+			// проверка токена доступа
+			if !th.settings.apiServer.CheckAuthToken(elmManualTask.Settings.Token) {
+				th.settings.logger.Send("error", wrappers.WrapperError(errors.New("invalid apiserver access token received")).Error())
+
+				b, err := json.Marshal(apiserver.ElementManuallyTask{
+					Type: "manually_task",
+					Settings: apiserver.ElementManuallyTaskSettings{
+						Error: "token invalide",
+					},
 				})
 				if err != nil {
-					ths.logger.Send("error", wrappers.WrapperError(err).Error())
+					th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
 
 					continue
 				}
 
-				ths.apiServer.SendData(b)
-
-			case msg := <-ths.apiServer.GetChannelOutgoingData():
-
-				fmt.Println("method 'TaskHandlerSettings.ManualTaskHandler' - Outgoing data from API server:", string(msg))
-
-				elmManualTask := apiserver.ElementManuallyTask{}
-				if err := json.Unmarshal(msg, &elmManualTask); err != nil {
-					ths.logger.Send("error", wrappers.WrapperError(err).Error())
-
-					continue
+				th.chanSignal <- ChanSignalSettings{
+					ForWhom: "web",
+					Data:    b,
 				}
 
-				if elmManualTask.Type != "manually_task" {
-					continue
-				}
+				continue
+			}
 
-				// проверка токена доступа
-				if !ths.apiServer.CheckAuthToken(elmManualTask.Settings.Token) {
-
-					fmt.Println("method 'TaskHandlerSettings.ManualTaskHandler' - invalid apiserver access token received")
-
-					ths.logger.Send("error", wrappers.WrapperError(errors.New("invalid apiserver access token received")).Error())
-
-					b, err := json.Marshal(apiserver.ElementManuallyTask{
-						Type: "manually_task",
-						Settings: apiserver.ElementManuallyTaskSettings{
-							Error: "token invalide",
-						},
-					})
-					if err != nil {
-						ths.logger.Send("error", wrappers.WrapperError(err).Error())
-					}
-
-					// передаем результат на api сервер
-					ths.apiServer.SendData(b)
-
-					continue
-				}
-
-				if err := ths.start(ctxValue); err != nil {
-					ths.logger.Send("error", wrappers.WrapperError(err).Error())
-				}
-
-				b, err := json.Marshal(ResponseTaskHandler{
-					Type: "ask_manually_task",
-					Data: supportingfunctions.CreateTaskStatistics(ths.storage),
-				})
-				if err != nil {
-					ths.logger.Send("error", wrappers.WrapperError(err).Error())
-
-					continue
-				}
-
-				ths.apiServer.SendData(b)
+			if err := th.start(); err != nil {
+				th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
 			}
 		}
 	}()
@@ -136,9 +120,9 @@ func (ths *TaskHandlerSettings) ManualTaskHandler(ctx context.Context) error {
 	return nil
 }
 
-func (ths *TaskHandlerSettings) start(ctx context.Context) error {
+func (th *TaskHandler) start() error {
 	//получаем полный список групп хостов
-	res, err := ths.zabbixConn.GetFullHostGroupList(ctx)
+	res, err := th.settings.zabbixConn.GetFullHostGroupList(th.ctx)
 	if err != nil {
 		return err
 	}
@@ -148,7 +132,7 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 		return err
 	}
 	if errMsg.Error.Message != "" {
-		ths.logger.Send("warning", errMsg.Error.Message)
+		th.settings.logger.Send("warning", errMsg.Error.Message)
 	}
 
 	//проверяем наличие списка групп хостов
@@ -166,11 +150,9 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 	// Таким образом место чтения словарей в обработчике задач.
 	dicts, err := dictionarieshandler.Read("config/dictionary.yml")
 	if err != nil {
-		ths.logger.Send("error", wrappers.WrapperError(err).Error())
+		th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
 	}
 	dictsSize := len(dicts.Dictionaries.WebSiteGroupMonitoring)
-
-	//fmt.Println("method 'TaskHandlerSettings.start' dictsSize:", dictsSize)
 
 	var listGroupsId []string
 	for _, host := range hostGroupList.Result {
@@ -194,9 +176,9 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 
 	//fmt.Println("method 'TaskHandlerSettings.start' listGroupsId:", listGroupsId)
 
-	// получаем список хостов или которые есть в словарях, если словари
+	// получаем список хостов которые есть в словарях, если словари
 	// не пусты, или все хосты
-	res, err = ths.zabbixConn.GetHostList(ctx, listGroupsId...)
+	res, err = th.settings.zabbixConn.GetHostList(th.ctx, listGroupsId...)
 	if err != nil {
 		return err
 	}
@@ -209,14 +191,14 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 	//fmt.Println("method 'TaskHandlerSettings.start' hostList:", hostList)
 
 	//очищаем хранилище от предыдущих данных (что бы не смешивать старые и новые данные)
-	ths.storage.DeleteAll()
+	th.settings.storage.DeleteAll()
 	// устанавливаем дату начала выполнения задачи
-	ths.storage.SetStartDateExecution()
+	th.settings.storage.SetStartDateExecution()
 
 	// заполняем хранилище данными о хостах
 	for _, host := range hostList.Result {
 		if hostId, err := strconv.Atoi(host.HostId); err == nil {
-			ths.storage.Add(datamodels.HostDetailedInformation{
+			th.settings.storage.Add(storage.HostDetailedInformation{
 				HostId:       hostId,
 				OriginalHost: host.Host,
 			})
@@ -227,34 +209,63 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 
 	// инициализируем поиск через DNS resolver
 	dnsRes, err := dnsresolver.New(
-		ths.storage,
-		ths.logger,
+		th.settings.storage,
 		dnsresolver.WithTimeout(10),
 	)
 	if err != nil {
 		return err
 	}
 
-	// если есть канал для информирования внешних систем о произошедших изменениях
-	// добавляем его в dns resolver
-	if v := ctx.Value(chCtxKey); v != nil {
-		if chSig, ok := v.(chan struct{}); ok {
-			dnsRes.AddChanSignal(chSig)
+	// меняем статус задачи на "выполняется"
+	th.settings.storage.SetProcessRunning()
+
+	// запускаем поиск через DNS resolver
+	chInfo, err := dnsRes.Run(th.ctx)
+	if err != nil {
+		return err
+	}
+
+	for msg := range chInfo {
+		if err := th.settings.storage.SetIsProcessed(msg.HostId); err != nil {
+			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+		}
+
+		if msg.Error != nil {
+			if err := th.settings.storage.SetError(msg.HostId, customerrors.NewErrorNoValidUrl(msg.OriginalHost, err)); err != nil {
+				th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+			}
+
+			continue
+		}
+
+		if err := th.settings.storage.SetDomainName(msg.HostId, msg.DomainName); err != nil {
+			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+		}
+
+		if err := th.settings.storage.SetIps(msg.HostId, msg.Ips[0], msg.Ips...); err != nil {
+			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+		}
+
+		b, err := json.Marshal(ResponseTaskHandler{
+			Type: "ask_manually_task",
+			Data: supportingfunctions.CreateTaskStatistics(th.settings.storage),
+		})
+		if err != nil {
+			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+
+			continue
+		}
+
+		th.chanSignal <- ChanSignalSettings{
+			ForWhom: "web",
+			Data:    b,
 		}
 	}
 
-	// меняем статус задачи на "выполняется"
-	ths.storage.SetProcessRunning()
-
-	chDone := make(chan struct{})
-	// запускаем поиск через DNS resolver
-	go dnsRes.Run(ctx, chDone)
-	<-chDone
-
 	// логируем ошибки при выполнении DNS преобразования доменных имён в ip адреса
-	errList := ths.storage.GetListErrors()
+	errList := th.settings.storage.GetListErrors()
 	for _, v := range errList {
-		ths.logger.Send("warning", fmt.Sprintf("error DNS resolve '%s', description:'%s'", v.OriginalHost, v.Error.Error()))
+		th.settings.logger.Send("warning", fmt.Sprintf("error DNS resolve '%s', description:'%s'", v.OriginalHost, v.Error.Error()))
 	}
 
 	/*
@@ -270,7 +281,20 @@ func (ths *TaskHandlerSettings) start(ctx context.Context) error {
 	*/
 
 	// меняем статус задачи на "не выполняется"
-	ths.storage.SetProcessNotRunning()
+	th.settings.storage.SetProcessNotRunning()
+
+	b, err := json.Marshal(ResponseTaskHandler{
+		Type: "ask_manually_task",
+		Data: supportingfunctions.CreateTaskStatistics(th.settings.storage),
+	})
+	if err != nil {
+		return err
+	}
+
+	th.chanSignal <- ChanSignalSettings{
+		ForWhom: "web",
+		Data:    b,
+	}
 
 	return nil
 }

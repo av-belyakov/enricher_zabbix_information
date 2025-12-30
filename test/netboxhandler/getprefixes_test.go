@@ -1,0 +1,167 @@
+package netboxhandler
+
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+	"math"
+	"net/http"
+	"net/netip"
+	"os"
+	"testing"
+
+	"github.com/joho/godotenv"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/av-belyakov/enricher_zabbix_information/internal/netboxapi"
+)
+
+const (
+	chunkSize int = 100
+	host          = "netbox.cloud.gcm"
+	port          = 8005
+	fileName      = "prefixes.json"
+)
+
+func TestGetPrefixes(t *testing.T) {
+	var (
+		sizePrefixes int
+	)
+
+	if err := godotenv.Load("../../.env"); err != nil {
+		log.Fatal(err)
+	}
+
+	client, err := netboxapi.New(host, port, os.Getenv("GO_ENRICHERZI_NBTOKEN"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	t.Run("Тест 1. Получить общее количество префиксов", func(t *testing.T) {
+		res, statusCode, err := client.Get(t.Context(), "/api/ipam/prefixes/?limit=1")
+		assert.NoError(t, err)
+		assert.Equal(t, statusCode, http.StatusOK)
+
+		nbPrexixes := netboxapi.ListPrefixes{}
+		err = json.Unmarshal(res, &nbPrexixes)
+		assert.NoError(t, err)
+
+		sizePrefixes = nbPrexixes.Count
+	})
+
+	t.Run("Тест 2. Получить полный список префиксов имеющихся в NetBox", func(t *testing.T) {
+		chunkCount := math.Ceil(float64(sizePrefixes) / float64(chunkSize))
+
+		pl := PrefixList{
+			Count: int(sizePrefixes),
+		}
+
+		for i := 0; i < int(chunkCount); i++ {
+			offset := i * int(chunkSize)
+			res, statusCode, err := client.Get(t.Context(), fmt.Sprintf("/api/ipam/prefixes/?limit=%d&offset=%d", chunkSize, offset))
+			assert.NoError(t, err)
+			assert.Equal(t, statusCode, http.StatusOK)
+
+			nbPrexixes := netboxapi.ListPrefixes{}
+			err = json.Unmarshal(res, &nbPrexixes)
+			assert.NoError(t, err)
+
+			pl.Prefixes = append(pl.Prefixes, nbPrexixes.Results...)
+		}
+
+		assert.NotEmpty(t, pl.Prefixes)
+		assert.Equal(t, pl.Count, len(pl.Prefixes))
+
+		fmt.Printf("GET PREFIXES RESULT:\nCount:'%d',\nSize Prefixes:'%d'\n", pl.Count, len(pl.Prefixes))
+
+		//заполняем структуру с краткой информацией о префиксах
+		shortPrefixList := netboxapi.ShorPrefixList{}
+		for _, prefix := range pl.Prefixes {
+			netPrefix, err := netip.ParsePrefix(prefix.Prefix)
+			if err != nil {
+				fmt.Println("Error:", err)
+
+				continue
+			}
+
+			var sensorId string
+			if len(prefix.CustomFields.Sensors) > 0 {
+				sensorId = prefix.CustomFields.Sensors[0].Name
+			}
+
+			shortPrefixList.Prefixes = append(
+				shortPrefixList.Prefixes,
+				netboxapi.ShorPrefixInfo{
+					Status:   prefix.Status.Value,
+					Prefix:   netPrefix,
+					Id:       prefix.Id,
+					SensorId: sensorId,
+				})
+		}
+
+		fmt.Println("Size shortPrefixList:", len(shortPrefixList.Prefixes))
+		fmt.Println("Read first 30 elements:")
+		for i := range 30 {
+			fmt.Println(
+				"Index:", i,
+				"Prefix:", shortPrefixList.Prefixes[i].Prefix,
+				"Status:", shortPrefixList.Prefixes[i].Status,
+				"Id:", shortPrefixList.Prefixes[i].Id,
+				"SensorId:", shortPrefixList.Prefixes[i].SensorId,
+			)
+		}
+
+		/*
+			prefix, err := netip.ParsePrefix()
+			ok := prefix.Contains()
+		*/
+
+		//положить в файл (опционально через -- -tofile)
+		var flagIsExist bool
+		for _, arg := range os.Args {
+			if arg == "-tofile" {
+				flagIsExist = true
+			}
+		}
+
+		if !flagIsExist {
+			return
+		}
+
+		// пишем в файл //
+
+		_, err := os.Stat(fileName)
+		if !os.IsNotExist(err) {
+			t.Log("удаляем файл", fileName)
+
+			assert.NoError(t, os.RemoveAll(fileName))
+		}
+
+		b, err := json.Marshal(pl)
+		assert.NoError(t, err)
+
+		f, err := os.OpenFile(fileName, os.O_CREATE|os.O_RDWR, 0666)
+		assert.NoError(t, err)
+
+		_, err = f.WriteString(string(b))
+		assert.NoError(t, err)
+
+		f.Close()
+	})
+
+	//t.Run("", func(t *testing.T) {})
+
+	t.Cleanup(func() {
+		os.Unsetenv("GO_ENRICHERZI_MAIN")
+
+		os.Unsetenv("GO_ENRICHERZI_ZPASSWD")
+		os.Unsetenv("GO_ENRICHERZI_NBTOKEN")
+		os.Unsetenv("GO_ENRICHERZI_DBWLOGPASSWD")
+		os.Unsetenv("GO_ENRICHERZI_APISERVERTOKEN")
+	})
+}
+
+type PrefixList struct {
+	Prefixes []netboxapi.Prefixes
+	Count    int
+}

@@ -129,7 +129,8 @@ func app(ctx context.Context) {
 	//********************************************************************************
 	//********************** инициализация обработчика задач *************************
 	// это фактически то что будет выполнятся по рассписанию или при ручной инициализации
-	taskHandler := taskhandlers.NewTaskHandler(zabbixConn, api, storageTemp, logging)
+	taskHandlerSettings := taskhandlers.NewSettings(zabbixConn, api, storageTemp, logging)
+	taskHandler := taskHandlerSettings.Init(ctx)
 
 	//********************************************************************************
 	//******************** инициализация обработчика расписаний **********************
@@ -144,7 +145,7 @@ func app(ctx context.Context) {
 	if err = sw.Start(
 		ctx,
 		func() {
-			if err := taskHandler.TaskHandler(ctx); err != nil {
+			if err := taskHandler.SimpleTaskHandler(); err != nil {
 				logging.Send("error", wrappers.WrapperError(err).Error())
 			}
 		}); err != nil {
@@ -153,7 +154,7 @@ func app(ctx context.Context) {
 
 	// запуск ручного обработчика заданий
 	// отслеживает инициализацию выполнения задачи через веб-интерфейс
-	taskHandler.ManualTaskHandler(ctx)
+	taskHandler.TaskHandlerInitiatedThroughChannel()
 
 	// получаем дополнительную информацию о Zabbix нужную для вывода в информационном сообщении
 	b, err := zabbixConn.GetAPIInfo(ctx)

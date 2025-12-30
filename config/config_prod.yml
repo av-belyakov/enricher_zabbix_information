@@ -15,8 +15,8 @@ Zabbix:
   timeout: 30
 # Настройки подключения к NetBox
 NetBox:
-  host: localhost
-  port: 4455
+  host: netbox.cloud.gcm
+  port: 8005
   user: someuser
 InformationServerApi:
   host: localhost

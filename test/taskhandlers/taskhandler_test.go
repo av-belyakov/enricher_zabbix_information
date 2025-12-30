@@ -103,19 +103,21 @@ func TestTaskHandler(t *testing.T) {
 		t.Fatalf("error zabbix connection: %v", err)
 	}
 
-	taskHandler := taskhandlers.NewTaskHandler(
+	taskHandlerSettings := taskhandlers.NewSettings(
 		zabbixConn,
 		&apiserver.InformationServer{},
 		storage.NewShortTermStorage(),
 		logging,
 	)
 
+	taskHandler := taskHandlerSettings.Init(ctx)
+
 	t.Run("Тест 1. Авторизация и аутентификация в Zabbix", func(t *testing.T) {
 		assert.NoError(t, zabbixConn.AuthorizationStart(ctx))
 	})
 
 	t.Run("Тест 2. Проверка обработчика задач", func(t *testing.T) {
-		assert.NoError(t, taskHandler.TaskHandler(ctx))
+		assert.NoError(t, taskHandler.SimpleTaskHandler())
 	})
 
 	t.Cleanup(func() {

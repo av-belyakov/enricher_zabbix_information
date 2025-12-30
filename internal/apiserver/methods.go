@@ -136,7 +136,7 @@ func (is *InformationServer) getBasePage(tmpComponent templ.Component, component
 			Link: "/",
 		},
 		{
-			Name: "информация",
+			Name: "информация о задаче",
 			Link: "task_information",
 		},
 		{
@@ -148,7 +148,7 @@ func (is *InformationServer) getBasePage(tmpComponent templ.Component, component
 			Link: "manually_task_starting",
 		},
 		{
-			Name: "логи",
+			Name: "логи приложения",
 			Link: "logs",
 		},
 	}
