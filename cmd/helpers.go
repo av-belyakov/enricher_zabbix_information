@@ -52,7 +52,6 @@ func getInformationMessage(conf *confighandler.ConfigApp, zabbixVersion string) 
 		constants.Ansi_Reset,
 		constants.Ansi_Dark_Gray,
 		constants.Ansi_Bright_Magenta,
-		conf.GetNetBox().User,
 		constants.Ansi_Dark_Gray,
 		constants.Ansi_Reset,
 	)

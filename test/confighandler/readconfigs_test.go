@@ -67,7 +67,6 @@ func TestReadConfigHandler(t *testing.T) {
 		t.Run("Тест 3. Проверка настройки NetBox", func(t *testing.T) {
 			assert.Equal(t, conf.GetNetBox().Host, "localhost")
 			assert.Equal(t, conf.GetNetBox().Port, 4455)
-			assert.Equal(t, conf.GetNetBox().User, "someuser")
 		})
 
 		t.Run("Тест 4. Проверка настройки Zabbix", func(t *testing.T) {
@@ -122,7 +121,6 @@ func TestReadConfigHandler(t *testing.T) {
 
 			assert.Equal(t, conf.GetNetBox().Host, "127.0.0.1")
 			assert.Equal(t, conf.GetNetBox().Port, 4242)
-			assert.Equal(t, conf.GetNetBox().User, "some_user_service")
 		})
 
 		t.Run("Тест 3. Проверка настройки сервиса Zabbix", func(t *testing.T) {

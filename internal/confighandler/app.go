@@ -117,9 +117,6 @@ func New(rootDir string) (*ConfigApp, error) {
 		if viper.IsSet("NetBox.port") {
 			conf.NetBox.Port = viper.GetInt("NetBox.port")
 		}
-		if viper.IsSet("NetBox.user") {
-			conf.NetBox.User = viper.GetString("NetBox.user")
-		}
 
 		// Настройки для модуля API сервера информации
 		if viper.IsSet("InformationServerApi.host") {
@@ -230,9 +227,6 @@ func New(rootDir string) (*ConfigApp, error) {
 		if p, err := strconv.Atoi(envList["GO_"+constants.App_Environment_Name+"_NBPORT"]); err == nil {
 			conf.NetBox.Port = p
 		}
-	}
-	if envList["GO_"+constants.App_Environment_Name+"_NBUSER"] != "" {
-		conf.NetBox.User = envList["GO_"+constants.App_Environment_Name+"_NBUSER"]
 	}
 
 	// Настройки для модуля подключения к некоторому сервису Zabbix

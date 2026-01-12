@@ -50,7 +50,6 @@ type CfgWriteLogDB struct {
 // CfgNetBox настройки доступа к некоторому сервису
 type CfgNetBox struct {
 	Host string `validate:"required" yaml:"host"`
-	User string `validate:"required" yaml:"user"`
 	Port int    `validate:"gt=0,lte=65535" yaml:"port"`
 }
 

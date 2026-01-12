@@ -15,6 +15,7 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/internal/customerrors"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dictionarieshandler"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dnsresolver"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/netboxapi"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
@@ -22,16 +23,17 @@ import (
 
 func NewSettings(
 	zabbixConn *connectionjsonrpc.ZabbixConnectionJsonRPC,
-	api *apiserver.InformationServer,
+	netboxClient *netboxapi.Client,
+	apiServer *apiserver.InformationServer,
 	storage *storage.ShortTermStorage,
 	logger interfaces.Logger,
 ) *TaskHandlerSettings {
 	return &TaskHandlerSettings{
-		storage:    storage,
-		zabbixConn: zabbixConn,
-		apiServer:  api,
-		logger:     logger,
-		//netbox
+		netboxClient: netboxClient,
+		zabbixConn:   zabbixConn,
+		apiServer:    apiServer,
+		storage:      storage,
+		logger:       logger,
 	}
 }
 
@@ -121,7 +123,7 @@ func (th *TaskHandler) TaskHandlerInitiatedThroughChannel() error {
 }
 
 func (th *TaskHandler) start() error {
-	//получаем полный список групп хостов
+	// получаем полный список групп хостов zabbix
 	res, err := th.settings.zabbixConn.GetFullHostGroupList(th.ctx)
 	if err != nil {
 		return err
@@ -135,19 +137,18 @@ func (th *TaskHandler) start() error {
 		th.settings.logger.Send("warning", errMsg.Error.Message)
 	}
 
-	//проверяем наличие списка групп хостов
+	// проверяем наличие списка групп хостов
 	if len(hostGroupList.Result) == 0 {
 		return errors.New("an empty list of host groups has been received, no further processing of the task is possible")
 	}
 
 	// инициализация словарей
 	//
-	// Думаю что чтение словарей должно быть каждый раз при запуске задачи, это
-	// позволит измениять состав словарей не перезапуская приложение. Кроме того
-	// следует обратить внимание на то что если словари не будут найдены или
-	// они будут пустыми то из zabbix забираем все данные по хостам. Отсутствие
+	// Думаю, что чтение словарей должно быть каждый раз при запуске задачи, это
+	// позволит изменять состав словарей не перезапуская приложение. Кроме того,
+	// следует обратить внимание на то, что если словари не будут найдены или
+	// они будут пустыми, то из zabbix забираем все данные по хостам. Отсутствие
 	// словарей не является критической ошибкой.
-	// Таким образом место чтения словарей в обработчике задач.
 	dicts, err := dictionarieshandler.Read("config/dictionary.yml")
 	if err != nil {
 		th.settings.logger.Send("error", wrappers.WrapperError(err).Error())

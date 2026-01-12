@@ -18,8 +18,7 @@ func New(writer interfaces.WriterLoggingData) *LoggingChan {
 	}
 }
 
-// AddTransmitters добавление дополнительных передатчиков в которые дополнительно
-// будут передоватся логи
+// AddTransmitters добавление дополнительных передатчиков в которые будут передоватся логи
 func (lc *LoggingChan) AddTransmitters(transmitters ...interfaces.BytesTransmitter) {
 	for _, transmitting := range transmitters {
 		lc.transmitters = append(lc.transmitters, transmitting)

@@ -18,7 +18,6 @@ Zabbix:
 NetBox:
   host: localhost
   port: 4455
-  user: someuser
 InformationServerApi:
   host: localhost
   port: 8989

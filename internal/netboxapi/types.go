@@ -18,12 +18,12 @@ type Client struct {
 	settings Settings
 }
 
-type ShorPrefixList struct {
-	Prefixes []ShorPrefixInfo
+type ShortPrefixList struct {
+	Prefixes []ShortPrefixInfo
 	Count    int
 }
 
-type ShorPrefixInfo struct {
+type ShortPrefixInfo struct {
 	Status   string
 	Prefix   netip.Prefix
 	Id       int

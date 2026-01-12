@@ -17,6 +17,7 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/internal/confighandler"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/elasticsearchapi"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/logginghandler"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/netboxapi"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/schedulehandler"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
@@ -109,7 +110,7 @@ func app(ctx context.Context) {
 
 	//*********************************************************************************
 	//******************** инициализация API сервера (web-server) *********************
-	api, err := apiserver.New(
+	apiServer, err := apiserver.New(
 		logging,
 		storageTemp,
 		apiserver.WithHost(conf.GetInformationServerApi().Host),
@@ -121,15 +122,23 @@ func app(ctx context.Context) {
 		log.Fatalf("error initializing the api server: %v", err)
 	}
 	// запуск сервера
-	go api.Start(ctx)
+	go apiServer.Start(ctx)
 
 	// добавляем логирование в API сервер (вывод логов на веб-странице)
-	logging.AddTransmitters(api)
+	logging.AddTransmitters(apiServer)
+
+	//********************************************************************************
+	//************************ инициализация клиента Netbox **************************
+	nbConf := conf.GetNetBox()
+	nbClient, err := netboxapi.New(nbConf.Host, nbConf.Port, conf.AuthenticationData.NetBoxToken)
+	if err != nil {
+		log.Fatalf("error initializing the Netbox client: %v", err)
+	}
 
 	//********************************************************************************
 	//********************** инициализация обработчика задач *************************
 	// это фактически то что будет выполнятся по рассписанию или при ручной инициализации
-	taskHandlerSettings := taskhandlers.NewSettings(zabbixConn, api, storageTemp, logging)
+	taskHandlerSettings := taskhandlers.NewSettings(zabbixConn, nbClient, apiServer, storageTemp, logging)
 	taskHandler := taskHandlerSettings.Init(ctx)
 
 	//********************************************************************************

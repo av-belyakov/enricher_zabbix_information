@@ -17,7 +17,6 @@ Zabbix:
 NetBox:
   host: netbox.cloud.gcm
   port: 8005
-  user: someuser
 InformationServerApi:
   host: localhost
   port: 8080

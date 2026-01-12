@@ -7,6 +7,7 @@ import (
 
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/apiserver"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/netboxapi"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 )
 
@@ -24,11 +25,11 @@ type ChanSignalSettings struct {
 
 // TaskHandlerSettings настройки обработчика задач
 type TaskHandlerSettings struct {
-	zabbixConn *zconnection.ZabbixConnectionJsonRPC
-	apiServer  *apiserver.InformationServer
-	storage    *storage.ShortTermStorage
-	//netbox
-	logger interfaces.Logger
+	netboxClient *netboxapi.Client
+	zabbixConn   *zconnection.ZabbixConnectionJsonRPC
+	apiServer    *apiserver.InformationServer
+	storage      *storage.ShortTermStorage
+	logger       interfaces.Logger
 }
 
 // ResponseTaskHandler ответ обработчика задач

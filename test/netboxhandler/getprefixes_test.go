@@ -1,19 +1,20 @@
 package netboxhandler
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
 	"log"
-	"math"
-	"net/http"
-	"net/netip"
 	"os"
+	"os/signal"
+	"syscall"
 	"testing"
 
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/av-belyakov/enricher_zabbix_information/internal/netboxapi"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/taskhandlers"
+	"github.com/av-belyakov/enricher_zabbix_information/test/helpers"
 )
 
 const (
@@ -24,9 +25,9 @@ const (
 )
 
 func TestGetPrefixes(t *testing.T) {
-	var (
-		sizePrefixes int
-	)
+	//var (
+	//	sizePrefixes int
+	//)
 
 	if err := godotenv.Load("../../.env"); err != nil {
 		log.Fatal(err)
@@ -37,36 +38,67 @@ func TestGetPrefixes(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	t.Run("Тест 1. Получить общее количество префиксов", func(t *testing.T) {
+	logging := helpers.NewLoggingForTest()
+	ctx, ctxCancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+
+			case msg := <-logging.GetChan():
+				fmt.Printf("Log message: type:'%s', message:'%s'\n", msg.GetType(), msg.GetMessage())
+			}
+		}
+	}()
+
+	t.Run("Тест 1. Получить префиксы из Netbox", func(t *testing.T) {
+		shortPrefixList := taskhandlers.GetNetboxPrefixes(ctx, client, logging)
+		assert.Greater(t, shortPrefixList.Count, 0)
+
+		fmt.Println("Read first 30 elements:")
+		for i := range 30 {
+			fmt.Println(
+				"Index:", i,
+				"Prefix:", shortPrefixList.Prefixes[i].Prefix,
+				"Status:", shortPrefixList.Prefixes[i].Status,
+				"Id:", shortPrefixList.Prefixes[i].Id,
+				"SensorId:", shortPrefixList.Prefixes[i].SensorId,
+			)
+		}
+	})
+
+	/*t.Run("Тест 1. Получить общее количество префиксов", func(t *testing.T) {
 		res, statusCode, err := client.Get(t.Context(), "/api/ipam/prefixes/?limit=1")
 		assert.NoError(t, err)
 		assert.Equal(t, statusCode, http.StatusOK)
 
-		nbPrexixes := netboxapi.ListPrefixes{}
-		err = json.Unmarshal(res, &nbPrexixes)
+		nbPrefixes := netboxapi.ListPrefixes{}
+		err = json.Unmarshal(res, &nbPrefixes)
 		assert.NoError(t, err)
 
-		sizePrefixes = nbPrexixes.Count
+		sizePrefixes = nbPrefixes.Count
 	})
 
 	t.Run("Тест 2. Получить полный список префиксов имеющихся в NetBox", func(t *testing.T) {
 		chunkCount := math.Ceil(float64(sizePrefixes) / float64(chunkSize))
 
 		pl := PrefixList{
-			Count: int(sizePrefixes),
+			Count: sizePrefixes,
 		}
 
 		for i := 0; i < int(chunkCount); i++ {
-			offset := i * int(chunkSize)
+			offset := i * chunkSize
 			res, statusCode, err := client.Get(t.Context(), fmt.Sprintf("/api/ipam/prefixes/?limit=%d&offset=%d", chunkSize, offset))
 			assert.NoError(t, err)
 			assert.Equal(t, statusCode, http.StatusOK)
 
-			nbPrexixes := netboxapi.ListPrefixes{}
-			err = json.Unmarshal(res, &nbPrexixes)
+			nbPrefixes := netboxapi.ListPrefixes{}
+			err = json.Unmarshal(res, &nbPrefixes)
 			assert.NoError(t, err)
 
-			pl.Prefixes = append(pl.Prefixes, nbPrexixes.Results...)
+			pl.Prefixes = append(pl.Prefixes, nbPrefixes.Results...)
 		}
 
 		assert.NotEmpty(t, pl.Prefixes)
@@ -75,7 +107,7 @@ func TestGetPrefixes(t *testing.T) {
 		fmt.Printf("GET PREFIXES RESULT:\nCount:'%d',\nSize Prefixes:'%d'\n", pl.Count, len(pl.Prefixes))
 
 		//заполняем структуру с краткой информацией о префиксах
-		shortPrefixList := netboxapi.ShorPrefixList{}
+		shortPrefixList := netboxapi.ShortPrefixList{}
 		for _, prefix := range pl.Prefixes {
 			netPrefix, err := netip.ParsePrefix(prefix.Prefix)
 			if err != nil {
@@ -91,7 +123,7 @@ func TestGetPrefixes(t *testing.T) {
 
 			shortPrefixList.Prefixes = append(
 				shortPrefixList.Prefixes,
-				netboxapi.ShorPrefixInfo{
+				netboxapi.ShortPrefixInfo{
 					Status:   prefix.Status.Value,
 					Prefix:   netPrefix,
 					Id:       prefix.Id,
@@ -111,10 +143,10 @@ func TestGetPrefixes(t *testing.T) {
 			)
 		}
 
-		/*
-			prefix, err := netip.ParsePrefix()
-			ok := prefix.Contains()
-		*/
+
+		//	prefix, err := netip.ParsePrefix()
+		//	ok := prefix.Contains()
+
 
 		//положить в файл (опционально через -- -tofile)
 		var flagIsExist bool
@@ -147,11 +179,13 @@ func TestGetPrefixes(t *testing.T) {
 		assert.NoError(t, err)
 
 		f.Close()
-	})
+	})*/
 
 	//t.Run("", func(t *testing.T) {})
 
 	t.Cleanup(func() {
+		ctxCancel()
+
 		os.Unsetenv("GO_ENRICHERZI_MAIN")
 
 		os.Unsetenv("GO_ENRICHERZI_ZPASSWD")

@@ -78,16 +78,6 @@ func TestTaskHandler(t *testing.T) {
 		}
 	}()
 
-	/*
-		connjsonrpc.WithTLS(),
-		connjsonrpc.WithInsecureSkipVerify(),
-		connjsonrpc.WithHost(zHost),
-		connjsonrpc.WithPort(zPort),
-		connjsonrpc.WithConnectionTimeout(30),
-		connjsonrpc.WithLogin(zUser),
-		connjsonrpc.WithPasswd(zPasswd)
-	*/
-
 	fmt.Printf("zabbix config user:'%s', passwd:'%s'\n", conf.GetZabbix().User, conf.GetAuthenticationData().ZabbixPasswd)
 
 	zabbixConn, err := connectionjsonrpc.NewConnect(
