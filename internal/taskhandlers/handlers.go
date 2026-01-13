@@ -5,15 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"slices"
 	"strconv"
 
 	"github.com/av-belyakov/zabbixapicommunicator/v2/cmd/connectionjsonrpc"
 
+	"github.com/av-belyakov/enricher_zabbix_information/constants"
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/apiserver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/customerrors"
-	"github.com/av-belyakov/enricher_zabbix_information/internal/dictionarieshandler"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dnsresolver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/netboxapi"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
@@ -123,7 +122,7 @@ func (th *TaskHandler) TaskHandlerInitiatedThroughChannel() error {
 }
 
 func (th *TaskHandler) start() error {
-	// получаем полный список групп хостов zabbix
+	// получаем полный список групп хостов Zabbix
 	res, err := th.settings.zabbixConn.GetFullHostGroupList(th.ctx)
 	if err != nil {
 		return err
@@ -142,37 +141,17 @@ func (th *TaskHandler) start() error {
 		return errors.New("an empty list of host groups has been received, no further processing of the task is possible")
 	}
 
-	// инициализация словарей
+	// получаем список id групп хостов, которые нужно отслеживать, на основе корреляции
+	// имен веб-сайтов предназначенных для мониторинга
 	//
 	// Думаю, что чтение словарей должно быть каждый раз при запуске задачи, это
 	// позволит изменять состав словарей не перезапуская приложение. Кроме того,
 	// следует обратить внимание на то, что если словари не будут найдены или
 	// они будут пустыми, то из zabbix забираем все данные по хостам. Отсутствие
 	// словарей не является критической ошибкой.
-	dicts, err := dictionarieshandler.Read("config/dictionary.yml")
+	listGroupsId, err := GetListIdsWebsitesGroupMonitoring(constants.App_Dictionary_Path, hostGroupList.Result)
 	if err != nil {
 		th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
-	}
-	dictsSize := len(dicts.Dictionaries.WebSiteGroupMonitoring)
-
-	var listGroupsId []string
-	for _, host := range hostGroupList.Result {
-		if dictsSize == 0 {
-			listGroupsId = append(listGroupsId, host.GroupId)
-
-			continue
-		}
-
-		if !slices.ContainsFunc(
-			dicts.Dictionaries.WebSiteGroupMonitoring,
-			func(v dictionarieshandler.WebSiteMonitoring) bool {
-				return v.Name == host.Name
-			},
-		) {
-			continue
-		}
-
-		listGroupsId = append(listGroupsId, host.GroupId)
 	}
 
 	//fmt.Println("method 'TaskHandlerSettings.start' listGroupsId:", listGroupsId)
@@ -208,7 +187,7 @@ func (th *TaskHandler) start() error {
 
 	//fmt.Printf("method 'TaskHandlerSettings.start' count hosts:'%d'\n", len(ths.storage.GetList()))
 
-	// инициализируем поиск через DNS resolver
+	// инициализируем поиск ip адресов через DNS resolver
 	dnsRes, err := dnsresolver.New(
 		th.settings.storage,
 		dnsresolver.WithTimeout(10),

@@ -37,6 +37,3 @@ type ResponseTaskHandler struct {
 	Type string `json:"type"`
 	Data any    `json:"data"`
 }
-
-// channelContextKey ключ для контекста
-type channelContextKey string

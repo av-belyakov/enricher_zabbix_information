@@ -21,7 +21,10 @@ type HostDetailedInformation struct {
 	Ips          []netip.Addr // список ip адресов
 	OriginalHost string       // исходное наименование хоста
 	DomainName   string       // доменное имя
+	SensorId     string       // id обслуживающего сенсора
 	Error        error        // ошибка
 	HostId       int          // id хоста
+	NetboxHostId int          // id хоста в netbox
+	IsActive     bool         // флаг активный ли хост
 	IsProcessed  bool         // флаг обработан ли хост
 }

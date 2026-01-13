@@ -4,6 +4,7 @@ const (
 	Root_Dir             = "enricher_zabbix_information"
 	Application          = "enricher_zabbix_information"
 	App_Environment_Name = "ENRICHERZI"
+	App_Dictionary_Path  = "config/dictionary.yml"
 
 	Ansi_Reset                 = "\033[0m"
 	Ansi_White                 = "\033[97m"

@@ -183,6 +183,46 @@ func (sts *ShortTermStorage) SetError(hostId int, err error) error {
 	return nil
 }
 
+// SetSensorId устанавливает id обслуживающего сенсора для заданного id хоста
+func (sts *ShortTermStorage) SetSensorId(hostId int, sensorId string) error {
+	index, elem, ok := sts.GetForHostId(hostId)
+	if !ok {
+		return fmt.Errorf("the element with hostId '%d' was not found", hostId)
+	}
+
+	elem.SensorId = sensorId
+	sts.data[index] = elem
+
+	return nil
+}
+
+// SetIsActive устанавливает флаг активности для заданного id хоста, то есть хост
+// в Netbox отмечен как активный
+func (sts *ShortTermStorage) SetIsActive(hostId int) error {
+	index, elem, ok := sts.GetForHostId(hostId)
+	if !ok {
+		return fmt.Errorf("the element with hostId '%d' was not found", hostId)
+	}
+
+	elem.IsActive = true
+	sts.data[index] = elem
+
+	return nil
+}
+
+// SetNetboxHostId устанавливает id хоста в Netbox для заданного id хоста
+func (sts *ShortTermStorage) SetNetboxHostId(hostId, netboxHostId int) error {
+	index, elem, ok := sts.GetForHostId(hostId)
+	if !ok {
+		return fmt.Errorf("the element with hostId '%d' was not found", hostId)
+	}
+
+	elem.NetboxHostId = netboxHostId
+	sts.data[index] = elem
+
+	return nil
+}
+
 // DeleteElement удаляет заданный элемент по hostId
 func (sts *ShortTermStorage) DeleteElement(hostId int) {
 	sts.mutex.Lock()
