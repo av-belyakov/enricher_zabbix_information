@@ -7,9 +7,12 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"slices"
 	"strconv"
+	"sync"
 	"syscall"
 	"testing"
+	"testing/synctest"
 
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
@@ -26,33 +29,14 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/test/helpers"
 )
 
-// при запуске теста можно указать флаг -status-prod
-// в тесте дополнительные флаги указываются через --,
-// например -- -status-prod
-// тогда тест будет запускатся с реальными данными авторизации
 func TestTaskHandler(t *testing.T) {
 	var (
 		storageTemp *storage.ShortTermStorage
 	)
 
-	os.Setenv("GO_ENRICHERZI_MAIN", "test")
+	os.Setenv("GO_ENRICHERZI_MAIN", "production")
 
-	appStatus := "test"
-	for _, arg := range os.Args {
-		if arg == "-status-prod" {
-			appStatus = "prod"
-		}
-	}
-
-	fmt.Println("appStatus:", appStatus)
-
-	if appStatus == "prod" {
-		if err := godotenv.Load("../../.env"); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	if err := godotenv.Load("../filesfortest/.env"); err != nil {
+	if err := godotenv.Load("../../.env"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -114,11 +98,10 @@ func TestTaskHandler(t *testing.T) {
 	t.Run("Тест 2. Проверка шагов обработчика задач", func(t *testing.T) {
 		var (
 			res             []byte
-			listIp          []string
 			listGroupsId    []string
 			hostGroupList   *connectionjsonrpc.ResponseHostGroupList
 			hostList        *connectionjsonrpc.ResponseHostList
-			shortPrefixList netboxapi.ShortPrefixList
+			shortPrefixList *netboxapi.ShortPrefixList
 
 			errMsg *connectionjsonrpc.ResponseError
 			err    error
@@ -133,9 +116,14 @@ func TestTaskHandler(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, errMsg.Error.Code, 0)
 			assert.NotEmpty(t, hostGroupList.Result)
+
+			fmt.Println("Count host group list:", len(hostGroupList.Result))
 		})
-		t.Run("Тест 2.3. Получаем список id хостов относящихся к группам вебсайтов мониторинга", func(t *testing.T) {
+		t.Run("Тест 2.3. Получаем список id хостов относящихся к группам веб-сайтов мониторинга", func(t *testing.T) {
 			listGroupsId, err = taskhandlers.GetListIdsWebsitesGroupMonitoring(constants.App_Dictionary_Path, hostGroupList.Result)
+			assert.NoError(t, err)
+
+			fmt.Println("Count list groups id:", len(listGroupsId))
 		})
 		t.Run("Тест 2.4. Получаем список хостов которые есть в словарях, если словари не пусты, или все хосты", func(t *testing.T) {
 			res, err = zabbixConn.GetHostList(ctx, listGroupsId...)
@@ -146,6 +134,11 @@ func TestTaskHandler(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, errMsg.Error.Code, 0)
 			assert.NotEmpty(t, hostList.Result)
+
+			fmt.Println("Count host list:", len(hostList.Result))
+			//for k, v := range hostList.Result {
+			//	fmt.Printf("%d. name:'%s', host id:'%s', host:'%s'\n", k+1, v.Name, v.HostId, v.Host)
+			//}
 		})
 		t.Run("Тест 2.6. Инициализируем поиск ip адресов через DNS resolver", func(t *testing.T) {
 			//очищаем хранилище от предыдущих данных (что бы не смешивать старые и новые данные)
@@ -174,55 +167,113 @@ func TestTaskHandler(t *testing.T) {
 			chInfo, err := dnsRes.Run(ctx)
 			assert.NoError(t, err)
 
+			//var num int
 			for msg := range chInfo {
-				err = storageTemp.SetIsProcessed(msg.HostId)
-				assert.NoError(t, err)
+				//num++
+				//fmt.Printf("%d. Chun. Original host:'%s', ips:'%+v', error:'%v'\n", num, msg.OriginalHost, msg.Ips, msg.Error)
 
 				err = storageTemp.SetDomainName(msg.HostId, msg.DomainName)
 				assert.NoError(t, err)
 
-				err = storageTemp.SetIps(msg.HostId, msg.Ips[0], msg.Ips...)
+				err = storageTemp.SetIps(msg.HostId, msg.Ips...)
 				assert.NoError(t, err)
 			}
 		})
 		t.Run("Тест 2.7. Получаем префиксы из Netbox", func(t *testing.T) {
 			shortPrefixList = taskhandlers.GetNetboxPrefixes(ctx, netboxClient, logging)
 			assert.Greater(t, shortPrefixList.Count, 0)
+
+			fmt.Println("Count short prefix list:", shortPrefixList.Count)
 		})
 		t.Run("Тест 2.8. Выполняем поиск ip адресов в префиксах полученных от Netbox", func(t *testing.T) {
-			maxCountGoroutines := 10
+			maxCountGoroutines := 3 // runtime.NumCPU()
 			chQueue := make(chan storage.HostDetailedInformation, maxCountGoroutines)
 
-			//неправильная логика ограничения количества горутин
+			//fmt.Println("Count CPUs:", maxCountGoroutines)
 
-			go func() {
-				for item := range chQueue {
-					go func(v storage.HostDetailedInformation) {
-						for msg := range shortPrefixList.SearchIps(v.Ips) {
-							storageTemp.SetNetboxHostId(v.HostId, msg.Id)
-							storageTemp.SetSensorId(v.HostId, msg.SensorId)
-
-							if msg.Status != "active" {
-								continue
-							}
-
-							err = storageTemp.SetIsActive(v.HostId)
-							assert.NoError(t, err)
-						}
-					}(item)
+			synctest.Test(t, func(t *testing.T) {
+				var wg sync.WaitGroup
+				ids := []int{
+					11585,
+					14314,
+					14315,
+					14316,
+					14317,
 				}
-			}()
 
-			for _, v := range storageTemp.GetList() {
-				chQueue <- v
+				// создаём обработчики задач
+				//for i := range maxCountGoroutines {
+				for range maxCountGoroutines {
+					wg.Go(func() {
+						for hostInfo := range chQueue {
+							//if slices.Contains(ids, hostInfo.HostId) {
+							//	fmt.Printf("host id: '%d', all info: '%+v'\n", hostInfo.HostId, hostInfo)
+							//}
+							//fmt.Printf("Goroutine %d, host id: '%d', addr: '%+v'\n", i, hostInfo.HostId, hostInfo.Ips)
+
+							for msg := range shortPrefixList.SearchIps(hostInfo.Ips) {
+								if slices.Contains(ids, hostInfo.HostId) {
+									fmt.Printf("host id: '%d', all info: '%+v', ipaddr info: '%+v'\n", hostInfo.HostId, hostInfo, msg)
+								}
+
+								//----------------------------------------------------------------------------------------
+
+								err = storageTemp.SetIsProcessed(hostInfo.HostId)
+								assert.NoError(t, err)
+
+								err = storageTemp.SetNetboxHostId(hostInfo.HostId, msg.Id)
+								assert.NoError(t, err)
+
+								err = storageTemp.SetSensorId(hostInfo.HostId, msg.SensorId)
+								assert.NoError(t, err)
+
+								if msg.Status != "active" {
+									continue
+								}
+
+								err = storageTemp.SetIsActive(hostInfo.HostId)
+								assert.NoError(t, err)
+							}
+						}
+					})
+				}
+
+				for _, v := range storageTemp.GetList() {
+					chQueue <- v
+				}
+
+				close(chQueue)
+
+				wg.Wait()
+			})
+
+			listHostWithSensorId := storageTemp.GetHostsWithSensorId()
+			assert.Greater(t, len(listHostWithSensorId), 0)
+
+			fmt.Println("Hosts with sensor id:")
+			for k, v := range listHostWithSensorId {
+				fmt.Printf(
+					"%d. domain name: '%s', host id: %d, ips: '%v', sensor id: '%s', IsProcessed: '%t', error: '%v'\n",
+					k+1,
+					v.DomainName,
+					v.HostId,
+					v.Ips,
+					v.SensorId,
+					v.IsProcessed,
+					v.Error,
+				)
 			}
-
-			close(chQueue)
 		})
 	})
 
 	t.Cleanup(func() {
 		os.Unsetenv("GO_ENRICHERZI_MAIN")
+
+		os.Unsetenv("GO_ENRICHERZI_ZPASSWD")
+		os.Unsetenv("GO_ENRICHERZI_NBTOKEN")
+		os.Unsetenv("GO_ENRICHERZI_DBWLOGPASSWD")
+		os.Unsetenv("GO_ENRICHERZI_APISERVERTOKEN")
+
 		ctxCancel()
 	})
 }

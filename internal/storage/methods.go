@@ -116,6 +116,23 @@ func (sts *ShortTermStorage) GetForOriginalHost(originalHost string) (int, HostD
 	return index, sts.data[index], true
 }
 
+// GetHostsWithSensorId список хостов с id обслуживающего сенсора
+func (sts *ShortTermStorage) GetHostsWithSensorId() []HostDetailedInformation {
+	sts.mutex.RLock()
+	defer sts.mutex.RUnlock()
+
+	var hostList []HostDetailedInformation
+	for _, v := range sts.data {
+		if v.SensorId == "" {
+			continue
+		}
+
+		hostList = append(hostList, v)
+	}
+
+	return hostList
+}
+
 // Add добавляет элемент в хранилище
 func (sts *ShortTermStorage) Add(event HostDetailedInformation) {
 	sts.mutex.Lock()
@@ -140,15 +157,16 @@ func (sts *ShortTermStorage) SetDomainName(hostId int, domainName string) error 
 }
 
 // SetIps устанавливает ip адреса для заданного id хоста
-func (sts *ShortTermStorage) SetIps(hostId int, ip netip.Addr, ips ...netip.Addr) error {
+func (sts *ShortTermStorage) SetIps(hostId int, ips ...netip.Addr) error {
 	index, elem, ok := sts.GetForHostId(hostId)
 	if !ok {
 		return fmt.Errorf("the element with hostId '%d' was not found", hostId)
 	}
 
 	sts.mutex.Lock()
-	ips = append(ips, ip)
-	elem.Ips = append(elem.Ips, ips...)
+	for _, ip := range ips {
+		elem.Ips = append(elem.Ips, ip)
+	}
 	sts.data[index] = elem
 	sts.mutex.Unlock()
 

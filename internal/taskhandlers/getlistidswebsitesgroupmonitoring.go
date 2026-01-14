@@ -15,10 +15,9 @@ func GetListIdsWebsitesGroupMonitoring(dictionaryPath string, hostGroupList []co
 	if err != nil {
 		return listGroupsId, err
 	}
-	dictsSize := len(dicts.Dictionaries.WebSiteGroupMonitoring)
 
 	for _, host := range hostGroupList {
-		if dictsSize == 0 {
+		if len(dicts.Dictionaries.WebSiteGroupMonitoring) == 0 {
 			listGroupsId = append(listGroupsId, host.GroupId)
 
 			continue

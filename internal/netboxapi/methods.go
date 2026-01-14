@@ -57,15 +57,23 @@ func (spl *ShortPrefixList) SearchIp(ip netip.Addr) (int, bool) {
 	spl.mutex.RLock()
 	defer spl.mutex.RUnlock()
 
+	/*
+		for index, prefix := range spl.Prefixes {
+			if prefix.Prefix.Contains(ip) {
+				return index, true
+			}
+		}
+	*/
+
 	left := 0
 	right := len(spl.Prefixes) - 1
 
-	for left < right {
+	for left <= right {
 		if spl.Prefixes[left].Prefix.Contains(ip) {
 			return left, true
 		}
 
-		if spl.Prefixes[right].Prefix.Contains(ip) {
+		if left != right && spl.Prefixes[right].Prefix.Contains(ip) {
 			return right, true
 		}
 

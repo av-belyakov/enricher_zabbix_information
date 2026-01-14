@@ -18,8 +18,8 @@ const (
 )
 
 // GetNetboxPrefixes получить все nNetbox префиксы
-func GetNetboxPrefixes(ctx context.Context, client *netboxapi.Client, logger interfaces.Logger) netboxapi.ShortPrefixList {
-	shortPrefixList := netboxapi.ShortPrefixList{}
+func GetNetboxPrefixes(ctx context.Context, client *netboxapi.Client, logger interfaces.Logger) *netboxapi.ShortPrefixList {
+	shortPrefixList := &netboxapi.ShortPrefixList{}
 
 	// выясняем сколько всего префиксов
 	res, statusCode, err := client.Get(ctx, "/api/ipam/prefixes/?limit=1")

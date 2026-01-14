@@ -222,7 +222,7 @@ func (th *TaskHandler) start() error {
 			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
 		}
 
-		if err := th.settings.storage.SetIps(msg.HostId, msg.Ips[0], msg.Ips...); err != nil {
+		if err := th.settings.storage.SetIps(msg.HostId, msg.Ips...); err != nil {
 			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
 		}
 
