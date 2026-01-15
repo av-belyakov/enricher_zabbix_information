@@ -13,10 +13,6 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
 )
 
-const (
-	chunkSize = 100
-)
-
 // GetNetboxPrefixes получить все nNetbox префиксы
 func GetNetboxPrefixes(ctx context.Context, client *netboxapi.Client, logger interfaces.Logger) *netboxapi.ShortPrefixList {
 	shortPrefixList := &netboxapi.ShortPrefixList{}
@@ -44,6 +40,11 @@ func GetNetboxPrefixes(ctx context.Context, client *netboxapi.Client, logger int
 	}
 
 	shortPrefixList.Count = nbPrefixes.Count
+
+	chunkSize := 100
+	if nbPrefixes.Count > 1_000 {
+		chunkSize = 500
+	}
 
 	chunkCount := math.Ceil(float64(nbPrefixes.Count) / float64(chunkSize))
 

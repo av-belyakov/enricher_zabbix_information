@@ -104,7 +104,7 @@ func TestDnsResolver(t *testing.T) {
 				continue
 			}
 
-			if err := sts.SetIps(msg.HostId, msg.Ips[0], msg.Ips...); err != nil {
+			if err := sts.SetIps(msg.HostId, msg.Ips...); err != nil {
 				logging.Send("error", wrappers.WrapperError(err).Error())
 			}
 		}

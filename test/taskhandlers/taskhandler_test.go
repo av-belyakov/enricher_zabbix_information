@@ -3,13 +3,13 @@ package applicationtamplateexample_test
 import (
 	"cmp"
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
-	"slices"
 	"strconv"
-	"sync"
+	"strings"
 	"syscall"
 	"testing"
 	"testing/synctest"
@@ -186,67 +186,8 @@ func TestTaskHandler(t *testing.T) {
 			fmt.Println("Count short prefix list:", shortPrefixList.Count)
 		})
 		t.Run("Тест 2.8. Выполняем поиск ip адресов в префиксах полученных от Netbox", func(t *testing.T) {
-			maxCountGoroutines := 3 // runtime.NumCPU()
-			chQueue := make(chan storage.HostDetailedInformation, maxCountGoroutines)
-
-			//fmt.Println("Count CPUs:", maxCountGoroutines)
-
 			synctest.Test(t, func(t *testing.T) {
-				var wg sync.WaitGroup
-				ids := []int{
-					11585,
-					14314,
-					14315,
-					14316,
-					14317,
-				}
-
-				// создаём обработчики задач
-				//for i := range maxCountGoroutines {
-				for range maxCountGoroutines {
-					wg.Go(func() {
-						for hostInfo := range chQueue {
-							//if slices.Contains(ids, hostInfo.HostId) {
-							//	fmt.Printf("host id: '%d', all info: '%+v'\n", hostInfo.HostId, hostInfo)
-							//}
-							//fmt.Printf("Goroutine %d, host id: '%d', addr: '%+v'\n", i, hostInfo.HostId, hostInfo.Ips)
-
-							for msgList := range shortPrefixList.SearchIps(hostInfo.Ips) {
-								//-------- debug --------
-								if slices.Contains(ids, hostInfo.HostId) {
-									fmt.Printf("host id: '%d', all info: '%+v', ipaddr info: '%+v'\n", hostInfo.HostId, hostInfo, msgList)
-								}
-								//-----------------------
-
-								err = storageTemp.SetIsProcessed(hostInfo.HostId)
-								assert.NoError(t, err)
-
-								for _, msg := range msgList {
-									if msg.Status != "active" {
-										continue
-									}
-
-									err = storageTemp.SetIsActive(hostInfo.HostId)
-									assert.NoError(t, err)
-
-									err = storageTemp.SetSensorId(hostInfo.HostId, msg.SensorId)
-									assert.NoError(t, err)
-
-									err = storageTemp.SetNetboxHostId(hostInfo.HostId, msg.Id)
-									assert.NoError(t, err)
-								}
-							}
-						}
-					})
-				}
-
-				for _, v := range storageTemp.GetList() {
-					chQueue <- v
-				}
-
-				close(chQueue)
-
-				wg.Wait()
+				taskhandlers.SearchIpaddrToPrefixesNetbox(3, storageTemp, shortPrefixList, logging)
 			})
 
 			listHostWithSensorId := storageTemp.GetHostsWithSensorId()
@@ -269,6 +210,47 @@ func TestTaskHandler(t *testing.T) {
 		})
 	})
 
+	t.Run("Тест 3. Добавление или обновление тегов в тестовом Zabbix", func(t *testing.T) {
+		//
+		//Для этого теста надо ОБЯЗАТЕЛЬНО развернуть тестовый Zabbix.
+		//
+
+		testZabbixConn, err := zabbixConnectForTesting()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = testZabbixConn.AuthorizationStart(t.Context())
+		assert.NoError(t, err)
+
+		listHostWithSensorId := storageTemp.GetHostsWithSensorId()
+		assert.Greater(t, len(listHostWithSensorId), 0)
+
+		fmt.Println("Insert tags to Zabbix")
+		for _, v := range listHostWithSensorId {
+			var sensorsId string
+			countSensorsId := len(v.SensorsId)
+			if countSensorsId == 0 {
+				continue
+			} else if countSensorsId == 1 {
+				sensorsId = v.SensorsId[0]
+			} else {
+				sensorsId = strings.Join(v.SensorsId, ",")
+			}
+
+			res, err := testZabbixConn.UpdateHostParameterTags(
+				ctx,
+				fmt.Sprint(v.HostId),
+				connectionjsonrpc.Tags{
+					Tag: []connectionjsonrpc.Tag{{Tag: "СОА-ТЕСТ", Value: sensorsId}},
+				},
+			)
+			assert.NoError(t, err)
+
+			fmt.Printf("Response UpdateHostParameterTags: '%s'\n", string(res))
+		}
+	})
+
 	t.Cleanup(func() {
 		os.Unsetenv("GO_ENRICHERZI_MAIN")
 
@@ -277,6 +259,55 @@ func TestTaskHandler(t *testing.T) {
 		os.Unsetenv("GO_ENRICHERZI_DBWLOGPASSWD")
 		os.Unsetenv("GO_ENRICHERZI_APISERVERTOKEN")
 
+		os.Unsetenv("GO_TESTZABBIX_HOST")
+		os.Unsetenv("GO_TESTZABBIX_PORT")
+		os.Unsetenv("GO_TESTZABBIX_USER")
+		os.Unsetenv("GO_TESTZABBIX_PASSWD")
+
 		ctxCancel()
 	})
+}
+
+// zabbixConnectForTesting подключение к тестовому Zabbix
+func zabbixConnectForTesting() (*connectionjsonrpc.ZabbixConnectionJsonRPC, error) {
+	if err := godotenv.Load(".env.test"); err != nil {
+		return nil, err
+	}
+
+	testZabbixHost := os.Getenv("GO_TESTZABBIX_HOST")
+	if testZabbixHost == "" {
+		return nil, errors.New("environment variable 'GO_TESTZABBIX_HOST' cannot be empty")
+	}
+
+	tmpPort := os.Getenv("GO_TESTZABBIX_PORT")
+	if tmpPort == "" {
+		return nil, errors.New("environment variable 'GO_TESTZABBIX_PORT' cannot be empty")
+	}
+	testZabbixPort, err := strconv.Atoi(tmpPort)
+	if err != nil {
+		return nil, err
+	}
+
+	testZabbixUser := os.Getenv("GO_TESTZABBIX_USER")
+	if testZabbixUser == "" {
+		return nil, errors.New("environment variable 'GO_TESTZABBIX_USER' cannot be empty")
+	}
+
+	testZabbixPasswd := os.Getenv("GO_TESTZABBIX_PASSWD")
+	if testZabbixPasswd == "" {
+		return nil, errors.New("environment variable 'GO_TESTZABBIX_PASSWD' cannot be empty")
+	}
+
+	conn, err := connectionjsonrpc.NewConnect(
+		connectionjsonrpc.WithHost(testZabbixHost),
+		connectionjsonrpc.WithPort(testZabbixPort),
+		connectionjsonrpc.WithLogin(testZabbixUser),
+		connectionjsonrpc.WithPasswd(testZabbixPasswd),
+		connectionjsonrpc.WithConnectionTimeout(10),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error zabbix connection: %v", err)
+	}
+
+	return conn, nil
 }

@@ -8,6 +8,8 @@ github.com/av-belyakov/simplelogger v0.0.0-20250924090323-6ab0607b4a4b h1:axOJ0O
 github.com/av-belyakov/simplelogger v0.0.0-20250924090323-6ab0607b4a4b/go.mod h1:yW2ev3nXPP3WY8svBWJpg4PQRl67MTGIaaiXJ0ULRZ8=
 github.com/av-belyakov/zabbixapicommunicator/v2 v2.3.4 h1:yCKspcyYkamHodKfmpnwOmyKqoFJ2UZ5iONtsI2cG1I=
 github.com/av-belyakov/zabbixapicommunicator/v2 v2.3.4/go.mod h1:RCRL0wh7Jk227ZJL+VetL//duYCdEGHkTON4IBFVWqs=
+github.com/av-belyakov/zabbixapicommunicator/v2 v2.3.5 h1:FmFLodwA7yUl37ftePLI0CE0jA82Ttr6BCs5EQM8rSs=
+github.com/av-belyakov/zabbixapicommunicator/v2 v2.3.5/go.mod h1:RCRL0wh7Jk227ZJL+VetL//duYCdEGHkTON4IBFVWqs=
 github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK343L8=
 github.com/cenkalti/backoff/v4 v4.3.0/go.mod h1:Y3VNntkOUPxTVeUxJ/G5vcM//AlwfmyYozVcomhLiZE=
 github.com/cli/browser v1.3.0 h1:LejqCrpWr+1pRqmEPDGnTZOjsMe7sehifLynZJuqJpo=

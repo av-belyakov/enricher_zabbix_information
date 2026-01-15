@@ -128,6 +128,7 @@ func (th *TaskHandler) start() error {
 		return err
 	}
 
+	// преобразуем список групп хостов Zabbix из бинарного вида в JSON
 	hostGroupList, errMsg, err := connectionjsonrpc.NewResponseGetHostGroupList().Get(res)
 	if err != nil {
 		return err
@@ -163,6 +164,7 @@ func (th *TaskHandler) start() error {
 		return err
 	}
 
+	// преобразуем список хостов Zabbix из бинарного вида в JSON
 	hostList, errMsg, err := connectionjsonrpc.NewResponseGetHostList().Get(res)
 	if err != nil {
 		return err
@@ -206,10 +208,6 @@ func (th *TaskHandler) start() error {
 	}
 
 	for msg := range chInfo {
-		if err := th.settings.storage.SetIsProcessed(msg.HostId); err != nil {
-			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
-		}
-
 		if msg.Error != nil {
 			if err := th.settings.storage.SetError(msg.HostId, customerrors.NewErrorNoValidUrl(msg.OriginalHost, err)); err != nil {
 				th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
@@ -236,6 +234,7 @@ func (th *TaskHandler) start() error {
 			continue
 		}
 
+		// передача информации на веб-интерфейс
 		th.chanSignal <- ChanSignalSettings{
 			ForWhom: "web",
 			Data:    b,
@@ -247,6 +246,14 @@ func (th *TaskHandler) start() error {
 	for _, v := range errList {
 		th.settings.logger.Send("warning", fmt.Sprintf("error DNS resolve '%s', description:'%s'", v.OriginalHost, v.Error.Error()))
 	}
+
+	// получаем префиксы из Netbox
+	shortPrefixList := GetNetboxPrefixes(th.ctx, th.settings.netboxClient, th.settings.logger)
+	if shortPrefixList.Count == 0 {
+		return errors.New("an empty list of prefixes (subnets) was received from the netbox")
+	}
+
+	// выполняем поиск ip адресов в префиксах полученных от Netbox
 
 	/*
 		Далее нужно:
