@@ -36,16 +36,24 @@ func (api *Client) Get(ctx context.Context, query string) ([]byte, int, error) {
 }
 
 // SearchIps поиск IP-адресов в списке префиксов
-func (spl *ShortPrefixList) SearchIps(ips []netip.Addr) <-chan ShortPrefixInfo {
-	chanPrefixInfo := make(chan ShortPrefixInfo)
+func (spl *ShortPrefixList) SearchIps(ips []netip.Addr) <-chan []ShortPrefixInfo {
+	chanPrefixInfo := make(chan []ShortPrefixInfo)
 
 	go func() {
 		defer close(chanPrefixInfo)
 
 		for _, ip := range ips {
-			if index, ok := spl.SearchIp(ip); ok {
-				chanPrefixInfo <- spl.Prefixes[index]
+			indexes := spl.SearchIp(ip)
+			if len(indexes) == 0 {
+				continue
 			}
+
+			var spi []ShortPrefixInfo
+			for _, index := range indexes {
+				spi = append(spi, spl.Prefixes[index])
+			}
+
+			chanPrefixInfo <- spi
 		}
 	}()
 
@@ -53,33 +61,26 @@ func (spl *ShortPrefixList) SearchIps(ips []netip.Addr) <-chan ShortPrefixInfo {
 }
 
 // SearchIp поиск IP-адреса в списке префиксов
-func (spl *ShortPrefixList) SearchIp(ip netip.Addr) (int, bool) {
-	spl.mutex.RLock()
-	defer spl.mutex.RUnlock()
-
-	/*
-		for index, prefix := range spl.Prefixes {
-			if prefix.Prefix.Contains(ip) {
-				return index, true
-			}
-		}
-	*/
-
+func (spl *ShortPrefixList) SearchIp(ip netip.Addr) []int {
+	var indexes []int
 	left := 0
 	right := len(spl.Prefixes) - 1
 
+	spl.mutex.RLock()
+	defer spl.mutex.RUnlock()
+
 	for left <= right {
 		if spl.Prefixes[left].Prefix.Contains(ip) {
-			return left, true
+			indexes = append(indexes, left)
 		}
 
 		if left != right && spl.Prefixes[right].Prefix.Contains(ip) {
-			return right, true
+			indexes = append(indexes, right)
 		}
 
 		left++
 		right--
 	}
 
-	return -1, false
+	return indexes
 }

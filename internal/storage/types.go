@@ -18,13 +18,13 @@ type ShortTermStorage struct {
 
 // HostDetailedInformation детальная информация о хосте
 type HostDetailedInformation struct {
-	Ips          []netip.Addr // список ip адресов
-	OriginalHost string       // исходное наименование хоста
-	DomainName   string       // доменное имя
-	SensorId     string       // id обслуживающего сенсора
-	Error        error        // ошибка
-	HostId       int          // id хоста
-	NetboxHostId int          // id хоста в netbox
-	IsActive     bool         // флаг активный ли хост
-	IsProcessed  bool         // флаг обработан ли хост
+	Ips           []netip.Addr // список ip адресов
+	SensorsId     []string     // id обслуживающего сенсора
+	NetboxHostsId []int        // id хоста в netbox
+	OriginalHost  string       // исходное наименование хоста
+	DomainName    string       // доменное имя
+	Error         error        // ошибка
+	HostId        int          // id хоста
+	IsActive      bool         // флаг активный ли хост
+	IsProcessed   bool         // флаг обработан ли хост
 }

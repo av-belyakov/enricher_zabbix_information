@@ -123,7 +123,7 @@ func (sts *ShortTermStorage) GetHostsWithSensorId() []HostDetailedInformation {
 
 	var hostList []HostDetailedInformation
 	for _, v := range sts.data {
-		if v.SensorId == "" {
+		if len(v.SensorsId) == 0 {
 			continue
 		}
 
@@ -202,13 +202,18 @@ func (sts *ShortTermStorage) SetError(hostId int, err error) error {
 }
 
 // SetSensorId устанавливает id обслуживающего сенсора для заданного id хоста
-func (sts *ShortTermStorage) SetSensorId(hostId int, sensorId string) error {
+func (sts *ShortTermStorage) SetSensorId(hostId int, sensorsId ...string) error {
 	index, elem, ok := sts.GetForHostId(hostId)
 	if !ok {
 		return fmt.Errorf("the element with hostId '%d' was not found", hostId)
 	}
 
-	elem.SensorId = sensorId
+	for _, sensorId := range sensorsId {
+		if !slices.Contains(elem.SensorsId, sensorId) {
+			elem.SensorsId = append(elem.SensorsId, sensorId)
+		}
+	}
+
 	sts.data[index] = elem
 
 	return nil
@@ -229,13 +234,18 @@ func (sts *ShortTermStorage) SetIsActive(hostId int) error {
 }
 
 // SetNetboxHostId устанавливает id хоста в Netbox для заданного id хоста
-func (sts *ShortTermStorage) SetNetboxHostId(hostId, netboxHostId int) error {
+func (sts *ShortTermStorage) SetNetboxHostId(hostId int, netboxHostsId ...int) error {
 	index, elem, ok := sts.GetForHostId(hostId)
 	if !ok {
 		return fmt.Errorf("the element with hostId '%d' was not found", hostId)
 	}
 
-	elem.NetboxHostId = netboxHostId
+	for _, netboxHostId := range netboxHostsId {
+		if !slices.Contains(elem.NetboxHostsId, netboxHostId) {
+			elem.NetboxHostsId = append(elem.NetboxHostsId, netboxHostId)
+		}
+	}
+
 	sts.data[index] = elem
 
 	return nil

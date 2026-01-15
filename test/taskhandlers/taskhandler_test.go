@@ -211,28 +211,30 @@ func TestTaskHandler(t *testing.T) {
 							//}
 							//fmt.Printf("Goroutine %d, host id: '%d', addr: '%+v'\n", i, hostInfo.HostId, hostInfo.Ips)
 
-							for msg := range shortPrefixList.SearchIps(hostInfo.Ips) {
+							for msgList := range shortPrefixList.SearchIps(hostInfo.Ips) {
+								//-------- debug --------
 								if slices.Contains(ids, hostInfo.HostId) {
-									fmt.Printf("host id: '%d', all info: '%+v', ipaddr info: '%+v'\n", hostInfo.HostId, hostInfo, msg)
+									fmt.Printf("host id: '%d', all info: '%+v', ipaddr info: '%+v'\n", hostInfo.HostId, hostInfo, msgList)
 								}
-
-								//----------------------------------------------------------------------------------------
+								//-----------------------
 
 								err = storageTemp.SetIsProcessed(hostInfo.HostId)
 								assert.NoError(t, err)
 
-								err = storageTemp.SetNetboxHostId(hostInfo.HostId, msg.Id)
-								assert.NoError(t, err)
+								for _, msg := range msgList {
+									if msg.Status != "active" {
+										continue
+									}
 
-								err = storageTemp.SetSensorId(hostInfo.HostId, msg.SensorId)
-								assert.NoError(t, err)
+									err = storageTemp.SetIsActive(hostInfo.HostId)
+									assert.NoError(t, err)
 
-								if msg.Status != "active" {
-									continue
+									err = storageTemp.SetSensorId(hostInfo.HostId, msg.SensorId)
+									assert.NoError(t, err)
+
+									err = storageTemp.SetNetboxHostId(hostInfo.HostId, msg.Id)
+									assert.NoError(t, err)
 								}
-
-								err = storageTemp.SetIsActive(hostInfo.HostId)
-								assert.NoError(t, err)
 							}
 						}
 					})
@@ -253,12 +255,13 @@ func TestTaskHandler(t *testing.T) {
 			fmt.Println("Hosts with sensor id:")
 			for k, v := range listHostWithSensorId {
 				fmt.Printf(
-					"%d. domain name: '%s', host id: %d, ips: '%v', sensor id: '%s', IsProcessed: '%t', error: '%v'\n",
+					"%d. domain name:'%s', host id:%d, ips:'%v', sensors id:'%s', netbox hosts id:'%v', IsProcessed:'%t', error:'%v'\n",
 					k+1,
 					v.DomainName,
 					v.HostId,
 					v.Ips,
-					v.SensorId,
+					v.SensorsId,
+					v.NetboxHostsId,
 					v.IsProcessed,
 					v.Error,
 				)

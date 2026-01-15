@@ -44,15 +44,11 @@ func getInformationMessage(conf *confighandler.ConfigApp, zabbixVersion string) 
 		constants.Ansi_Reset,
 	)
 	fmt.Printf(
-		"%vConnect to NetBox with address %v%s:%d%v%v user '%v%s%v'%v\n",
+		"%vConnect to NetBox with address %v%s:%d%v\n",
 		constants.Ansi_Dark_Gray,
 		constants.Ansi_Bright_Magenta,
 		conf.GetNetBox().Host,
 		conf.GetNetBox().Port,
-		constants.Ansi_Reset,
-		constants.Ansi_Dark_Gray,
-		constants.Ansi_Bright_Magenta,
-		constants.Ansi_Dark_Gray,
 		constants.Ansi_Reset,
 	)
 	fmt.Printf(
