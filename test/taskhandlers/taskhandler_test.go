@@ -1,7 +1,6 @@
 package applicationtamplateexample_test
 
 import (
-	"cmp"
 	"context"
 	"errors"
 	"fmt"
@@ -9,7 +8,6 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
-	"strings"
 	"syscall"
 	"testing"
 	"testing/synctest"
@@ -28,6 +26,10 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/internal/taskhandlers"
 	"github.com/av-belyakov/enricher_zabbix_information/test/helpers"
 )
+
+//
+// Для этого теста надо ОБЯЗАТЕЛЬНО развернуть тестовый Zabbix.
+//
 
 func TestTaskHandler(t *testing.T) {
 	var (
@@ -67,17 +69,9 @@ func TestTaskHandler(t *testing.T) {
 
 	fmt.Printf("zabbix config user:'%s', passwd:'%s'\n", conf.GetZabbix().User, conf.GetAuthenticationData().ZabbixPasswd)
 
-	zabbixConn, err := connectionjsonrpc.NewConnect(
-		connectionjsonrpc.WithTLS(),
-		connectionjsonrpc.WithInsecureSkipVerify(),
-		connectionjsonrpc.WithHost(conf.GetZabbix().Host),
-		connectionjsonrpc.WithPort(conf.GetZabbix().Port),
-		connectionjsonrpc.WithLogin(conf.GetZabbix().User),
-		connectionjsonrpc.WithPasswd(conf.GetAuthenticationData().ZabbixPasswd),
-		connectionjsonrpc.WithConnectionTimeout(cmp.Or(conf.GetZabbix().Timeout, 10)),
-	)
+	testZabbixConn, err := zabbixConnectForTesting()
 	if err != nil {
-		t.Fatalf("error zabbix connection: %v", err)
+		t.Fatal(err)
 	}
 
 	netboxClient, err := netboxapi.New(
@@ -92,7 +86,7 @@ func TestTaskHandler(t *testing.T) {
 	storageTemp = storage.NewShortTermStorage()
 
 	t.Run("Тест 1. Авторизация и аутентификация в Zabbix", func(t *testing.T) {
-		assert.NoError(t, zabbixConn.AuthorizationStart(ctx))
+		assert.NoError(t, testZabbixConn.AuthorizationStart(ctx))
 	})
 
 	t.Run("Тест 2. Проверка шагов обработчика задач", func(t *testing.T) {
@@ -108,7 +102,7 @@ func TestTaskHandler(t *testing.T) {
 		)
 
 		t.Run("Тест 2.1. Получаем полный список групп хостов Zabbix", func(t *testing.T) {
-			res, err = zabbixConn.GetFullHostGroupList(ctx)
+			res, err = testZabbixConn.GetFullHostGroupList(ctx)
 			assert.NoError(t, err)
 		})
 		t.Run("Тест 2.2. Преобразуем список групп хостов Zabbix из бинарного вида в JSON", func(t *testing.T) {
@@ -126,7 +120,7 @@ func TestTaskHandler(t *testing.T) {
 			fmt.Println("Count list groups id:", len(listGroupsId))
 		})
 		t.Run("Тест 2.4. Получаем список хостов которые есть в словарях, если словари не пусты, или все хосты", func(t *testing.T) {
-			res, err = zabbixConn.GetHostList(ctx, listGroupsId...)
+			res, err = testZabbixConn.GetHostList(ctx, listGroupsId...)
 			assert.NoError(t, err)
 		})
 		t.Run("Тест 2.5. Преобразуем список хостов Zabbix из бинарного вида в JSON", func(t *testing.T) {
@@ -211,43 +205,62 @@ func TestTaskHandler(t *testing.T) {
 	})
 
 	t.Run("Тест 3. Добавление или обновление тегов в тестовом Zabbix", func(t *testing.T) {
-		//
-		//Для этого теста надо ОБЯЗАТЕЛЬНО развернуть тестовый Zabbix.
-		//
-
-		testZabbixConn, err := zabbixConnectForTesting()
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		err = testZabbixConn.AuthorizationStart(t.Context())
-		assert.NoError(t, err)
-
 		listHostWithSensorId := storageTemp.GetHostsWithSensorId()
 		assert.Greater(t, len(listHostWithSensorId), 0)
 
+		var num int
 		fmt.Println("Insert tags to Zabbix")
 		for _, v := range listHostWithSensorId {
-			var sensorsId string
-			countSensorsId := len(v.SensorsId)
-			if countSensorsId == 0 {
-				continue
-			} else if countSensorsId == 1 {
-				sensorsId = v.SensorsId[0]
-			} else {
-				sensorsId = strings.Join(v.SensorsId, ",")
+			if num == 10 {
+				break
 			}
 
-			res, err := testZabbixConn.UpdateHostParameterTags(
-				ctx,
-				fmt.Sprint(v.HostId),
-				connectionjsonrpc.Tags{
-					Tag: []connectionjsonrpc.Tag{{Tag: "СОА-ТЕСТ", Value: sensorsId}},
-				},
-			)
+			hostId := fmt.Sprint(v.HostId)
+			fmt.Println("___ fmt.Sprint(v.HostId):", hostId)
+
+			res, err := testZabbixConn.GetHostTags(ctx, hostId)
 			assert.NoError(t, err)
 
-			fmt.Printf("Response UpdateHostParameterTags: '%s'\n", string(res))
+			fmt.Printf("Response GetHostTags: '%s'\n", res)
+			num++
+
+			/*
+
+				1. Есть ошибки the host with id '11617' was not found.
+				Похоже для поиска я использую данные с одного Zabbix (продуктового),
+				а изменить пытаюсь данные в тестовом Zabbix. Надо использовать только
+				тестовый Zabbix. Тем более данные в нем почти такие же как и в продуктовом.
+
+				!Вроде уже нет ошибок, но всё равно теги похоже не обнавляются!
+
+
+				2. Есть гонка данных. Надо смотреть временное хранилище. В тестоах временного
+				хранилища всё нормально. Однако, в тестах не предусмотрен параллельный доступ.
+
+			*/
+
+			/*
+				var sensorsId string
+				countSensorsId := len(v.SensorsId)
+				if countSensorsId == 0 {
+					continue
+				} else if countSensorsId == 1 {
+					sensorsId = v.SensorsId[0]
+				} else {
+					sensorsId = strings.Join(v.SensorsId, ",")
+				}
+
+				res, err := testZabbixConn.UpdateHostParameterTags(
+					ctx,
+					fmt.Sprint(v.HostId),
+					connectionjsonrpc.Tags{
+						Tag: []connectionjsonrpc.Tag{{Tag: "СОА-ТЕСТ", Value: sensorsId}},
+					},
+				)
+				assert.NoError(t, err)
+
+				fmt.Printf("Response UpdateHostParameterTags: '%s'\n", string(res))
+			*/
 		}
 	})
 
