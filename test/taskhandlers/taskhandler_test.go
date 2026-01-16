@@ -240,26 +240,29 @@ func TestTaskHandler(t *testing.T) {
 			*/
 
 			/*
-				var sensorsId string
-				countSensorsId := len(v.SensorsId)
-				if countSensorsId == 0 {
-					continue
-				} else if countSensorsId == 1 {
-					sensorsId = v.SensorsId[0]
-				} else {
-					sensorsId = strings.Join(v.SensorsId, ",")
-				}
 
-				res, err := testZabbixConn.UpdateHostParameterTags(
-					ctx,
-					fmt.Sprint(v.HostId),
-					connectionjsonrpc.Tags{
-						Tag: []connectionjsonrpc.Tag{{Tag: "СОА-ТЕСТ", Value: sensorsId}},
-					},
-				)
-				assert.NoError(t, err)
+				!!! Раскомментировать для изменения тегов в тестовом Zabbix !!!
 
-				fmt.Printf("Response UpdateHostParameterTags: '%s'\n", string(res))
+					var sensorsId string
+					countSensorsId := len(v.SensorsId)
+					if countSensorsId == 0 {
+						continue
+					} else if countSensorsId == 1 {
+						sensorsId = v.SensorsId[0]
+					} else {
+						sensorsId = strings.Join(v.SensorsId, ",")
+					}
+
+					res, err := testZabbixConn.UpdateHostParameterTags(
+						ctx,
+						fmt.Sprint(v.HostId),
+						connectionjsonrpc.Tags{
+							Tag: []connectionjsonrpc.Tag{{Tag: "СОА-ТЕСТ", Value: sensorsId}},
+						},
+					)
+					assert.NoError(t, err)
+
+					fmt.Printf("Response UpdateHostParameterTags: '%s'\n", string(res))
 			*/
 		}
 	})
