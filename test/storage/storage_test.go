@@ -8,6 +8,8 @@ import (
 	"net/netip"
 	"os"
 	"strconv"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -173,6 +175,120 @@ func TestStorage(t *testing.T) {
 		dateStart, dateEnd := sts.GetDateExecution()
 		assert.Equal(t, dateStart.Year(), 1)
 		assert.Equal(t, dateEnd.Year(), 1)
+	})
+
+	t.Run("Тест 8. Конкурентный доступ к хранилищу", func(t *testing.T) {
+		testList := map[string]struct {
+			ipaddr       []netip.Addr
+			originalHost string
+		}{
+			"example-111-domain.ru": {
+				ipaddr: []netip.Addr{
+					netip.MustParseAddr("101.34.78.63"),
+					netip.MustParseAddr("211.48.71.162"),
+					netip.MustParseAddr("11.13.178.45"),
+				},
+				originalHost: "example-111-domain.ru/anything&name=aa",
+			},
+			"example-222-domain.ru": {
+				ipaddr: []netip.Addr{
+					netip.MustParseAddr("121.13.238.23"),
+					netip.MustParseAddr("212.148.170.126"),
+					netip.MustParseAddr("106.183.181.245"),
+				},
+				originalHost: "example-222-domain.ru/anything&name=aa",
+			},
+			"example-333-domain.ru": {
+				ipaddr: []netip.Addr{
+					netip.MustParseAddr("151.14.98.6"),
+					netip.MustParseAddr("11.40.1.12"),
+					netip.MustParseAddr("101.113.18.5"),
+				},
+				originalHost: "example-333-domain.ru/anything&name=aa",
+			},
+			"example-444-domain.ru": {
+				ipaddr: []netip.Addr{
+					netip.MustParseAddr("21.13.38.3"),
+					netip.MustParseAddr("21.158.171.16"),
+					netip.MustParseAddr("16.183.181.25"),
+				},
+				originalHost: "example-444-domain.ru/anything&name=aa",
+			},
+			"example-555-domain.ru": {
+				ipaddr: []netip.Addr{
+					netip.MustParseAddr("151.14.98.6"),
+					netip.MustParseAddr("1.4.165.182"),
+					netip.MustParseAddr("161.13.198.15"),
+				},
+				originalHost: "example-555-domain.ru/anything&name=aa",
+			},
+			"example-666-domain.ru": {
+				ipaddr: []netip.Addr{
+					netip.MustParseAddr("222.133.86.3"),
+					netip.MustParseAddr("91.158.19.116"),
+					netip.MustParseAddr("56.187.183.125"),
+				},
+				originalHost: "example-666-domain.ru/anything&name=aa",
+			},
+		}
+
+		t.Run("Тест 8.1. Добавление данных", func(t *testing.T) {
+			var (
+				wg  sync.WaitGroup
+				num atomic.Int32
+			)
+
+			for k, v := range testList {
+				num.Store(num.Load() + 1)
+
+				k := k
+				v := v
+				n := num.Load()
+
+				wg.Go(func() {
+					sts.Add(storage.HostDetailedInformation{
+						HostId:       int(n),
+						DomainName:   k,
+						OriginalHost: v.originalHost,
+						Ips:          v.ipaddr,
+					})
+				})
+			}
+			wg.Wait()
+
+			assert.Equal(t, len(sts.GetHosts()), len(testList))
+		})
+
+		t.Run("Тест 8.2. Чтение данных", func(t *testing.T) {
+			domainNames := []string{}
+			for k := range testList {
+				domainNames = append(domainNames, k)
+			}
+
+			var (
+				wg  sync.WaitGroup
+				num atomic.Int32
+			)
+
+			for _, v := range domainNames {
+				wg.Go(func() {
+					if index, hostInfo, ok := sts.GetForDomainName(v); ok {
+						num.Store(num.Load() + 1)
+
+						fmt.Printf(
+							"index:'%d', hostId:'%d', OriginalHost:'%s', Ips:'%v'\n",
+							index,
+							hostInfo.HostId,
+							hostInfo.OriginalHost,
+							hostInfo.Ips,
+						)
+					}
+				})
+			}
+			wg.Wait()
+
+			assert.Equal(t, int(num.Load()), len(testList))
+		})
 	})
 
 	//t.Run("Тест . ", func(t *testing.T) {})
