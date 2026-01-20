@@ -18,10 +18,8 @@ import (
 )
 
 const (
-	chunkSize int = 100
-	host          = "netbox.cloud.gcm"
-	port          = 8005
-	fileName      = "prefixes.json"
+	host = "netbox.cloud.gcm"
+	port = 8005
 )
 
 func TestGetPrefixes(t *testing.T) {

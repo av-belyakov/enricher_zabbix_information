@@ -190,10 +190,7 @@ func (th *TaskHandler) start() error {
 	//fmt.Printf("method 'TaskHandlerSettings.start' count hosts:'%d'\n", len(ths.storage.GetList()))
 
 	// инициализируем поиск ip адресов через DNS resolver
-	dnsRes, err := dnsresolver.New(
-		th.settings.storage,
-		dnsresolver.WithTimeout(10),
-	)
+	dnsRes, err := dnsresolver.New(dnsresolver.WithTimeout(10))
 	if err != nil {
 		return err
 	}
@@ -202,7 +199,7 @@ func (th *TaskHandler) start() error {
 	th.settings.storage.SetProcessRunning()
 
 	// запускаем поиск через DNS resolver
-	chInfo, err := dnsRes.Run(th.ctx)
+	chInfo, err := dnsRes.Run(th.ctx, th.settings.storage.GetHosts())
 	if err != nil {
 		return err
 	}

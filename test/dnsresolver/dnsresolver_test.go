@@ -69,10 +69,7 @@ func TestDnsResolver(t *testing.T) {
 		}
 	}()
 
-	dnsRes, err := dnsresolver.New(
-		sts,
-		dnsresolver.WithTimeout(10),
-	)
+	dnsRes, err := dnsresolver.New(dnsresolver.WithTimeout(10))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -82,7 +79,7 @@ func TestDnsResolver(t *testing.T) {
 		sts.SetProcessRunning()
 		assert.True(t, sts.GetStatusProcessRunning())
 
-		chOutput, err := dnsRes.Run(ctx)
+		chOutput, err := dnsRes.Run(ctx, sts.GetHosts())
 		assert.NoError(t, err)
 
 		for msg := range chOutput {

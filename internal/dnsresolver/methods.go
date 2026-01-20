@@ -12,18 +12,17 @@ import (
 )
 
 // Run запуск преобразования списка доменных имён в ip адреса
-func (s *Settings) Run(ctx context.Context) (<-chan InfoFromDNSResolver, error) {
+func (s *Settings) Run(ctx context.Context, hosts map[int]string) (<-chan InfoFromDNSResolver, error) {
 	chSendData := make(chan InfoFromDNSResolver)
 
-	hostList := s.storage.GetHosts()
-	if len(hostList) == 0 {
+	if len(hosts) == 0 {
 		return nil, wrappers.WrapperError(errors.New("the list of domain names intended for searching ip addresses should not be empty"))
 	}
 
 	go func() {
 		defer close(chSendData)
 
-		for hostId, originalHost := range hostList {
+		for hostId, originalHost := range hosts {
 			idns := InfoFromDNSResolver{
 				HostId:       hostId,
 				OriginalHost: originalHost,

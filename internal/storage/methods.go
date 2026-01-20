@@ -149,9 +149,10 @@ func (sts *ShortTermStorage) SetDomainName(hostId int, domainName string) error 
 	}
 
 	sts.mutex.Lock()
+	defer sts.mutex.Unlock()
+
 	elem.DomainName = domainName
 	sts.data[index] = elem
-	sts.mutex.Unlock()
 
 	return nil
 }
@@ -164,11 +165,12 @@ func (sts *ShortTermStorage) SetIps(hostId int, ips ...netip.Addr) error {
 	}
 
 	sts.mutex.Lock()
+	defer sts.mutex.Unlock()
+
 	for _, ip := range ips {
 		elem.Ips = append(elem.Ips, ip)
 	}
 	sts.data[index] = elem
-	sts.mutex.Unlock()
 
 	return nil
 }
@@ -181,9 +183,10 @@ func (sts *ShortTermStorage) SetIsProcessed(hostId int) error {
 	}
 
 	sts.mutex.Lock()
+	defer sts.mutex.Unlock()
+
 	elem.IsProcessed = true
 	sts.data[index] = elem
-	sts.mutex.Unlock()
 
 	return nil
 }
@@ -194,6 +197,9 @@ func (sts *ShortTermStorage) SetError(hostId int, err error) error {
 	if !ok {
 		return fmt.Errorf("the element with hostId '%d' was not found", hostId)
 	}
+
+	sts.mutex.Lock()
+	defer sts.mutex.Unlock()
 
 	elem.Error = err
 	sts.data[index] = elem
@@ -207,6 +213,9 @@ func (sts *ShortTermStorage) SetSensorId(hostId int, sensorsId ...string) error 
 	if !ok {
 		return fmt.Errorf("the element with hostId '%d' was not found", hostId)
 	}
+
+	sts.mutex.Lock()
+	defer sts.mutex.Unlock()
 
 	for _, sensorId := range sensorsId {
 		if !slices.Contains(elem.SensorsId, sensorId) {
@@ -227,6 +236,9 @@ func (sts *ShortTermStorage) SetIsActive(hostId int) error {
 		return fmt.Errorf("the element with hostId '%d' was not found", hostId)
 	}
 
+	sts.mutex.Lock()
+	defer sts.mutex.Unlock()
+
 	elem.IsActive = true
 	sts.data[index] = elem
 
@@ -239,6 +251,9 @@ func (sts *ShortTermStorage) SetNetboxHostId(hostId int, netboxHostsId ...int) e
 	if !ok {
 		return fmt.Errorf("the element with hostId '%d' was not found", hostId)
 	}
+
+	sts.mutex.Lock()
+	defer sts.mutex.Unlock()
 
 	for _, netboxHostId := range netboxHostsId {
 		if !slices.Contains(elem.NetboxHostsId, netboxHostId) {
