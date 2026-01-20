@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"runtime"
 	"strconv"
+	"strings"
 
 	"github.com/av-belyakov/zabbixapicommunicator/v2/cmd/connectionjsonrpc"
 
@@ -128,7 +130,7 @@ func (th *TaskHandler) start() error {
 		return err
 	}
 
-	// преобразуем список групп хостов Zabbix из бинарного вида в JSON
+	// преобразуем список групп хостов Zabbix из бинарного вида в соответствующую структуру
 	hostGroupList, errMsg, err := connectionjsonrpc.NewResponseGetHostGroupList().Get(res)
 	if err != nil {
 		return err
@@ -157,8 +159,8 @@ func (th *TaskHandler) start() error {
 
 	//fmt.Println("method 'TaskHandlerSettings.start' listGroupsId:", listGroupsId)
 
-	// получаем список хостов которые есть в словарях, если словари
-	// не пусты, или все хосты
+	// получаем список хостов которые есть в словарях (имена веб-сайтов предназначенных
+	// для мониторинга), если словари не пусты, или все хосты
 	res, err = th.settings.zabbixConn.GetHostList(th.ctx, listGroupsId...)
 	if err != nil {
 		return err
@@ -251,18 +253,33 @@ func (th *TaskHandler) start() error {
 	}
 
 	// выполняем поиск ip адресов в префиксах полученных от Netbox
+	// в SearchIpaddrToPrefixesNetbox передаётся хранилище в котором выполняются
+	// все изменения произошедшие в результате поиска ip адресов в префиксах
+	SearchIpaddrToPrefixesNetbox(runtime.NumCPU(), th.settings.storage, shortPrefixList, th.settings.logger)
 
-	/*
-		Далее нужно:
-			1. выполнить поиск ip адресов в Netbox для того что бы проверить входят ли
-			полученные ранее ip адреса в контролируемые сетевые диапазоны, при этом
-			от Netbox нужно получить не только входят/не входят но и id сенсора который
-			контролирует данный ip адрес;
-			2. добавить теги содержащие id сенсора в информацию о хосте в Zabbix;
-			3. если задача была инициализирована вручную, через веб-интерфейс, то
-			отправить результат на api сервер.
+	// добавляем или обновляем теги в Zabbix
+	for _, v := range th.settings.storage.GetHostsWithSensorId() {
+		var sensorsId string
+		if len(v.SensorsId) == 0 {
+			continue
+		} else if len(v.SensorsId) == 1 {
+			sensorsId = v.SensorsId[0]
+		} else {
+			sensorsId = strings.Join(v.SensorsId, ",")
+		}
 
-	*/
+		if _, err := th.settings.zabbixConn.UpdateHostParameterTags(
+			th.ctx,
+			fmt.Sprint(v.HostId),
+			connectionjsonrpc.Tags{
+				Tag: []connectionjsonrpc.Tag{
+					{Tag: "СОА", Value: sensorsId},
+				},
+			},
+		); err != nil {
+			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+		}
+	}
 
 	// меняем статус задачи на "не выполняется"
 	th.settings.storage.SetProcessNotRunning()

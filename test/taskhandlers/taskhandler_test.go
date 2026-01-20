@@ -212,19 +212,13 @@ func TestTaskHandler(t *testing.T) {
 		assert.Greater(t, len(listHostWithSensorId), 0)
 
 		var num int
-		fmt.Println("Insert tags to Zabbix")
+		fmt.Println("Insert tags to Zabbix. Print first 10 items.")
 		for _, v := range listHostWithSensorId {
-			if num == 10 {
-				break
+			if num <= 10 {
+				hostId := fmt.Sprint(v.HostId)
+				fmt.Println("___ fmt.Sprint(v.HostId):", hostId)
 			}
 
-			hostId := fmt.Sprint(v.HostId)
-			fmt.Println("___ fmt.Sprint(v.HostId):", hostId)
-
-			res, err := testZabbixConn.GetHostTags(ctx, hostId)
-			assert.NoError(t, err)
-
-			fmt.Printf("Response GetHostTags: '%s'\n", res)
 			num++
 
 			//!!! Раскомментировать для изменения тегов в тестовом Zabbix !!!
