@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"runtime/pprof"
 	"strconv"
 	"strings"
 	"syscall"
@@ -38,6 +39,17 @@ func TestTaskHandler(t *testing.T) {
 	var (
 		storageTemp *storage.ShortTermStorage
 	)
+
+	f, err := os.Create("cpupprof.out")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	if err = pprof.StartCPUProfile(f); err != nil {
+		t.Fatal(err)
+	}
+	defer pprof.StopCPUProfile()
 
 	// это нужно для доступа к Netbox
 	os.Setenv("GO_ENRICHERZI_MAIN", "production")

@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"net/netip"
 
+	"github.com/bytedance/sonic"
+
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/netboxapi"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
@@ -62,7 +64,7 @@ func GetNetboxPrefixes(ctx context.Context, client *netboxapi.Client, logger int
 		}
 
 		nbPrefixes := netboxapi.ListPrefixes{}
-		err = json.Unmarshal(res, &nbPrefixes)
+		err = sonic.Unmarshal(res, &nbPrefixes)
 		if err != nil {
 			logger.Send("error", wrappers.WrapperError(err).Error())
 
