@@ -21,7 +21,8 @@ import (
 )
 
 func init() {
-	// Добавляем кастомные MIME-типы при инициализации
+	// добавляем кастомные MIME-типы при инициализации
+	// нужно для работы с css и js файлами
 	mime.AddExtensionType(".css", "text/css; charset=utf-8")
 	mime.AddExtensionType(".js", "application/javascript; charset=utf-8")
 	mime.AddExtensionType(".json", "application/json; charset=utf-8")
@@ -62,7 +63,7 @@ func (is *InformationServer) Start(ctx context.Context) error {
 	fs := http.FileServer(http.Dir("./static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	//инициализируем api сервер
+	//инициализируем api-сервер
 	is.server = &http.Server{
 		Addr:    net.JoinHostPort(is.host, fmt.Sprint(is.port)),
 		Handler: mux,
@@ -104,12 +105,12 @@ func (is *InformationServer) Start(ctx context.Context) error {
 	return g.Wait()
 }
 
-// SendData отправка данных в APIServer
+// SendData отправка данных в api-сервер
 func (is *InformationServer) SendData(b []byte) {
 	is.chInput <- b
 }
 
-// GetChannelOutgoingData канал с исходящими от APIServer данными
+// GetChannelOutgoingData канал, с исходящими от api-сервера, данными
 func (is *InformationServer) GetChannelOutgoingData() <-chan []byte {
 	return is.chOutput
 }

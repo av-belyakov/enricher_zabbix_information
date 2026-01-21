@@ -77,7 +77,7 @@ func getInformationMessage(conf *confighandler.ConfigApp, zabbixVersion string) 
 		constants.Ansi_Reset,
 	)
 	fmt.Printf(
-		"%vTask completion schedule. %v%s",
+		"%vTask completion schedule. %v%s\n",
 		constants.Ansi_Dark_Gray,
 		constants.Ansi_Reset,
 		getSchedule(conf.GetSchedule()),

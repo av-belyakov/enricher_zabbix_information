@@ -9,13 +9,18 @@ templ TemplateTaskCompletionStatistics(ttcs datamodels.TemplTaskCompletionsStati
 		<div>Время начала выполнения: {ttcs.DataStart}</div>
 		<div>Время завершения выполнения: {ttcs.DataEnd}</div>
 		<div>Время на выполнение задачи: {ttcs.DiffTime}</div>
-		<div>Количество обработанных доменных имён: {ttcs.CountHosts}</div>
-		<div>Количество доменных имён обработанных с ошибкой: {ttcs.CountHostsError}</div>
-		<div>Список доменных имён при обработки которых возникли ошибки:</div>
+		<div>Общее количество групп хостов в Zabbix: {ttcs.CountZabbixHostsGroup}</div>
+		<div>Количество групп хостов по которым осуществляется мониторинг: {ttcs.CountMonitoringHostsGroup}</div>
+		<div>Количество хостов по которым осуществляется мониторинг: {ttcs.CountMonitoringHosts}</div>
+		<div>Количество обработанных хостов: {ttcs.CountHostsIsProcessed}</div>
+		<div>Количество найденных префиксов в Netbox: {ttcs.CountNetboxPrefixes}</div>
+		<div>Количество обновленных хостов в Zabbix: {ttcs.CountUpdatedZabbixHosts}</div>
+		<div>Количество хостов обработанных с ошибкой: {ttcs.CountHostsError}</div>
+		<div>Список доменных имён хостов, при обработки которых возникли ошибки:</div>
         <div style="padding-left: 20px; margin: 10px 0;">
 			<ol>
 				for _, v := range ttcs.Hosts {
-					<li><b>{v.Name}</b>, error: {v.Error}</li>
+					<li><b>{v.Name}</b>, <span style="color:#f44336;">error</span>: {v.Error}</li>
 				}
 			</ol>
 		</div>

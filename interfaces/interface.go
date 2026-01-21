@@ -37,6 +37,16 @@ type StorageInformation interface {
 	GetStatusProcessRunning() bool
 	GetDateExecution() (start, end time.Time)
 	GetList() []storage.HostDetailedInformation
+	StorageCounrer
+}
+
+type StorageCounrer interface {
+	GetCountZabbixHosts() int32
+	GetCountNetboxPrefixes() int32
+	GetCountMonitoringHosts() int32
+	GetCountZabbixHostsGroup() int32
+	GetCountUpdatedZabbixHosts() int32
+	GetCountMonitoringHostsGroup() int32
 }
 
 // ************** передача данных ***************

@@ -70,10 +70,10 @@ func TestReadConfigHandler(t *testing.T) {
 		})
 
 		t.Run("Тест 4. Проверка настройки Zabbix", func(t *testing.T) {
-			assert.Equal(t, conf.GetZabbix().Host, "192.168.9.45")
-			assert.Equal(t, conf.GetZabbix().Port, 443)
+			assert.Equal(t, conf.GetZabbix().Host, "localhost")
+			assert.Equal(t, conf.GetZabbix().Port, 8282)
 			assert.Equal(t, conf.GetZabbix().Timeout, 30)
-			assert.Equal(t, conf.GetZabbix().User, "803.p.vishnitsky@avz-center.ru")
+			assert.Equal(t, conf.GetZabbix().User, "api_user_1")
 		})
 
 		t.Run("Тест 5. Проверка настройки API Information Server", func(t *testing.T) {
@@ -134,6 +134,7 @@ func TestReadConfigHandler(t *testing.T) {
 			assert.Equal(t, conf.GetZabbix().Host, "127.0.0.1")
 			assert.Equal(t, conf.GetZabbix().Port, 4242)
 			assert.Equal(t, conf.GetZabbix().User, "some_user_service")
+			assert.Equal(t, conf.GetZabbix().UseTLS, false)
 		})
 
 		t.Run("Тест 4. Проверка настройки сервиса InformationServerApi", func(t *testing.T) {

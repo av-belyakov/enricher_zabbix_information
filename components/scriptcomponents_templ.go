@@ -10,8 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 func BaseComponentScripts() templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_BaseComponentScripts_713f`,
-		Function: `function __templ_BaseComponentScripts_713f(){const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+		Name: `__templ_BaseComponentScripts_8299`,
+		Function: `function __templ_BaseComponentScripts_8299(){const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = ` + "`" + `${wsProtocol}//${window.location.host}/ws` + "`" + `;
     let arrLogs = [];
     let socket = new WebSocket(wsUrl);
@@ -64,28 +64,6 @@ func BaseComponentScripts() templ.ComponentScript {
             displayLogs(arrLogs);
         }
 
-        if (jsonObj.type == "manually_task") {            
-            if (jsonObj.settings.error != "") {
-                //если есть ошибка
-                printErrorMessage(true);
-
-                disabledInputAndButtonSendToken(false);                
-
-                return
-            } 
-            
-            //показ области для для вывода информации о выполнении процесса
-            let idInformationArea = document.getElementById("informationArea");
-            if (idInformationArea != null) {
-                idInformationArea.hidden = false;
-            }
-
-            printErrorMessage(false);
-
-            //делать доступными для взаимодействия кнопку и поле ввода
-            //только после выполнения задачи
-        }
-
         if (jsonObj.type == "ask_manually_task") {
             console.log("--------");
             console.log(jsonObj.data);
@@ -107,9 +85,13 @@ func BaseComponentScripts() templ.ComponentScript {
                     <div>Время начала выполнения: ${jsonObj.data.data_start}</div>
                     <div>Время завершения выполнения: ${jsonObj.data.data_end}</div>
                     <div>Время на выполнение задачи: ${jsonObj.data.diff_time}</div>
-                    <div>Всего доменных имён: ${jsonObj.data.count_hosts}</div>
-                    <div>Количество обработанных доменных имён: ${jsonObj.data.count_hosts_is_processed}</div>
-                    <div>Количество доменных имён обработанных с ошибкой: ${jsonObj.data.count_hosts_error}</div>
+		            <div>Общее количество групп хостов в Zabbix: ${count_zabbix_hosts_group}</div>
+		            <div>Количество групп хостов по которым осуществляется мониторинг: ${count_monitoring_hosts_group}</div>
+		            <div>Количество хостов по которым осуществляется мониторинг: ${count_monitoring_hosts}</div>
+		            <div>Количество обработанных хостов: ${count_hosts_is_processed}</div>
+		            <div>Количество найденных префиксов в Netbox: ${count_netbox_prefixes}</div>
+		            <div>Количество обновленных хостов в Zabbix: ${count_updated_zabbix_hosts}</div>
+		            <div>Количество хостов обработанных с ошибкой: ${count_hosts_error}</div>
                     <div>Список доменных имён при обработки которых возникли ошибки:</div>
                     <div style="padding-left: 20px; margin: 10px 0;">
                         <ol id="listDomainName"></ol>
@@ -261,8 +243,8 @@ func BaseComponentScripts() templ.ComponentScript {
     //обработчик на кнопку отправляющую токен на сервер
     setHandlerForButtonSendToken();
 }`,
-		Call:       templ.SafeScript(`__templ_BaseComponentScripts_713f`),
-		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_713f`),
+		Call:       templ.SafeScript(`__templ_BaseComponentScripts_8299`),
+		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_8299`),
 	}
 }
 

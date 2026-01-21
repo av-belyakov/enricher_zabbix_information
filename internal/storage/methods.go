@@ -266,6 +266,66 @@ func (sts *ShortTermStorage) SetNetboxHostId(hostId int, netboxHostsId ...int) e
 	return nil
 }
 
+// SetCountZabbixHostsGroup количество групп хостов в Zabbix
+func (sts *ShortTermStorage) SetCountZabbixHostsGroup(v int) {
+	sts.countZabbixHostsGroup.Store(int32(v))
+}
+
+// GetCountZabbixHostsGroup количество групп хостов в Zabbix
+func (sts *ShortTermStorage) GetCountZabbixHostsGroup() int32 {
+	return sts.countZabbixHostsGroup.Load()
+}
+
+// SetCountZabbixHosts общее количество хостов в Zabbix
+func (sts *ShortTermStorage) SetCountZabbixHosts(v int) {
+	sts.countZabbixHosts.Store(int32(v))
+}
+
+// GetCountZabbixHosts общее количество хостов в Zabbix
+func (sts *ShortTermStorage) GetCountZabbixHosts() int32 {
+	return sts.countZabbixHosts.Load()
+}
+
+// SetCountMonitoringHostsGroup количество групп хостов по которым осуществляется мониторинг
+func (sts *ShortTermStorage) SetCountMonitoringHostsGroup(v int) {
+	sts.countMonitoringHostsGroup.Store(int32(v))
+}
+
+// GetCountMonitoringHostsGroup количество групп хостов по которым осуществляется мониторинг
+func (sts *ShortTermStorage) GetCountMonitoringHostsGroup() int32 {
+	return sts.countMonitoringHostsGroup.Load()
+}
+
+// SetCountMonitoringHosts количество хостов по которым осуществляется мониторинг
+func (sts *ShortTermStorage) SetCountMonitoringHosts(v int) {
+	sts.countMonitoringHosts.Store(int32(v))
+}
+
+// GetCountMonitoringHosts количество хостов по которым осуществляется мониторинг
+func (sts *ShortTermStorage) GetCountMonitoringHosts() int32 {
+	return sts.countMonitoringHosts.Load()
+}
+
+// SetCountNetboxPrefixes количество найденных префиксов в Netbox
+func (sts *ShortTermStorage) SetCountNetboxPrefixes(v int) {
+	sts.countNetboxPrefixes.Store(int32(v))
+}
+
+// GetCountNetboxPrefixes количество найденных префиксов в Netbox
+func (sts *ShortTermStorage) GetCountNetboxPrefixes() int32 {
+	return sts.countNetboxPrefixes.Load()
+}
+
+// SetCountUpdatedZabbixHosts количество обновленных хостов в Zabbix
+func (sts *ShortTermStorage) SetCountUpdatedZabbixHosts(v int) {
+	sts.countUpdatedZabbixHosts.Store(int32(v))
+}
+
+// GetCountUpdatedZabbixHosts количество обновленных хостов в Zabbix
+func (sts *ShortTermStorage) GetCountUpdatedZabbixHosts() int32 {
+	return sts.countUpdatedZabbixHosts.Load()
+}
+
 // DeleteElement удаляет заданный элемент по hostId
 func (sts *ShortTermStorage) DeleteElement(hostId int) {
 	sts.mutex.Lock()

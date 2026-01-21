@@ -1,13 +1,6 @@
 package components
 
-templ TemplateManuallyTaskStarting(executeStatus bool){    
-    if executeStatus {
-        <div><p>В настоящее время задача уже выполняется</p></div>
-
-        return
-    }
-
-    <p>Ручной запуск задачи</p>
+templ TemplateManuallyTaskStarting(executeStatus bool) {    
     <form style="display: flex;">
         <div class="input-token" style="flex: 1;">
             <label class="placeholder-box">

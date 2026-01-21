@@ -10,14 +10,15 @@ Schedule:
     - 22:47:03
 # Настройки подключения к Zabbix
 Zabbix:
-  host: 192.168.9.45
-  port: 443
-  user: 803.p.vishnitsky@avz-center.ru
+  use_tls: false # Использовать TLS для подключения к Zabbix
+  host: localhost
+  port: 8282
+  user: api_user_1
   timeout: 30
 # Настройки подключения к NetBox
 NetBox:
-  host: localhost
-  port: 4455
+  host: netbox.cloud.gcm
+  port: 8005
 InformationServerApi:
   host: localhost
   port: 8989

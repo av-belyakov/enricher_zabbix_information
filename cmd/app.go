@@ -26,7 +26,12 @@ import (
 )
 
 func app(ctx context.Context) {
-	var nameRegionalObject string
+	var (
+		nameRegionalObject string
+		zabbixConn         *connectionjsonrpc.ZabbixConnectionJsonRPC
+		err                error
+	)
+
 	if os.Getenv("GO_"+constants.App_Environment_Name+"_MAIN") == "development" {
 		nameRegionalObject = fmt.Sprintf("%s-dev", appname.GetName())
 	} else {
@@ -81,15 +86,25 @@ func app(ctx context.Context) {
 
 	//*********************************************************************************
 	//***************** инициализация модуля-обёртки соединения с Zabbix **************
-	zabbixConn, err := connectionjsonrpc.NewConnect(
-		connectionjsonrpc.WithTLS(),
-		connectionjsonrpc.WithInsecureSkipVerify(),
-		connectionjsonrpc.WithHost(conf.GetZabbix().Host),
-		connectionjsonrpc.WithPort(conf.GetZabbix().Port),
-		connectionjsonrpc.WithLogin(conf.GetZabbix().User),
-		connectionjsonrpc.WithPasswd(conf.GetAuthenticationData().ZabbixPasswd),
-		connectionjsonrpc.WithConnectionTimeout(cmp.Or(conf.GetZabbix().Timeout, 10)),
-	)
+	if conf.GetZabbix().UseTLS {
+		zabbixConn, err = connectionjsonrpc.NewConnect(
+			connectionjsonrpc.WithTLS(),
+			connectionjsonrpc.WithInsecureSkipVerify(),
+			connectionjsonrpc.WithHost(conf.GetZabbix().Host),
+			connectionjsonrpc.WithPort(conf.GetZabbix().Port),
+			connectionjsonrpc.WithLogin(conf.GetZabbix().User),
+			connectionjsonrpc.WithPasswd(conf.GetAuthenticationData().ZabbixPasswd),
+			connectionjsonrpc.WithConnectionTimeout(cmp.Or(conf.GetZabbix().Timeout, 10)),
+		)
+	} else {
+		zabbixConn, err = connectionjsonrpc.NewConnect(
+			connectionjsonrpc.WithHost(conf.GetZabbix().Host),
+			connectionjsonrpc.WithPort(conf.GetZabbix().Port),
+			connectionjsonrpc.WithLogin(conf.GetZabbix().User),
+			connectionjsonrpc.WithPasswd(conf.GetAuthenticationData().ZabbixPasswd),
+			connectionjsonrpc.WithConnectionTimeout(cmp.Or(conf.GetZabbix().Timeout, 10)),
+		)
+	}
 	if err != nil {
 		log.Fatalf("error zabbix connection: %v", err)
 	}

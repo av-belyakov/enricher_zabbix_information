@@ -124,6 +124,11 @@ func (th *TaskHandler) TaskHandlerInitiatedThroughChannel() error {
 }
 
 func (th *TaskHandler) start() error {
+	// устанавливаем дату начала выполнения задачи
+	th.settings.storage.SetStartDateExecution()
+	// меняем статус задачи на "не выполняется"
+	defer th.settings.storage.SetProcessNotRunning()
+
 	// получаем полный список групп хостов Zabbix
 	res, err := th.settings.zabbixConn.GetFullHostGroupList(th.ctx)
 	if err != nil {
@@ -138,6 +143,9 @@ func (th *TaskHandler) start() error {
 	if errMsg.Error.Message != "" {
 		th.settings.logger.Send("warning", errMsg.Error.Message)
 	}
+
+	// количество групп хостов в Zabbix
+	th.settings.storage.SetCountZabbixHostsGroup(len(hostGroupList.Result))
 
 	// проверяем наличие списка групп хостов
 	if len(hostGroupList.Result) == 0 {
@@ -157,7 +165,8 @@ func (th *TaskHandler) start() error {
 		th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
 	}
 
-	//fmt.Println("method 'TaskHandlerSettings.start' listGroupsId:", listGroupsId)
+	// количество групп хостов относящихся к веб-сайтам мониторинга
+	th.settings.storage.SetCountMonitoringHostsGroup(len(listGroupsId))
 
 	// получаем список хостов которые есть в словарях (имена веб-сайтов предназначенных
 	// для мониторинга), если словари не пусты, или все хосты
@@ -172,12 +181,11 @@ func (th *TaskHandler) start() error {
 		return err
 	}
 
-	//fmt.Println("method 'TaskHandlerSettings.start' hostList:", hostList)
+	// количество хостов по которым осуществляется мониторинг
+	th.settings.storage.SetCountMonitoringHosts(len(hostList.Result))
 
 	//очищаем хранилище от предыдущих данных (что бы не смешивать старые и новые данные)
 	th.settings.storage.DeleteAll()
-	// устанавливаем дату начала выполнения задачи
-	th.settings.storage.SetStartDateExecution()
 
 	// заполняем хранилище данными о хостах
 	for _, host := range hostList.Result {
@@ -188,8 +196,6 @@ func (th *TaskHandler) start() error {
 			})
 		}
 	}
-
-	//fmt.Printf("method 'TaskHandlerSettings.start' count hosts:'%d'\n", len(ths.storage.GetList()))
 
 	// инициализируем поиск ip адресов через DNS resolver
 	dnsRes, err := dnsresolver.New(dnsresolver.WithTimeout(10))
@@ -252,11 +258,15 @@ func (th *TaskHandler) start() error {
 		return errors.New("an empty list of prefixes (subnets) was received from the netbox")
 	}
 
+	// количество найденных префиксов в Netbox
+	th.settings.storage.SetCountNetboxPrefixes(shortPrefixList.Count)
+
 	// выполняем поиск ip адресов в префиксах полученных от Netbox
 	// в SearchIpaddrToPrefixesNetbox передаётся хранилище в котором выполняются
 	// все изменения произошедшие в результате поиска ip адресов в префиксах
 	SearchIpaddrToPrefixesNetbox(runtime.NumCPU(), th.settings.storage, shortPrefixList, th.settings.logger)
 
+	var num int
 	// добавляем или обновляем теги в Zabbix
 	for _, v := range th.settings.storage.GetHostsWithSensorId() {
 		var sensorsId string
@@ -278,11 +288,17 @@ func (th *TaskHandler) start() error {
 			},
 		); err != nil {
 			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+
+			continue
 		}
+
+		num++
 	}
 
+	// количество обновленных хостов в Zabbix
+	th.settings.storage.SetCountUpdatedZabbixHosts(num)
 	// меняем статус задачи на "не выполняется"
-	th.settings.storage.SetProcessNotRunning()
+	defer th.settings.storage.SetProcessNotRunning()
 
 	b, err := json.Marshal(ResponseTaskHandler{
 		Type: "ask_manually_task",

@@ -9,6 +9,7 @@ Schedule:
     - 21:00:00
 # Настройки подключения к Zabbix
 Zabbix:
+  use_tls: true # Использовать TLS для подключения к Zabbix
   host: 192.168.9.45
   port: 443
   user: 803.p.vishnitsky@avz-center.ru

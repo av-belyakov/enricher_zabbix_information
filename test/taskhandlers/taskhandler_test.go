@@ -129,11 +129,17 @@ func TestTaskHandler(t *testing.T) {
 			assert.Equal(t, errMsg.Error.Code, 0)
 			assert.NotEmpty(t, hostGroupList.Result)
 
+			// количество групп хостов в Zabbix
+			storageTemp.SetCountZabbixHostsGroup(len(hostGroupList.Result))
+
 			fmt.Println("Count host group list:", len(hostGroupList.Result))
 		})
 		t.Run("Тест 2.3. Получаем список id хостов относящихся к группам веб-сайтов мониторинга", func(t *testing.T) {
 			listGroupsId, err = taskhandlers.GetListIdsWebsitesGroupMonitoring(constants.App_Dictionary_Path, hostGroupList.Result)
 			assert.NoError(t, err)
+
+			// количество групп хостов относящихся к веб-сайтам мониторинга
+			storageTemp.SetCountMonitoringHostsGroup(len(listGroupsId))
 
 			fmt.Println("Count list groups id:", len(listGroupsId))
 		})
@@ -146,6 +152,9 @@ func TestTaskHandler(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, errMsg.Error.Code, 0)
 			assert.NotEmpty(t, hostList.Result)
+
+			// количество хостов по которым осуществляется мониторинг
+			storageTemp.SetCountMonitoringHosts(len(hostList.Result))
 
 			fmt.Println("Count host list:", len(hostList.Result))
 			//for k, v := range hostList.Result {
@@ -191,6 +200,9 @@ func TestTaskHandler(t *testing.T) {
 		t.Run("Тест 2.7. Получаем префиксы из Netbox", func(t *testing.T) {
 			shortPrefixList = taskhandlers.GetNetboxPrefixes(ctx, netboxClient, logging)
 			assert.Greater(t, shortPrefixList.Count, 0)
+
+			// количество найденных префиксов в Netbox
+			storageTemp.SetCountNetboxPrefixes(shortPrefixList.Count)
 
 			fmt.Println("Count short prefix list:", shortPrefixList.Count)
 		})
@@ -244,7 +256,7 @@ func TestTaskHandler(t *testing.T) {
 				sensorsId = strings.Join(v.SensorsId, ",")
 			}
 
-			b, err := testZabbixConn.UpdateHostParameterTags(
+			_, err := testZabbixConn.UpdateHostParameterTags(
 				ctx,
 				fmt.Sprint(v.HostId),
 				connectionjsonrpc.Tags{
@@ -255,9 +267,11 @@ func TestTaskHandler(t *testing.T) {
 			)
 			assert.NoError(t, err)
 
-			fmt.Printf("Response UpdateHostParameterTags: '%s'\n", string(b))
-
+			//fmt.Printf("Response UpdateHostParameterTags: '%s'\n", string(b))
 		}
+
+		// количество обновленных хостов в Zabbix
+		storageTemp.SetCountUpdatedZabbixHosts(num)
 	})
 
 	t.Cleanup(func() {

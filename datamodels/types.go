@@ -19,11 +19,17 @@ type TemplTaskCompletionsStatistics struct {
 		Name  string `json:"name"`
 		Error string `json:"error"`
 	} `json:"hosts"`
-	DataStart             string `json:"data_start"`
-	DataEnd               string `json:"data_end"`
-	DiffTime              string `json:"diff_time"`
-	ExecutionStatus       string `json:"execution_status"`
-	CountHosts            int    `json:"count_hosts"`
-	CountHostsError       int    `json:"count_hosts_error"`
-	CountHostsIsProcessed int    `json:"count_hosts_is_processed"`
+	DataStart       string `json:"data_start"`
+	DataEnd         string `json:"data_end"`
+	DiffTime        string `json:"diff_time"`
+	ExecutionStatus string `json:"execution_status"`
+	//CountHosts                int    `json:"count_hosts"`                  // всего доменных имён
+	CountHostsError           int `json:"count_hosts_error"`            // количество доменных имён обработанных с ошибкой
+	CountHostsIsProcessed     int `json:"count_hosts_is_processed"`     // количество обработанных доменных имён
+	CountZabbixHostsGroup     int `json:"count_zabbix_hosts_group"`     // количество групп хостов в Zabbix
+	CountZabbixHosts          int `json:"count_zabbix_hosts"`           // общее количество хостов в Zabbix
+	CountMonitoringHostsGroup int `json:"count_monitoring_hosts_group"` // количество групп хостов по которым осуществляется мониторинг
+	CountMonitoringHosts      int `json:"count_monitoring_hosts"`       // количество хостов по которым осуществляется мониторинг
+	CountNetboxPrefixes       int `json:"count_netbox_prefixes"`        // количество найденных префиксов в Netbox
+	CountUpdatedZabbixHosts   int `json:"count_updated_zabbix_hosts"`   // количество обновленных хостов в Zabbix
 }

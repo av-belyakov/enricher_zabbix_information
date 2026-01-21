@@ -18,6 +18,7 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/internal/apiserver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appversion"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
 	"github.com/av-belyakov/enricher_zabbix_information/test/helpers"
 )
 
@@ -148,6 +149,7 @@ func TestApiServer(t *testing.T) {
 				return
 
 			case <-time.After(time.Second * 3):
+				// логи
 				api.SendData(fmt.Appendf(nil, `{
 					"type": "logs",
 					"data": {
@@ -168,6 +170,17 @@ func TestApiServer(t *testing.T) {
 					}
 				}`, time.Now().Format(time.RFC3339)))
 
+			case <-time.After(time.Second * 4):
+				b, err := json.Marshal(struct {
+					Type string `json:"type"`
+					Data any    `json:"data"`
+				}{
+					Type: "ask_manually_task",
+					Data: supportingfunctions.CreateTaskStatistics(storageTemp),
+				})
+				assert.NoError(t, err)
+
+				api.SendData(b)
 			}
 		}
 	})

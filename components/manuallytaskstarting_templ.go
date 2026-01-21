@@ -29,13 +29,7 @@ func TemplateManuallyTaskStarting(executeStatus bool) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if executeStatus {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div><p>В настоящее время задача уже выполняется</p></div>return")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<p>Ручной запуск задачи</p><form style=\"display: flex;\"><div class=\"input-token\" style=\"flex: 1;\"><label class=\"placeholder-box\"><input id=\"inputToken\" required type=\"text\"><div class=\"placeholder-text\">нужен токен для продолжения</div></label></div><div style=\"margin: 20px 0;\"><button id=\"buttonSendToken\" class=\"btn-2\">отправить</button></div></form><div id=\"messageTokenError\" hidden style=\"color:#f44336;\">выполнение операции не возможно, получен не верный токен</div><div id=\"informationArea\" style=\"width:auto; margin-top: 30px;\"></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<form style=\"display: flex;\"><div class=\"input-token\" style=\"flex: 1;\"><label class=\"placeholder-box\"><input id=\"inputToken\" required type=\"text\"><div class=\"placeholder-text\">нужен токен для продолжения</div></label></div><div style=\"margin: 20px 0;\"><button id=\"buttonSendToken\" class=\"btn-2\">отправить</button></div></form><div id=\"messageTokenError\" hidden style=\"color:#f44336;\">выполнение операции не возможно, получен не верный токен</div><div id=\"informationArea\" style=\"width:auto; margin-top: 30px;\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

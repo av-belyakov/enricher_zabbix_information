@@ -109,6 +109,9 @@ func New(rootDir string) (*ConfigApp, error) {
 		if viper.IsSet("Zabbix.timeout") {
 			conf.Zabbix.Timeout = viper.GetInt("Zabbix.timeout")
 		}
+		if viper.IsSet("Zabbix.use_tls") {
+			conf.Zabbix.UseTLS = viper.GetBool("Zabbix.use_tls")
+		}
 
 		// Настройки для модуля подключения к NetBox
 		if viper.IsSet("NetBox.host") {

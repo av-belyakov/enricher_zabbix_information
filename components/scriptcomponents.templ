@@ -54,29 +54,7 @@ script BaseComponentScripts(){
             displayLogs(arrLogs);
         }
 
-        if (jsonObj.type == "manually_task") {            
-            if (jsonObj.settings.error != "") {
-                //если есть ошибка
-                printErrorMessage(true);
-
-                disabledInputAndButtonSendToken(false);                
-
-                return
-            } 
-            
-            //показ области для для вывода информации о выполнении процесса
-            let idInformationArea = document.getElementById("informationArea");
-            if (idInformationArea != null) {
-                idInformationArea.hidden = false;
-            }
-
-            printErrorMessage(false);
-
-            //делать доступными для взаимодействия кнопку и поле ввода
-            //только после выполнения задачи
-        }
-
-        if (jsonObj.type == "processing_task") {
+        if (jsonObj.type == "ask_manually_task") {
             console.log("--------");
             console.log(jsonObj.data);
             console.log("--------");
@@ -97,9 +75,13 @@ script BaseComponentScripts(){
                     <div>Время начала выполнения: ${jsonObj.data.data_start}</div>
                     <div>Время завершения выполнения: ${jsonObj.data.data_end}</div>
                     <div>Время на выполнение задачи: ${jsonObj.data.diff_time}</div>
-                    <div>Всего доменных имён: ${jsonObj.data.count_hosts}</div>
-                    <div>Количество обработанных доменных имён: ${jsonObj.data.count_hosts_is_processed}</div>
-                    <div>Количество доменных имён обработанных с ошибкой: ${jsonObj.data.count_hosts_error}</div>
+		            <div>Общее количество групп хостов в Zabbix: ${count_zabbix_hosts_group}</div>
+		            <div>Количество групп хостов по которым осуществляется мониторинг: ${count_monitoring_hosts_group}</div>
+		            <div>Количество хостов по которым осуществляется мониторинг: ${count_monitoring_hosts}</div>
+		            <div>Количество обработанных хостов: ${count_hosts_is_processed}</div>
+		            <div>Количество найденных префиксов в Netbox: ${count_netbox_prefixes}</div>
+		            <div>Количество обновленных хостов в Zabbix: ${count_updated_zabbix_hosts}</div>
+		            <div>Количество хостов обработанных с ошибкой: ${count_hosts_error}</div>
                     <div>Список доменных имён при обработки которых возникли ошибки:</div>
                     <div style="padding-left: 20px; margin: 10px 0;">
                         <ol id="listDomainName"></ol>

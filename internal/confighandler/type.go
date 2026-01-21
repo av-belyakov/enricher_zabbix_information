@@ -59,6 +59,7 @@ type CfgZabbix struct {
 	User    string `validate:"required" yaml:"user"`
 	Port    int    `validate:"gt=0,lte=65535" yaml:"port"`
 	Timeout int    `validate:"gte=0,lte=6000" yaml:"timeout"`
+	UseTLS  bool   `yaml:"use_tls"`
 }
 
 // CfgInformationServerApi настройки доступа к API сервера информации
