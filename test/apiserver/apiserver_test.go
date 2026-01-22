@@ -148,8 +148,7 @@ func TestApiServer(t *testing.T) {
 			case <-ctx.Done():
 				return
 
-			case <-time.After(time.Second * 3):
-				// логи
+			case <-time.After(time.Second * 2):
 				api.SendData(fmt.Appendf(nil, `{
 					"type": "logs",
 					"data": {
@@ -170,7 +169,15 @@ func TestApiServer(t *testing.T) {
 					}
 				}`, time.Now().Format(time.RFC3339)))
 
-			case <-time.After(time.Second * 4):
+				time.Sleep(time.Second * 1)
+
+				storageTemp.SetCountNetboxPrefixes(int(storageTemp.GetCountNetboxPrefixes()) + 1)
+				storageTemp.SetCountZabbixHosts(int(storageTemp.GetCountZabbixHosts()) + 1)
+				storageTemp.SetCountZabbixHostsGroup(int(storageTemp.GetCountZabbixHostsGroup()) + 1)
+				storageTemp.SetCountMonitoringHosts(int(storageTemp.GetCountMonitoringHosts() + 1))
+				storageTemp.SetCountMonitoringHostsGroup(int(storageTemp.GetCountMonitoringHostsGroup()) + 1)
+				storageTemp.SetCountUpdatedZabbixHosts(int(storageTemp.GetCountUpdatedZabbixHosts()) + 1)
+
 				b, err := json.Marshal(struct {
 					Type string `json:"type"`
 					Data any    `json:"data"`

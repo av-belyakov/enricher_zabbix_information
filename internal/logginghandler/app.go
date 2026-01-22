@@ -18,7 +18,7 @@ func New(writer interfaces.WriterLoggingData) *LoggingChan {
 	}
 }
 
-// AddTransmitters добавление дополнительных передатчиков в которые будут передоватся логи
+// AddTransmitters дополнительные передатчики в которые будут передаваться логи
 func (lc *LoggingChan) AddTransmitters(transmitters ...interfaces.BytesTransmitter) {
 	for _, transmitting := range transmitters {
 		lc.transmitters = append(lc.transmitters, transmitting)
@@ -44,8 +44,8 @@ func (lc *LoggingChan) Start(ctx context.Context) {
 				//...
 
 				for _, transmiting := range lc.transmitters {
-					if transmiting.GetTypeTransmitter() == "apiServer" {
-						transmiting.SendData(fmt.Appendf(nil, `{
+					//if transmiting.GetTypeTransmitter() == "apiServer" {
+					transmiting.SendData(fmt.Appendf(nil, `{
 							"type": "logs",
 							"data": {
 								"timestamp": "%s",
@@ -53,11 +53,11 @@ func (lc *LoggingChan) Start(ctx context.Context) {
 								"message": "%s"
 							}
 						}`,
-							time.Now().Format(time.RFC3339),
-							strings.ToUpper(msg.GetType()),
-							msg.GetMessage(),
-						))
-					}
+						time.Now().Format(time.RFC3339),
+						strings.ToUpper(msg.GetType()),
+						msg.GetMessage(),
+					))
+					//}
 				}
 			}
 		}
