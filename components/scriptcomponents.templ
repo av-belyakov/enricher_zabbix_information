@@ -54,6 +54,28 @@ script BaseComponentScripts(){
             displayLogs(arrLogs);
         }
 
+        //управление передачей токена для запуска выполнения задачи
+        if (jsonObj.type == "manually_task") {            
+            if (jsonObj.settings.error != "") {
+                printErrorMessage(true);
+                disabledInputAndButtonSendToken(false);                
+
+                return
+            } 
+            
+            //показ области для для вывода информации о выполнении процесса
+            let idInformationArea = document.getElementById("informationArea");
+            if (idInformationArea != null) {
+                idInformationArea.hidden = false;
+            }
+
+            printErrorMessage(false);
+
+            //делать доступными для взаимодействия кнопку и поле ввода
+            //только после выполнения задачи
+        }
+
+        //вывод хода выполнения задачи  
         if (jsonObj.type == "ask_manually_task") {
             console.log("--------");
             console.log(jsonObj.data);

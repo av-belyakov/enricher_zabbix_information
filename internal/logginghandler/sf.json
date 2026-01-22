@@ -1,0 +1,11 @@
+{
+    "query": [
+        {
+            "_name": "getCase",
+            "idOrName": "~88678416456"
+        },
+        {
+            "_name": "observables"
+        }
+    ]
+}

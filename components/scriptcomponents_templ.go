@@ -10,8 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 func BaseComponentScripts() templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_BaseComponentScripts_eec0`,
-		Function: `function __templ_BaseComponentScripts_eec0(){const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+		Name: `__templ_BaseComponentScripts_25d8`,
+		Function: `function __templ_BaseComponentScripts_25d8(){const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = ` + "`" + `${wsProtocol}//${window.location.host}/ws` + "`" + `;
     let arrLogs = [];
     let socket = new WebSocket(wsUrl);
@@ -64,6 +64,30 @@ func BaseComponentScripts() templ.ComponentScript {
             displayLogs(arrLogs);
         }
 
+        //управление передачей токена для запуска выполнения задачи
+        if (jsonObj.type == "manually_task") {            
+            if (jsonObj.settings.error != "") {
+                //если есть ошибка
+                printErrorMessage(true);
+
+                disabledInputAndButtonSendToken(false);                
+
+                return
+            } 
+            
+            //показ области для для вывода информации о выполнении процесса
+            let idInformationArea = document.getElementById("informationArea");
+            if (idInformationArea != null) {
+                idInformationArea.hidden = false;
+            }
+
+            printErrorMessage(false);
+
+            //делать доступными для взаимодействия кнопку и поле ввода
+            //только после выполнения задачи
+        }
+
+        //вывод хода выполнения задачи  
         if (jsonObj.type == "ask_manually_task") {
             console.log("--------");
             console.log(jsonObj.data);
@@ -243,8 +267,8 @@ func BaseComponentScripts() templ.ComponentScript {
     //обработчик на кнопку отправляющую токен на сервер
     setHandlerForButtonSendToken();
 }`,
-		Call:       templ.SafeScript(`__templ_BaseComponentScripts_eec0`),
-		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_eec0`),
+		Call:       templ.SafeScript(`__templ_BaseComponentScripts_25d8`),
+		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_25d8`),
 	}
 }
 

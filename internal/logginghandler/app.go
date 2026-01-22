@@ -43,6 +43,8 @@ func (lc *LoggingChan) Start(ctx context.Context) {
 				//здесь и далее возможна так же передача логов в некоторую систему мониторинга
 				//...
 
+				fmt.Println("___ Logging message: ", msg.GetMessage(), " type: ", msg.GetType())
+
 				for _, transmiting := range lc.transmitters {
 					//if transmiting.GetTypeTransmitter() == "apiServer" {
 					transmiting.SendData(fmt.Appendf(nil, `{
