@@ -2,6 +2,7 @@ package logginghandler
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -27,6 +28,8 @@ func (lc *LoggingChan) AddTransmitters(transmitters ...interfaces.BytesTransmitt
 
 // Start обработчик и распределитель логов
 func (lc *LoggingChan) Start(ctx context.Context) {
+	storageLog := NewShortLogStory(30)
+
 	go func() {
 		for {
 			select {
@@ -40,14 +43,26 @@ func (lc *LoggingChan) Start(ctx context.Context) {
 				//в конфигурационном файле
 				_ = lc.dataWriter.Write(msg.GetType(), msg.GetMessage())
 
-				//здесь и далее возможна так же передача логов в некоторую систему мониторинга
-				//...
+				storageLog.Add(LogInformation{
+					Date:        time.Now().Format(time.RFC3339),
+					Type:        strings.ToUpper(msg.GetType()),
+					Description: msg.GetMessage(),
+				})
 
 				fmt.Println("___ Logging message: ", msg.GetMessage(), " type: ", msg.GetType())
 
 				for _, transmiting := range lc.transmitters {
-					//if transmiting.GetTypeTransmitter() == "apiServer" {
-					transmiting.SendData(fmt.Appendf(nil, `{
+					if b, err := json.Marshal(struct {
+						Type string `json:"type"`
+						Data any    `json:"data"`
+					}{
+						Type: "logs",
+						Data: storageLog.Get(),
+					}); err != nil {
+						transmiting.SendData(b)
+					}
+
+					/*transmiting.SendData(fmt.Appendf(nil, `{
 							"type": "logs",
 							"data": {
 								"timestamp": "%s",
@@ -58,8 +73,7 @@ func (lc *LoggingChan) Start(ctx context.Context) {
 						time.Now().Format(time.RFC3339),
 						strings.ToUpper(msg.GetType()),
 						msg.GetMessage(),
-					))
-					//}
+					))*/
 				}
 			}
 		}

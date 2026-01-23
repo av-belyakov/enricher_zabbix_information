@@ -17,6 +17,7 @@ import (
 
 	"github.com/av-belyakov/enricher_zabbix_information/internal/apiserver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appversion"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/logginghandler"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
 	"github.com/av-belyakov/enricher_zabbix_information/test/helpers"
@@ -88,6 +89,9 @@ func TestApiServer(t *testing.T) {
 	//запускаем api сервер
 	go api.Start(ctx)
 
+	//инициализируем хранилище логов
+	shortLogStory := logginghandler.NewShortLogStory(30)
+
 	time.Sleep(time.Second * 1)
 
 	//обработчик входящих от api сервера данных
@@ -149,25 +153,34 @@ func TestApiServer(t *testing.T) {
 				return
 
 			case <-time.After(time.Second * 2):
-				api.SendData(fmt.Appendf(nil, `{
-					"type": "logs",
-					"data": {
-						"timestamp": "%s",
-						"level": "WARNING",
-						"message": "Warning test message"
-					}
-				}`, time.Now().Format(time.RFC3339)))
+				shortLogStory.Add(logginghandler.LogInformation{
+					Date:        time.Now().Format(time.RFC3339),
+					Type:        "WARNING",
+					Description: fmt.Sprintf("some description warning with time '%s'", time.Now()),
+				})
 
-				time.Sleep(time.Second * 1)
+				shortLogStory.Add(logginghandler.LogInformation{
+					Date:        time.Now().Format(time.RFC3339),
+					Type:        "INFO",
+					Description: fmt.Sprintf("some description information with time '%s'", time.Now()),
+				})
 
-				api.SendData(fmt.Appendf(nil, `{
-					"type": "logs",
-					"data": {
-						"timestamp": "%s",
-						"level": "INFO",
-						"message": "Info test message"
-					}
-				}`, time.Now().Format(time.RFC3339)))
+				shortLogStory.Add(logginghandler.LogInformation{
+					Date:        time.Now().Format(time.RFC3339),
+					Type:        "ERROR",
+					Description: fmt.Sprintf("some description error with time '%s'", time.Now()),
+				})
+
+				b, err := json.Marshal(struct {
+					Type string `json:"type"`
+					Data any    `json:"data"`
+				}{
+					Type: "logs",
+					Data: shortLogStory.Get(),
+				})
+				assert.NoError(t, err)
+
+				api.SendData(b)
 
 				time.Sleep(time.Second * 1)
 
@@ -178,7 +191,7 @@ func TestApiServer(t *testing.T) {
 				storageTemp.SetCountMonitoringHostsGroup(int(storageTemp.GetCountMonitoringHostsGroup()) + 1)
 				storageTemp.SetCountUpdatedZabbixHosts(int(storageTemp.GetCountUpdatedZabbixHosts()) + 1)
 
-				b, err := json.Marshal(struct {
+				b, err = json.Marshal(struct {
 					Type string `json:"type"`
 					Data any    `json:"data"`
 				}{

@@ -10,8 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 func BaseComponentScripts() templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_BaseComponentScripts_25d8`,
-		Function: `function __templ_BaseComponentScripts_25d8(){const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+		Name: `__templ_BaseComponentScripts_743d`,
+		Function: `function __templ_BaseComponentScripts_743d(){const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = ` + "`" + `${wsProtocol}//${window.location.host}/ws` + "`" + `;
     let arrLogs = [];
     let socket = new WebSocket(wsUrl);
@@ -53,23 +53,13 @@ func BaseComponentScripts() templ.ComponentScript {
         let jsonObj = JSON.parse(data)
 
         if (jsonObj.type == "logs") {
-            console.log("приняты логи:", jsonObj.data)
-
-            arrLogs.unshift(jsonObj.data)
-
-            if (arrLogs.length == 31){
-                arrLogs.pop();
-            }
-
-            displayLogs(arrLogs);
+            displayLogs(jsonObj.data);
         }
 
         //управление передачей токена для запуска выполнения задачи
         if (jsonObj.type == "manually_task") {            
             if (jsonObj.settings.error != "") {
-                //если есть ошибка
                 printErrorMessage(true);
-
                 disabledInputAndButtonSendToken(false);                
 
                 return
@@ -89,18 +79,15 @@ func BaseComponentScripts() templ.ComponentScript {
 
         //вывод хода выполнения задачи  
         if (jsonObj.type == "ask_manually_task") {
-            console.log("--------");
-            console.log(jsonObj.data);
-            console.log("--------");
-
             //разблокируем кнопку отправить и поле ввода токена
             if(jsonObj.data.execution_status == "завершена") {
                 disabledInputAndButtonSendToken(false);
             }
 
             let infoField = document.getElementById("informationArea");
-
-            console.log("infoField =", infoField)
+            if (infoField == null){
+                return
+            }
 
             infoField.innerHTML = ` + "`" + `
                 <div>
@@ -267,8 +254,8 @@ func BaseComponentScripts() templ.ComponentScript {
     //обработчик на кнопку отправляющую токен на сервер
     setHandlerForButtonSendToken();
 }`,
-		Call:       templ.SafeScript(`__templ_BaseComponentScripts_25d8`),
-		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_25d8`),
+		Call:       templ.SafeScript(`__templ_BaseComponentScripts_743d`),
+		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_743d`),
 	}
 }
 
