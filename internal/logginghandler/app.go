@@ -8,12 +8,14 @@ import (
 	"time"
 
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/shortlogstory"
 )
 
 // New конструктор обработки логов
 // Это просто мост соединяющий несколько пакетов логирования
-func New(writer interfaces.WriterLoggingData) *LoggingChan {
+func New(writer interfaces.WriterLoggingData, storageLog *shortlogstory.ShortLogStory) *LoggingChan {
 	return &LoggingChan{
+		storage:     storageLog,
 		dataWriter:  writer,
 		chanLogging: make(chan interfaces.Messager, 10),
 	}
@@ -28,7 +30,6 @@ func (lc *LoggingChan) AddTransmitters(transmitters ...interfaces.BytesTransmitt
 
 // Start обработчик и распределитель логов
 func (lc *LoggingChan) Start(ctx context.Context) {
-	storageLog := NewShortLogStory(30)
 
 	go func() {
 		for {
@@ -43,7 +44,7 @@ func (lc *LoggingChan) Start(ctx context.Context) {
 				//в конфигурационном файле
 				_ = lc.dataWriter.Write(msg.GetType(), msg.GetMessage())
 
-				storageLog.Add(LogInformation{
+				lc.storage.Add(shortlogstory.LogInformation{
 					Date:        time.Now().Format(time.RFC3339),
 					Type:        strings.ToUpper(msg.GetType()),
 					Description: msg.GetMessage(),
@@ -57,23 +58,10 @@ func (lc *LoggingChan) Start(ctx context.Context) {
 						Data any    `json:"data"`
 					}{
 						Type: "logs",
-						Data: storageLog.Get(),
-					}); err != nil {
+						Data: lc.storage.Get(),
+					}); err == nil {
 						transmiting.SendData(b)
 					}
-
-					/*transmiting.SendData(fmt.Appendf(nil, `{
-							"type": "logs",
-							"data": {
-								"timestamp": "%s",
-								"level": "%s",
-								"message": "%s"
-							}
-						}`,
-						time.Now().Format(time.RFC3339),
-						strings.ToUpper(msg.GetType()),
-						msg.GetMessage(),
-					))*/
 				}
 			}
 		}

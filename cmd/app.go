@@ -19,6 +19,7 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/internal/logginghandler"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/netboxapi"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/schedulehandler"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/shortlogstory"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/taskhandlers"
@@ -115,18 +116,27 @@ func app(ctx context.Context) {
 	}
 
 	//*********************************************************************************
-	//********************** инициализация временного хранилища ***********************
+	//******************* инициализация временного хранилища задач ********************
 	storageTemp := storage.NewShortTermStorage()
 
 	//*********************************************************************************
+	//************************ инициализация хранилища логов **************************
+	storageLog := shortlogstory.NewShortLogStory(30)
+
+	//*********************************************************************************
 	//***************** инициализация обработчика логирования данных ******************
-	logging := logginghandler.New(simpleLogger)
+	logging := logginghandler.New(simpleLogger, storageLog)
 	logging.Start(ctx)
 
 	//*********************************************************************************
 	//******************** инициализация API сервера (web-server) *********************
 	apiServer, err := apiserver.New(
 		logging,
+		storageLog,
+		//
+		// всё же надо обдумать возможность создание единого хранилища
+		// для логов и задач
+		//
 		storageTemp,
 		apiserver.WithHost(conf.GetInformationServerApi().Host),
 		apiserver.WithPort(conf.GetInformationServerApi().Port),

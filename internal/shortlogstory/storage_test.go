@@ -1,17 +1,18 @@
-package logginghandler_test
+package shortlogstory_test
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/av-belyakov/enricher_zabbix_information/internal/logginghandler"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/av-belyakov/enricher_zabbix_information/internal/shortlogstory"
 )
 
 func TestStorage(t *testing.T) {
-	storageLog := logginghandler.NewShortLogStory(10)
+	storageLog := shortlogstory.NewShortLogStory(10)
 	for num := range 11 {
-		storageLog.Add(logginghandler.LogInformation{
+		storageLog.Add(shortlogstory.LogInformation{
 			Type:        fmt.Sprintf("info:%d", num),
 			Description: fmt.Sprintf("description for log №%d", num),
 		})
@@ -23,7 +24,7 @@ func TestStorage(t *testing.T) {
 
 	//fmt.Println("1 LIST:", list)
 
-	storageLog.Add(logginghandler.LogInformation{
+	storageLog.Add(shortlogstory.LogInformation{
 		Type:        "info:12",
 		Description: "description for log №11",
 	})

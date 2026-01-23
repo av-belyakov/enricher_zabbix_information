@@ -1,28 +1,6 @@
-package logginghandler
+package shortlogstory
 
-import (
-	"slices"
-	"sync"
-)
-
-type ShortLogStory struct {
-	mux   sync.RWMutex
-	story []LogInformation
-	size  int // ограничение на размер хранилища
-}
-
-type LogInformation struct {
-	Date        string `json:"timestamp"`
-	Type        string `json:"level"`
-	Description string `json:"message"`
-}
-
-func NewShortLogStory(size int) *ShortLogStory {
-	return &ShortLogStory{
-		story: make([]LogInformation, 0),
-		size:  size,
-	}
-}
+import "slices"
 
 // Add добавить информацию по логам
 func (ls *ShortLogStory) Add(v LogInformation) {
