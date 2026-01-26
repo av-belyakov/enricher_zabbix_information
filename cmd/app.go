@@ -3,24 +3,27 @@ package main
 import (
 	"cmp"
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/av-belyakov/simplelogger"
 	"github.com/av-belyakov/zabbixapicommunicator/v2/cmd/connectionjsonrpc"
 
 	"github.com/av-belyakov/enricher_zabbix_information/constants"
+	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/apiserver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appname"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/appstorage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appversion"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/confighandler"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/elasticsearchapi"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/logginghandler"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/netboxapi"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/schedulehandler"
-	"github.com/av-belyakov/enricher_zabbix_information/internal/shortlogstory"
-	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/taskhandlers"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
@@ -112,32 +115,26 @@ func app(ctx context.Context) {
 	// выполняем проверку доступности Zabbix путём попытки тестовой авторизации так как
 	// для большей части методов требуется авторизация
 	if err = zabbixConn.AuthorizationStart(ctx); err != nil {
-		log.Fatalf("authorization error: %v", err)
+		log.Fatalf("zabbix authorization error: %v", err)
 	}
 
 	//*********************************************************************************
-	//******************* инициализация временного хранилища задач ********************
-	storageTemp := storage.NewShortTermStorage()
-
-	//*********************************************************************************
-	//************************ инициализация хранилища логов **************************
-	storageLog := shortlogstory.NewShortLogStory(30)
+	//********************** инициализация временного хранилища ***********************
+	appStorage, err := appstorage.New(appstorage.WithSizeLogs(30))
+	if err != nil {
+		log.Fatalf("error initializing the temporary storage: %v", err)
+	}
 
 	//*********************************************************************************
 	//***************** инициализация обработчика логирования данных ******************
-	logging := logginghandler.New(simpleLogger, storageLog)
+	logging := logginghandler.New(simpleLogger)
 	logging.Start(ctx)
 
 	//*********************************************************************************
 	//******************** инициализация API сервера (web-server) *********************
 	apiServer, err := apiserver.New(
 		logging,
-		storageLog,
-		//
-		// всё же надо обдумать возможность создание единого хранилища
-		// для логов и задач
-		//
-		storageTemp,
+		appStorage,
 		apiserver.WithHost(conf.GetInformationServerApi().Host),
 		apiserver.WithPort(conf.GetInformationServerApi().Port),
 		apiserver.WithAuthToken(conf.GetAuthenticationData().APIServerToken),
@@ -150,7 +147,22 @@ func app(ctx context.Context) {
 	go apiServer.Start(ctx)
 
 	// добавляем логирование в API сервер (вывод логов на веб-странице)
-	logging.AddTransmitters(apiServer)
+	logging.AddTransmittersFunc(func(msg interfaces.Messager) {
+		appStorage.AddLog(appstorage.LogInformation{
+			Date:        time.Now().Format(time.RFC3339),
+			Type:        strings.ToUpper(msg.GetType()),
+			Description: msg.GetMessage(),
+		})
+		if b, err := json.Marshal(struct {
+			Type string `json:"type"`
+			Data any    `json:"data"`
+		}{
+			Type: "logs",
+			Data: appStorage.GetLogs(),
+		}); err == nil {
+			apiServer.SendData(b)
+		}
+	})
 
 	//********************************************************************************
 	//************************ инициализация клиента Netbox **************************
@@ -163,7 +175,7 @@ func app(ctx context.Context) {
 	//********************************************************************************
 	//********************** инициализация обработчика задач *************************
 	// это фактически то что будет выполнятся по рассписанию или при ручной инициализации
-	taskHandlerSettings := taskhandlers.NewSettings(zabbixConn, nbClient, apiServer, storageTemp, logging)
+	taskHandlerSettings := taskhandlers.NewSettings(zabbixConn, nbClient, apiServer, appStorage, logging)
 	taskHandler := taskHandlerSettings.Init(ctx)
 
 	//********************************************************************************

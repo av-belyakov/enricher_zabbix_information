@@ -3,7 +3,7 @@ package interfaces
 import (
 	"time"
 
-	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/appstorage"
 )
 
 // **************** счётчик *****************
@@ -36,11 +36,11 @@ type StorageDNSResolver interface {
 type StorageInformation interface {
 	GetStatusProcessRunning() bool
 	GetDateExecution() (start, end time.Time)
-	GetList() []storage.HostDetailedInformation
-	StorageCounrer
+	GetList() []appstorage.HostDetailedInformation
+	StorageCounter
 }
 
-type StorageCounrer interface {
+type StorageCounter interface {
 	GetCountZabbixHosts() int32
 	GetCountNetboxPrefixes() int32
 	GetCountMonitoringHosts() int32

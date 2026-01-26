@@ -5,26 +5,26 @@ import (
 	"sync"
 
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/appstorage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/netboxapi"
-	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
 )
 
 // SearchIpaddrToPrefixesNetbox поиск списка ip адресов в префиксах netbox
 func SearchIpaddrToPrefixesNetbox(
 	maxCountGoroutines int,
-	storageTemp *storage.ShortTermStorage,
+	storageTemp *appstorage.SharedAppStorage,
 	shortPrefixList *netboxapi.ShortPrefixList,
 	logging interfaces.Logger,
 ) {
 	goroutines := 3
-	chQueue := make(chan storage.HostDetailedInformation, maxCountGoroutines)
+	chQueue := make(chan appstorage.HostDetailedInformation, maxCountGoroutines)
 
 	if maxCountGoroutines >= 1 && maxCountGoroutines <= runtime.NumCPU() {
 		maxCountGoroutines = goroutines
 	}
 
-	storageTempSetInfo := func(id int, info []netboxapi.ShortPrefixInfo, st *storage.ShortTermStorage) error {
+	storageTempSetInfo := func(id int, info []netboxapi.ShortPrefixInfo, st *appstorage.SharedAppStorage) error {
 		if err := st.SetIsProcessed(id); err != nil {
 			return err
 		}

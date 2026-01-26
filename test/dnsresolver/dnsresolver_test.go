@@ -12,9 +12,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/av-belyakov/enricher_zabbix_information/internal/appstorage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/customerrors"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dnsresolver"
-	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
 	"github.com/av-belyakov/enricher_zabbix_information/test/helpers"
 	"github.com/av-belyakov/enricher_zabbix_information/test/helpersfile"
@@ -34,20 +34,23 @@ func TestDnsResolver(t *testing.T) {
 		log.Fatalln(errors.New("the structure 'TypeExampleData' should not be empty"))
 	}
 
-	sts := storage.NewShortTermStorage()
+	as, err := appstorage.New()
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	//наполняем хранилище
 	for _, v := range examleData.Hosts {
 		hostId, err := strconv.Atoi(v.HostId)
 		assert.NoError(t, err)
 
-		sts.Add(storage.HostDetailedInformation{
+		as.AddElement(appstorage.HostDetailedInformation{
 			HostId:       hostId,
 			OriginalHost: v.Host,
 		})
 	}
 
-	listElement := sts.GetList()
+	listElement := as.GetList()
 	if len(listElement) == 0 {
 		log.Fatalln(errors.New("the storage should not be empty"))
 	}
@@ -76,41 +79,41 @@ func TestDnsResolver(t *testing.T) {
 
 	t.Run("Тест 1. Выполняем верификацию доменных имён.", func(t *testing.T) {
 		//изменить статус выполнения процесса
-		sts.SetProcessRunning()
-		assert.True(t, sts.GetStatusProcessRunning())
+		as.SetProcessRunning()
+		assert.True(t, as.GetStatusProcessRunning())
 
-		chOutput, err := dnsRes.Run(ctx, sts.GetHosts())
+		chOutput, err := dnsRes.Run(ctx, as.GetHosts())
 		assert.NoError(t, err)
 
 		for msg := range chOutput {
 			//fmt.Printf("%s, ips:%v (error: %v)\n", msg.DomainName, msg.Ips, msg.Error)
 
-			if err := sts.SetIsProcessed(msg.HostId); err != nil {
+			if err := as.SetIsProcessed(msg.HostId); err != nil {
 				logging.Send("error", wrappers.WrapperError(err).Error())
 			}
 
-			if err := sts.SetDomainName(msg.HostId, msg.DomainName); err != nil {
+			if err := as.SetDomainName(msg.HostId, msg.DomainName); err != nil {
 				logging.Send("error", wrappers.WrapperError(err).Error())
 			}
 
 			if msg.Error != nil {
-				if err := sts.SetError(msg.HostId, customerrors.NewErrorNoValidUrl(msg.OriginalHost, err)); err != nil {
+				if err := as.SetError(msg.HostId, customerrors.NewErrorNoValidUrl(msg.OriginalHost, err)); err != nil {
 					logging.Send("error", wrappers.WrapperError(err).Error())
 				}
 
 				continue
 			}
 
-			if err := sts.SetIps(msg.HostId, msg.Ips...); err != nil {
+			if err := as.SetIps(msg.HostId, msg.Ips...); err != nil {
 				logging.Send("error", wrappers.WrapperError(err).Error())
 			}
 		}
 
 		//изменить статус выполнения процесса
-		sts.SetProcessNotRunning()
-		assert.False(t, sts.GetStatusProcessRunning())
+		as.SetProcessNotRunning()
+		assert.False(t, as.GetStatusProcessRunning())
 
-		errList := sts.GetListErrors()
+		errList := as.GetListErrors()
 		fmt.Println("\nCount element with errors:", len(errList))
 		for k, v := range errList {
 			fmt.Printf("%d.\n\tOriginalHost:'%s'\n\tList ip:'%v'\n\tError:'%s'\n", k+1, v.OriginalHost, v.Ips, v.Error.Error())

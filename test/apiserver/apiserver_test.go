@@ -16,9 +16,8 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/av-belyakov/enricher_zabbix_information/internal/apiserver"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/appstorage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appversion"
-	"github.com/av-belyakov/enricher_zabbix_information/internal/logginghandler"
-	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
 	"github.com/av-belyakov/enricher_zabbix_information/test/helpers"
 )
@@ -65,7 +64,11 @@ func TestApiServer(t *testing.T) {
 		}
 	}()
 
-	storageTemp := storage.NewShortTermStorage()
+	storageTemp, err := appstorage.New()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	storageTemp.SetProcessRunning()
 	fillInStorage(storageTemp)
 	time.Sleep(time.Second * 2)
@@ -89,8 +92,11 @@ func TestApiServer(t *testing.T) {
 	//запускаем api сервер
 	go api.Start(ctx)
 
-	//инициализируем хранилище логов
-	shortLogStory := logginghandler.NewShortLogStory(30)
+	//инициализируем хранилище
+	appStorage, err := appstorage.New(appstorage.WithSizeLogs(30))
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	time.Sleep(time.Second * 1)
 
@@ -153,19 +159,19 @@ func TestApiServer(t *testing.T) {
 				return
 
 			case <-time.After(time.Second * 2):
-				shortLogStory.Add(logginghandler.LogInformation{
+				appStorage.AddLog(appstorage.LogInformation{
 					Date:        time.Now().Format(time.RFC3339),
 					Type:        "WARNING",
 					Description: fmt.Sprintf("some description warning with time '%s'", time.Now()),
 				})
 
-				shortLogStory.Add(logginghandler.LogInformation{
+				appStorage.AddLog(appstorage.LogInformation{
 					Date:        time.Now().Format(time.RFC3339),
 					Type:        "INFO",
 					Description: fmt.Sprintf("some description information with time '%s'", time.Now()),
 				})
 
-				shortLogStory.Add(logginghandler.LogInformation{
+				appStorage.AddLog(appstorage.LogInformation{
 					Date:        time.Now().Format(time.RFC3339),
 					Type:        "ERROR",
 					Description: fmt.Sprintf("some description error with time '%s'", time.Now()),
@@ -176,7 +182,7 @@ func TestApiServer(t *testing.T) {
 					Data any    `json:"data"`
 				}{
 					Type: "logs",
-					Data: shortLogStory.Get(),
+					Data: appStorage.GetLogs(),
 				})
 				assert.NoError(t, err)
 
@@ -216,8 +222,8 @@ func TestApiServer(t *testing.T) {
 	})
 }
 
-func fillInStorage(s *storage.ShortTermStorage) {
-	testList := []storage.HostDetailedInformation{
+func fillInStorage(s *appstorage.SharedAppStorage) {
+	testList := []appstorage.HostDetailedInformation{
 		{
 			HostId:       14421,
 			OriginalHost: "1yar.tv",
@@ -256,6 +262,6 @@ func fillInStorage(s *storage.ShortTermStorage) {
 	}
 
 	for _, v := range testList {
-		s.Add(v)
+		s.AddElement(v)
 	}
 }

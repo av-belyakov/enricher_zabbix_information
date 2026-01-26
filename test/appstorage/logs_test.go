@@ -22,7 +22,7 @@ func TestAppStorageLogs(t *testing.T) {
 		})
 	}
 
-	list := storageLog.GetLog()
+	list := storageLog.GetLogs()
 	assert.Equal(t, len(list), 10)
 	assert.Equal(t, list[0].Type, "info:10") // так как есть slice reverce
 
@@ -32,7 +32,7 @@ func TestAppStorageLogs(t *testing.T) {
 		Type:        "info:11",
 		Description: "description for log №11",
 	})
-	list = storageLog.GetLog()
+	list = storageLog.GetLogs()
 	assert.Equal(t, list[0].Type, "info:11") // так как есть slice reverce
 
 	//fmt.Println("2 LIST:", list)

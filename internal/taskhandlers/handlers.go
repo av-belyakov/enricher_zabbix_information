@@ -14,10 +14,10 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/constants"
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/apiserver"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/appstorage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/customerrors"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dnsresolver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/netboxapi"
-	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
 )
@@ -26,7 +26,7 @@ func NewSettings(
 	zabbixConn *connectionjsonrpc.ZabbixConnectionJsonRPC,
 	netboxClient *netboxapi.Client,
 	apiServer *apiserver.InformationServer,
-	storage *storage.ShortTermStorage,
+	storage *appstorage.SharedAppStorage,
 	logger interfaces.Logger,
 ) *TaskHandlerSettings {
 	return &TaskHandlerSettings{
@@ -190,7 +190,7 @@ func (th *TaskHandler) start() error {
 	// заполняем хранилище данными о хостах
 	for _, host := range hostList.Result {
 		if hostId, err := strconv.Atoi(host.HostId); err == nil {
-			th.settings.storage.Add(storage.HostDetailedInformation{
+			th.settings.storage.AddElement(appstorage.HostDetailedInformation{
 				HostId:       hostId,
 				OriginalHost: host.Host,
 			})

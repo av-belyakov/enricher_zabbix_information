@@ -20,10 +20,10 @@ import (
 	"github.com/av-belyakov/zabbixapicommunicator/v2/cmd/connectionjsonrpc"
 
 	"github.com/av-belyakov/enricher_zabbix_information/constants"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/appstorage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/confighandler"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dnsresolver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/netboxapi"
-	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/taskhandlers"
 	"github.com/av-belyakov/enricher_zabbix_information/test/helpers"
@@ -37,7 +37,7 @@ import (
 
 func TestTaskHandler(t *testing.T) {
 	var (
-		storageTemp *storage.ShortTermStorage
+		storageTemp *appstorage.SharedAppStorage
 	)
 
 	f, err := os.Create("cpupprof.out")
@@ -101,7 +101,10 @@ func TestTaskHandler(t *testing.T) {
 		log.Fatalf("error initializing the Netbox client: %v", err)
 	}
 
-	storageTemp = storage.NewShortTermStorage()
+	storageTemp, err = appstorage.New()
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	t.Run("Тест 1. Авторизация и аутентификация в Zabbix", func(t *testing.T) {
 		assert.NoError(t, testZabbixConn.AuthorizationStart(ctx))
@@ -170,7 +173,7 @@ func TestTaskHandler(t *testing.T) {
 			// заполняем хранилище данными о хостах
 			for _, host := range hostList.Result {
 				if hostId, err := strconv.Atoi(host.HostId); err == nil {
-					storageTemp.Add(storage.HostDetailedInformation{
+					storageTemp.AddElement(appstorage.HostDetailedInformation{
 						HostId:       hostId,
 						OriginalHost: host.Host,
 					})

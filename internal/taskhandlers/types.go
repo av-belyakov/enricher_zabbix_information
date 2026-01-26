@@ -7,8 +7,8 @@ import (
 
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/apiserver"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/appstorage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/netboxapi"
-	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
 )
 
 // TaskHandler обработчик задач
@@ -28,7 +28,7 @@ type TaskHandlerSettings struct {
 	netboxClient *netboxapi.Client
 	zabbixConn   *zconnection.ZabbixConnectionJsonRPC
 	apiServer    *apiserver.InformationServer
-	storage      *storage.ShortTermStorage
+	storage      *appstorage.SharedAppStorage
 	logger       interfaces.Logger
 }
 

@@ -435,7 +435,7 @@ func (as *SharedAppStorage) AddLog(v LogInformation) {
 }
 
 // GetLog получить информицию по логам
-func (as *SharedAppStorage) GetLog() []LogInformation {
+func (as *SharedAppStorage) GetLogs() []LogInformation {
 	as.logs.mutex.RLock()
 	defer as.logs.mutex.RUnlock()
 
