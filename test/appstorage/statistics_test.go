@@ -15,11 +15,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/av-belyakov/enricher_zabbix_information/internal/storage"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/appstorage"
 	"github.com/av-belyakov/enricher_zabbix_information/test/helpersfile"
 )
 
-func TestStorage(t *testing.T) {
+func TestAppStorageStatistics(t *testing.T) {
 	var (
 		storageSize int
 	)
@@ -37,11 +37,14 @@ func TestStorage(t *testing.T) {
 		log.Fatalln(errors.New("the structure 'TypeExampleData' should not be empty"))
 	}
 
-	sts := storage.NewShortTermStorage()
+	as, err := appstorage.New()
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	t.Run("Тест 0. Начало выполнения процесса", func(t *testing.T) {
-		sts.SetProcessRunning()
-		dateStart, dateEnd := sts.GetDateExecution()
+		as.SetProcessRunning()
+		dateStart, dateEnd := as.GetDateExecution()
 		assert.Equal(t, dateStart.Year(), time.Now().Year())
 		assert.Equal(t, dateEnd.Year(), 1)
 	})
@@ -51,13 +54,13 @@ func TestStorage(t *testing.T) {
 			hostId, err := strconv.Atoi(v.HostId)
 			assert.NoError(t, err)
 
-			sts.Add(storage.HostDetailedInformation{
+			as.AddElement(appstorage.HostDetailedInformation{
 				HostId:       hostId,
 				OriginalHost: v.Host,
 			})
 		}
 
-		listElement := sts.GetList()
+		listElement := as.GetList()
 		storageSize = len(listElement)
 
 		fmt.Println("It was added", storageSize, " elements")
@@ -72,7 +75,7 @@ func TestStorage(t *testing.T) {
 				requiredHost   string = "feedback.sk.ru"
 			)
 
-			_, data, ok := sts.GetForHostId(requiredHostId)
+			_, data, ok := as.GetForHostId(requiredHostId)
 			assert.True(t, ok)
 			assert.True(t, data.OriginalHost == requiredHost)
 		})
@@ -82,7 +85,7 @@ func TestStorage(t *testing.T) {
 				requiredHost   string = "rg.ru"
 			)
 
-			index, data, ok := sts.GetForOriginalHost(requiredHost)
+			index, data, ok := as.GetForOriginalHost(requiredHost)
 			assert.True(t, ok)
 			assert.Greater(t, index, -1)
 			assert.True(t, data.HostId == requiredHostId)
@@ -92,21 +95,21 @@ func TestStorage(t *testing.T) {
 	t.Run("Тест 3. Удаление элемента", func(t *testing.T) {
 		requiredHostId := 12891
 
-		sts.DeleteElement(requiredHostId)
-		assert.Less(t, len(sts.GetList()), storageSize)
+		as.DeleteElement(requiredHostId)
+		assert.Less(t, len(as.GetList()), storageSize)
 
-		_, _, ok := sts.GetForHostId(requiredHostId)
+		_, _, ok := as.GetForHostId(requiredHostId)
 		assert.False(t, ok)
 	})
 
 	t.Run("Тест 4. Поиск элементов с ошибками", func(t *testing.T) {
-		list := sts.GetListErrors()
+		list := as.GetListErrors()
 		assert.Len(t, list, 0)
 
 		hostId := 123456789
 		ipHost, err := netip.ParseAddr("65.33.110.3")
 		assert.NoError(t, err)
-		sts.Add(storage.HostDetailedInformation{
+		as.AddElement(appstorage.HostDetailedInformation{
 			Ips:          []netip.Addr{ipHost},
 			HostId:       hostId,
 			OriginalHost: "test.ru/anything&name=aa",
@@ -114,10 +117,10 @@ func TestStorage(t *testing.T) {
 			Error:        errors.New("new test error"),
 		})
 
-		_, _, ok := sts.GetForHostId(hostId)
+		_, _, ok := as.GetForHostId(hostId)
 		assert.True(t, ok)
 
-		list = sts.GetListErrors()
+		list = as.GetListErrors()
 		assert.Len(t, list, 1)
 	})
 
@@ -126,7 +129,7 @@ func TestStorage(t *testing.T) {
 		orgHost := "example-domain.ru/anything&name=aa"
 		domainName := "example-domain.ru"
 
-		sts.Add(storage.HostDetailedInformation{
+		as.AddElement(appstorage.HostDetailedInformation{
 			HostId:       hostId,
 			OriginalHost: orgHost,
 		})
@@ -141,17 +144,17 @@ func TestStorage(t *testing.T) {
 		assert.NoError(t, err)
 
 		t.Run("Тест 5.1. Изменение или добавление доменного имени", func(t *testing.T) {
-			assert.NoError(t, sts.SetDomainName(hostId, domainName))
+			assert.NoError(t, as.SetDomainName(hostId, domainName))
 		})
 		t.Run("Тест 5.2. Изменение или добавление ip адресов", func(t *testing.T) {
-			assert.NoError(t, sts.SetIps(hostId, ipHost1))
-			assert.NoError(t, sts.SetIps(hostId, ipHost2, ipHost3, ipHost4))
+			assert.NoError(t, as.SetIps(hostId, ipHost1))
+			assert.NoError(t, as.SetIps(hostId, ipHost2, ipHost3, ipHost4))
 		})
 		t.Run("Тест 5.3. Изменение или добавление ошибки", func(t *testing.T) {
-			assert.NoError(t, sts.SetError(hostId, errors.New("new test error")))
+			assert.NoError(t, as.SetError(hostId, errors.New("new test error")))
 		})
 		t.Run("Тест 5.4. Валидация добавленных данных", func(t *testing.T) {
-			_, data, ok := sts.GetForHostId(hostId)
+			_, data, ok := as.GetForHostId(hostId)
 			assert.True(t, ok)
 			assert.Equal(t, data.OriginalHost, orgHost)
 			assert.Equal(t, data.DomainName, domainName)
@@ -161,18 +164,18 @@ func TestStorage(t *testing.T) {
 	})
 
 	t.Run("Тест 6. Установка статуса процесса выполнения в 'false'", func(t *testing.T) {
-		sts.SetProcessNotRunning()
-		dateStart, dateEnd := sts.GetDateExecution()
+		as.SetProcessNotRunning()
+		dateStart, dateEnd := as.GetDateExecution()
 		assert.Equal(t, dateStart.Year(), time.Now().Year())
 		assert.Equal(t, dateEnd.Year(), time.Now().Year())
 	})
 
 	t.Run("Тест 7. Очистка всего хранилища", func(t *testing.T) {
-		sts.DeleteAll()
-		assert.False(t, sts.GetStatusProcessRunning())
-		assert.Len(t, sts.GetList(), 0)
+		as.DeleteAll()
+		assert.False(t, as.GetStatusProcessRunning())
+		assert.Len(t, as.GetList(), 0)
 
-		dateStart, dateEnd := sts.GetDateExecution()
+		dateStart, dateEnd := as.GetDateExecution()
 		assert.Equal(t, dateStart.Year(), 1)
 		assert.Equal(t, dateEnd.Year(), 1)
 	})
@@ -246,7 +249,7 @@ func TestStorage(t *testing.T) {
 				n := num.Load()
 
 				wg.Go(func() {
-					sts.Add(storage.HostDetailedInformation{
+					as.AddElement(appstorage.HostDetailedInformation{
 						HostId:       int(n),
 						DomainName:   k,
 						OriginalHost: v.originalHost,
@@ -256,7 +259,7 @@ func TestStorage(t *testing.T) {
 			}
 			wg.Wait()
 
-			assert.Equal(t, len(sts.GetHosts()), len(testList))
+			assert.Equal(t, len(as.GetHosts()), len(testList))
 		})
 
 		t.Run("Тест 8.2. Чтение данных", func(t *testing.T) {
@@ -272,7 +275,7 @@ func TestStorage(t *testing.T) {
 
 			for _, v := range domainNames {
 				wg.Go(func() {
-					if index, hostInfo, ok := sts.GetForDomainName(v); ok {
+					if index, hostInfo, ok := as.GetForDomainName(v); ok {
 						num.Store(num.Load() + 1)
 
 						fmt.Printf(
