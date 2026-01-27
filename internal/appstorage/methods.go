@@ -317,6 +317,16 @@ func (as *SharedAppStorage) GetCountNetboxPrefixes() int32 {
 	return as.statistics.countNetboxPrefixes.Load()
 }
 
+// SetCountNetboxPrefixesReceived количество полученных из Netbox префиксов
+func (as *SharedAppStorage) SetCountNetboxPrefixesReceived(v int) {
+	as.statistics.countNetboxPrefixesReceived.Store(int32(v))
+}
+
+// GetCountNetboxPrefixesReceived количество полученных из Netbox префиксов
+func (as *SharedAppStorage) GetCountNetboxPrefixesReceived() int32 {
+	return as.statistics.countNetboxPrefixesReceived.Load()
+}
+
 // SetCountUpdatedZabbixHosts количество обновленных хостов в Zabbix
 func (as *SharedAppStorage) SetCountUpdatedZabbixHosts(v int) {
 	as.statistics.countUpdatedZabbixHosts.Store(int32(v))
@@ -351,6 +361,7 @@ func (as *SharedAppStorage) DeleteAll() {
 	as.statistics.countMonitoringHostsGroup.Store(0)
 	as.statistics.countMonitoringHosts.Store(0)
 	as.statistics.countNetboxPrefixes.Store(0)
+	as.statistics.countNetboxPrefixesReceived.Store(0)
 	as.statistics.countUpdatedZabbixHosts.Store(0)
 
 	as.statistics.mutex.Lock()
