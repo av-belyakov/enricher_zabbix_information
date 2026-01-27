@@ -5,9 +5,10 @@ import (
 	"time"
 
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/appstorage"
 )
 
-func New(logger interfaces.Logger, storage interfaces.StorageInformation, opts ...informationServerOptions) (*InformationServer, error) {
+func New(logger interfaces.Logger, storage *appstorage.SharedAppStorage, opts ...informationServerOptions) (*InformationServer, error) {
 	is := &InformationServer{
 		version:   "0.0.1",
 		timeStart: time.Now(),

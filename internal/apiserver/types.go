@@ -5,12 +5,14 @@ import (
 	"time"
 
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/appstorage"
 )
 
 // InformationServer информационный сервер
 type InformationServer struct {
-	logger    interfaces.Logger
-	storage   interfaces.StorageInformation
+	logger interfaces.Logger
+	//storage   interfaces.StorageInformation
+	storage   *appstorage.SharedAppStorage
 	server    *http.Server
 	timeStart time.Time
 	timeout   time.Duration

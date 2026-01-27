@@ -64,15 +64,16 @@ func TestApiServer(t *testing.T) {
 		}
 	}()
 
-	storageTemp, err := appstorage.New()
+	//инициализируем хранилище
+	appStorage, err := appstorage.New(appstorage.WithSizeLogs(30))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	storageTemp.SetProcessRunning()
-	fillInStorage(storageTemp)
+	appStorage.SetProcessRunning()
+	fillInStorage(appStorage)
 	time.Sleep(time.Second * 2)
-	storageTemp.SetProcessNotRunning()
+	appStorage.SetProcessNotRunning()
 
 	version, err := appversion.GetVersion()
 	assert.NoError(t, err)
@@ -80,7 +81,7 @@ func TestApiServer(t *testing.T) {
 	//инициализируем api сервер
 	api, err = apiserver.New(
 		logging,
-		storageTemp,
+		appStorage,
 		apiserver.WithHost(host),
 		apiserver.WithPort(port),
 		apiserver.WithVersion(version),
@@ -92,11 +93,32 @@ func TestApiServer(t *testing.T) {
 	//запускаем api сервер
 	go api.Start(ctx)
 
-	//инициализируем хранилище
-	appStorage, err := appstorage.New(appstorage.WithSizeLogs(30))
-	if err != nil {
-		log.Fatal(err)
-	}
+	//добавляем пару записей для проверки
+	appStorage.AddLog(appstorage.LogInformation{
+		Date:        time.Now().Format(time.RFC3339),
+		Type:        "INFO",
+		Description: fmt.Sprintf("start application testing '%s'", time.Now()),
+	})
+	appStorage.AddLog(appstorage.LogInformation{
+		Date:        time.Now().Format(time.RFC3339),
+		Type:        "INFO",
+		Description: fmt.Sprintf("application waiting for something '%s'", time.Now()),
+	})
+	appStorage.AddLog(appstorage.LogInformation{
+		Date:        time.Now().Format(time.RFC3339),
+		Type:        "INFO",
+		Description: fmt.Sprintf("application process begining '%s'", time.Now()),
+	})
+	appStorage.AddLog(appstorage.LogInformation{
+		Date:        time.Now().Format(time.RFC3339),
+		Type:        "WARNING",
+		Description: fmt.Sprintf("warning message '%s'", time.Now()),
+	})
+	appStorage.AddLog(appstorage.LogInformation{
+		Date:        time.Now().Format(time.RFC3339),
+		Type:        "ERROR",
+		Description: fmt.Sprintf("error message '%s'", time.Now()),
+	})
 
 	time.Sleep(time.Second * 1)
 
@@ -158,7 +180,7 @@ func TestApiServer(t *testing.T) {
 			case <-ctx.Done():
 				return
 
-			case <-time.After(time.Second * 2):
+			case <-time.After(time.Second * 5):
 				appStorage.AddLog(appstorage.LogInformation{
 					Date:        time.Now().Format(time.RFC3339),
 					Type:        "WARNING",
@@ -190,19 +212,19 @@ func TestApiServer(t *testing.T) {
 
 				time.Sleep(time.Second * 1)
 
-				storageTemp.SetCountNetboxPrefixes(int(storageTemp.GetCountNetboxPrefixes()) + 1)
-				storageTemp.SetCountZabbixHosts(int(storageTemp.GetCountZabbixHosts()) + 1)
-				storageTemp.SetCountZabbixHostsGroup(int(storageTemp.GetCountZabbixHostsGroup()) + 1)
-				storageTemp.SetCountMonitoringHosts(int(storageTemp.GetCountMonitoringHosts() + 1))
-				storageTemp.SetCountMonitoringHostsGroup(int(storageTemp.GetCountMonitoringHostsGroup()) + 1)
-				storageTemp.SetCountUpdatedZabbixHosts(int(storageTemp.GetCountUpdatedZabbixHosts()) + 1)
+				appStorage.SetCountNetboxPrefixes(int(appStorage.GetCountNetboxPrefixes()) + 1)
+				appStorage.SetCountZabbixHosts(int(appStorage.GetCountZabbixHosts()) + 1)
+				appStorage.SetCountZabbixHostsGroup(int(appStorage.GetCountZabbixHostsGroup()) + 1)
+				appStorage.SetCountMonitoringHosts(int(appStorage.GetCountMonitoringHosts() + 1))
+				appStorage.SetCountMonitoringHostsGroup(int(appStorage.GetCountMonitoringHostsGroup()) + 1)
+				appStorage.SetCountUpdatedZabbixHosts(int(appStorage.GetCountUpdatedZabbixHosts()) + 1)
 
 				b, err = json.Marshal(struct {
-					Type string `json:"type"`
-					Data any    `json:"data"`
+					Type string `json:"type,omitempty"`
+					Data any    `json:"data,omitempty"`
 				}{
 					Type: "ask_manually_task",
-					Data: supportingfunctions.CreateTaskStatistics(storageTemp),
+					Data: supportingfunctions.CreateTaskStatistics(appStorage),
 				})
 				assert.NoError(t, err)
 
@@ -227,14 +249,17 @@ func fillInStorage(s *appstorage.SharedAppStorage) {
 		{
 			HostId:       14421,
 			OriginalHost: "1yar.tv",
+			IsProcessed:  true,
 		},
 		{
 			HostId:       14412,
 			OriginalHost: "tfoms-rzn.ru",
+			IsProcessed:  true,
 		},
 		{
 			HostId:       14433,
 			OriginalHost: "nrcki.ru",
+			IsProcessed:  true,
 		},
 		{
 			HostId:       14582,

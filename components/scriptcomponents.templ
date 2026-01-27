@@ -89,12 +89,12 @@ script BaseComponentScripts(){
                     <div>Время завершения выполнения: ${jsonObj.data.data_end}</div>
                     <div>Время на выполнение задачи: ${jsonObj.data.diff_time}</div>
 		            <div>Общее количество групп хостов в Zabbix: ${jsonObj.data.count_zabbix_hosts_group}</div>
-		            <div>Количество групп хостов по которым осуществляется мониторинг: ${jsonObj.data.count_monitoring_hosts_group}</div>
-		            <div>Количество хостов по которым осуществляется мониторинг: ${jsonObj.data.count_monitoring_hosts}</div>
-		            <div>Количество обработанных хостов: ${jsonObj.data.count_hosts_is_processed}</div>
-		            <div>Количество найденных префиксов в Netbox: ${jsonObj.data.count_netbox_prefixes}</div>
-		            <div>Количество обновленных хостов в Zabbix: ${jsonObj.data.count_updated_zabbix_hosts}</div>
-		            <div>Количество хостов обработанных с ошибкой: ${jsonObj.data.count_hosts_error}</div>
+		            <div>Группы хостов по которым осуществляется мониторинг: ${jsonObj.data.count_monitoring_hosts_group}</div>
+		            <div>Хосты по которым осуществляется мониторинг: ${jsonObj.data.count_monitoring_hosts}</div>
+		            <div>Обработанные хосты: ${jsonObj.data.count_hosts_is_processed}</div>
+		            <div>Найденные префиксы в Netbox: ${jsonObj.data.count_netbox_prefixes}</div>
+		            <div>Обновленные хосты в Zabbix: ${jsonObj.data.count_updated_zabbix_hosts}</div>
+		            <div>Хосты обработанные с ошибкой: ${jsonObj.data.count_hosts_error}</div>
                     <div>Список доменных имён при обработки которых возникли ошибки:</div>
                     <div style="padding-left: 20px; margin: 10px 0;">
                         <ol id="listDomainName"></ol>
@@ -166,7 +166,7 @@ script BaseComponentScripts(){
             // Создаем HTML для элемента лога
             logItem.innerHTML = `
                 <div>
-                    <span class="log-timestamp">${formatTimestamp(log.timestamp)}</span>
+                    <span class="log-timestamp">${log.timestamp}</span>
                     <span class="log-level ${getLevelColorClass(log.level)}">${log.level}</span>
                     <span class="log-message">${log.message}</span>
                 </div>

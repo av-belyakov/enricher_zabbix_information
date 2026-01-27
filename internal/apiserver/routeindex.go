@@ -1,7 +1,6 @@
 package apiserver
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -18,20 +17,16 @@ func (is *InformationServer) RouteIndex(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	status := "production"
+	appStatus := "production"
 	if os.Getenv("GO_"+constants.App_Environment_Name+"_MAIN") == "development" ||
 		os.Getenv("GO_"+constants.App_Environment_Name+"_MAIN") == "test" {
-		status = os.Getenv("GO_" + constants.App_Environment_Name + "_MAIN")
+		appStatus = os.Getenv("GO_" + constants.App_Environment_Name + "_MAIN")
 	}
 
-	hellowMsg := fmt.Sprintf(
-		"Статус приложения: '%s'. Время, прошедшее с момента запуска приложения: %s.",
-		status,
-		time.Since(is.timeStart).String(),
-	)
+	appTimeLive := time.Since(is.timeStart).String()
 
 	is.getBasePage(
-		components.TemplateMainElement(hellowMsg),
+		components.TemplateMainElement(appStatus, appTimeLive),
 		components.BaseComponentScripts(),
 	).Component.Render(r.Context(), w)
 }

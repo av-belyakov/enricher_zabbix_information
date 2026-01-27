@@ -1,5 +1,8 @@
 package components
 
-templ TemplateMainElement(shortInfo string){
-    <p>{shortInfo}</p>
+templ TemplateMainElement(appStatus, appTimeLive string){
+    <div>
+        <div>Приложение запущено в режиме '{appStatus}'.</div> 
+        <div>Время, прошедшее с момента запуска {appTimeLive}."</div>
+    </div>
 }

@@ -10,8 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 func BaseComponentScripts() templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_BaseComponentScripts_507e`,
-		Function: `function __templ_BaseComponentScripts_507e(){const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+		Name: `__templ_BaseComponentScripts_56a1`,
+		Function: `function __templ_BaseComponentScripts_56a1(){const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = ` + "`" + `${wsProtocol}//${window.location.host}/ws` + "`" + `;
     let arrLogs = [];
     let socket = new WebSocket(wsUrl);
@@ -99,12 +99,12 @@ func BaseComponentScripts() templ.ComponentScript {
                     <div>Время завершения выполнения: ${jsonObj.data.data_end}</div>
                     <div>Время на выполнение задачи: ${jsonObj.data.diff_time}</div>
 		            <div>Общее количество групп хостов в Zabbix: ${jsonObj.data.count_zabbix_hosts_group}</div>
-		            <div>Количество групп хостов по которым осуществляется мониторинг: ${jsonObj.data.count_monitoring_hosts_group}</div>
-		            <div>Количество хостов по которым осуществляется мониторинг: ${jsonObj.data.count_monitoring_hosts}</div>
-		            <div>Количество обработанных хостов: ${jsonObj.data.count_hosts_is_processed}</div>
-		            <div>Количество найденных префиксов в Netbox: ${jsonObj.data.count_netbox_prefixes}</div>
-		            <div>Количество обновленных хостов в Zabbix: ${jsonObj.data.count_updated_zabbix_hosts}</div>
-		            <div>Количество хостов обработанных с ошибкой: ${jsonObj.data.count_hosts_error}</div>
+		            <div>Группы хостов по которым осуществляется мониторинг: ${jsonObj.data.count_monitoring_hosts_group}</div>
+		            <div>Хосты по которым осуществляется мониторинг: ${jsonObj.data.count_monitoring_hosts}</div>
+		            <div>Обработанные хосты: ${jsonObj.data.count_hosts_is_processed}</div>
+		            <div>Найденные префиксы в Netbox: ${jsonObj.data.count_netbox_prefixes}</div>
+		            <div>Обновленные хосты в Zabbix: ${jsonObj.data.count_updated_zabbix_hosts}</div>
+		            <div>Хосты обработанные с ошибкой: ${jsonObj.data.count_hosts_error}</div>
                     <div>Список доменных имён при обработки которых возникли ошибки:</div>
                     <div style="padding-left: 20px; margin: 10px 0;">
                         <ol id="listDomainName"></ol>
@@ -176,7 +176,7 @@ func BaseComponentScripts() templ.ComponentScript {
             // Создаем HTML для элемента лога
             logItem.innerHTML = ` + "`" + `
                 <div>
-                    <span class="log-timestamp">${formatTimestamp(log.timestamp)}</span>
+                    <span class="log-timestamp">${log.timestamp}</span>
                     <span class="log-level ${getLevelColorClass(log.level)}">${log.level}</span>
                     <span class="log-message">${log.message}</span>
                 </div>
@@ -256,8 +256,8 @@ func BaseComponentScripts() templ.ComponentScript {
     //обработчик на кнопку отправляющую токен на сервер
     setHandlerForButtonSendToken();
 }`,
-		Call:       templ.SafeScript(`__templ_BaseComponentScripts_507e`),
-		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_507e`),
+		Call:       templ.SafeScript(`__templ_BaseComponentScripts_56a1`),
+		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_56a1`),
 	}
 }
 

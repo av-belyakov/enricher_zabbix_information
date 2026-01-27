@@ -8,7 +8,7 @@ import (
 
 func (is *InformationServer) RouteLogs(w http.ResponseWriter, r *http.Request) {
 	is.getBasePage(
-		components.TemplateLogs(),
+		components.TemplateLogs(is.storage.GetLogs(), is.storage.LogMaxSize()),
 		components.BaseComponentScripts(),
 	).Component.Render(r.Context(), w)
 }

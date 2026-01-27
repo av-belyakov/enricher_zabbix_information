@@ -446,3 +446,8 @@ func (as *SharedAppStorage) GetLogs() []LogInformation {
 
 	return newList
 }
+
+// LogMaxSize максимальный размер логов
+func (as *SharedAppStorage) LogMaxSize() int {
+	return as.logs.size
+}

@@ -1,18 +1,20 @@
 package components
 
-templ TemplateManuallyTaskStarting(executeStatus bool) {    
-    <form style="display: flex;">
-        <div class="input-token" style="flex: 1;">
-            <label class="placeholder-box">
-                <input id="inputToken" required type="text">
-                <div class="placeholder-text">нужен токен для продолжения</div>
-            </label>
-        </div>
-        <div style="margin: 20px 0;">
-            <button id="buttonSendToken" class="btn-2">отправить</button>
-        </div>
-    </form>
+templ TemplateManuallyTaskStarting(executeStatus bool) {
+    <div>
+        <form style="display: flex;">
+            <div class="input-token" style="flex: 1;">
+                <label class="placeholder-box">
+                    <input id="inputToken" required type="text">
+                    <div class="placeholder-text">нужен токен для продолжения</div>
+                </label>
+            </div>
+            <div style="margin: 20px 0;">
+                <button id="buttonSendToken" class="btn-2">отправить</button>
+            </div>
+        </form>
 
-    <div id="messageTokenError" hidden style="color:#f44336;">выполнение операции не возможно, получен не верный токен</div>
-    <div id="informationArea" style="width:auto; margin-top: 30px;"></div>
+        <div id="messageTokenError" hidden style="color:#f44336;">выполнение операции не возможно, получен не верный токен</div>
+        <div id="informationArea" style="width:auto; margin-top: 30px;"></div>
+    </div>    
 }
