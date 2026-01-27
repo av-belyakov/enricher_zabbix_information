@@ -54,18 +54,19 @@ func CreateTaskStatistics(storage interfaces.StorageInformation) datamodels.Temp
 	}
 
 	return datamodels.TemplTaskCompletionsStatistics{
-		DataStart:                 dateStart,
-		DataEnd:                   dEnd,
-		DiffTime:                  diffTime,
-		ExecutionStatus:           taskStatus,
-		CountHostsError:           len(listHostsError),
-		CountHostsIsProcessed:     countHostIsProcessed,
-		CountZabbixHostsGroup:     int(storage.GetCountZabbixHostsGroup()),
-		CountZabbixHosts:          int(storage.GetCountZabbixHosts()),
-		CountMonitoringHostsGroup: int(storage.GetCountMonitoringHostsGroup()),
-		CountMonitoringHosts:      int(storage.GetCountMonitoringHosts()),
-		CountNetboxPrefixes:       int(storage.GetCountNetboxPrefixes()),
-		CountUpdatedZabbixHosts:   int(storage.GetCountUpdatedZabbixHosts()),
-		Hosts:                     listHostsError,
+		DataStart:                   dateStart,
+		DataEnd:                     dEnd,
+		DiffTime:                    diffTime,
+		ExecutionStatus:             taskStatus,
+		CountHostsError:             len(listHostsError),
+		CountHostsIsProcessed:       countHostIsProcessed,
+		CountZabbixHostsGroup:       int(storage.GetCountZabbixHostsGroup()),
+		CountZabbixHosts:            int(storage.GetCountZabbixHosts()),
+		CountMonitoringHostsGroup:   int(storage.GetCountMonitoringHostsGroup()),
+		CountMonitoringHosts:        int(storage.GetCountMonitoringHosts()),
+		CountNetboxPrefixes:         int(storage.GetCountNetboxPrefixes()),
+		CountNetboxPrefixesReceived: int(storage.GetCountNetboxPrefixesReceived()),
+		CountUpdatedZabbixHosts:     int(storage.GetCountUpdatedZabbixHosts()),
+		Hosts:                       listHostsError,
 	}
 }

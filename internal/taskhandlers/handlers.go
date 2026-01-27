@@ -280,6 +280,7 @@ func (th *TaskHandler) start() error {
 	for prefixInfo := range chunPrefixInfo {
 		shortPrefixList = append(shortPrefixList, prefixInfo...)
 
+		th.settings.storage.SetCountNetboxPrefixesReceived(int(th.settings.storage.GetCountNetboxPrefixesReceived()) + len(prefixInfo))
 		if b, err := json.Marshal(ResponseTaskHandler{
 			Type: "ask_manually_task",
 			Data: supportingfunctions.CreateTaskStatistics(th.settings.storage),
