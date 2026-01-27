@@ -52,18 +52,27 @@ func TestGetPrefixes(t *testing.T) {
 	}()
 
 	t.Run("Тест 1. Получить префиксы из Netbox", func(t *testing.T) {
-		shortPrefixList := taskhandlers.GetNetboxPrefixes(ctx, client, logging)
-		assert.Greater(t, shortPrefixList.Count, 0)
+		shortPrefixList, count, err := taskhandlers.NetboxPrefixes(ctx, client, logging)
+		assert.NoError(t, err)
+		assert.Greater(t, count, 0)
 
+		var i int
 		fmt.Println("Read first 30 elements:")
-		for i := range 30 {
-			fmt.Println(
-				"Index:", i,
-				"Prefix:", shortPrefixList.Prefixes[i].Prefix,
-				"Status:", shortPrefixList.Prefixes[i].Status,
-				"Id:", shortPrefixList.Prefixes[i].Id,
-				"SensorId:", shortPrefixList.Prefixes[i].SensorId,
-			)
+		for msg := range shortPrefixList {
+			i++
+			fmt.Println("a piece was accepted:", i)
+
+			if i < 2 {
+				for j, v := range msg {
+					fmt.Println(
+						"Index:", j+1,
+						"Prefix:", v.Prefix,
+						"Status:", v.Status,
+						"Id:", v.Id,
+						"SensorId:", v.SensorId,
+					)
+				}
+			}
 		}
 	})
 

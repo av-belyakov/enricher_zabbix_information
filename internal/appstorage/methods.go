@@ -346,6 +346,13 @@ func (as *SharedAppStorage) DeleteElement(hostId int) {
 // выполнения в дату начала эпохи Unix, выставляет статус выполнения в
 // 'не выполняется' (false)
 func (as *SharedAppStorage) DeleteAll() {
+	as.statistics.countZabbixHostsGroup.Store(0)
+	as.statistics.countZabbixHosts.Store(0)
+	as.statistics.countMonitoringHostsGroup.Store(0)
+	as.statistics.countMonitoringHosts.Store(0)
+	as.statistics.countNetboxPrefixes.Store(0)
+	as.statistics.countUpdatedZabbixHosts.Store(0)
+
 	as.statistics.mutex.Lock()
 	defer as.statistics.mutex.Unlock()
 

@@ -116,7 +116,7 @@ func TestTaskHandler(t *testing.T) {
 			listGroupsId    []string
 			hostGroupList   *connectionjsonrpc.ResponseHostGroupList
 			hostList        *connectionjsonrpc.ResponseHostList
-			shortPrefixList *netboxapi.ShortPrefixList
+			shortPrefixList netboxapi.ShortPrefixList = netboxapi.ShortPrefixList{}
 
 			errMsg *connectionjsonrpc.ResponseError
 			err    error
@@ -201,13 +201,21 @@ func TestTaskHandler(t *testing.T) {
 			}
 		})
 		t.Run("Тест 2.7. Получаем префиксы из Netbox", func(t *testing.T) {
-			shortPrefixList = taskhandlers.GetNetboxPrefixes(ctx, netboxClient, logging)
-			assert.Greater(t, shortPrefixList.Count, 0)
+			chunPrefixInfo, count, err := taskhandlers.NetboxPrefixes(ctx, netboxClient, logging)
+			assert.NoError(t, err)
+			assert.Greater(t, count, 0)
 
 			// количество найденных префиксов в Netbox
-			storageTemp.SetCountNetboxPrefixes(shortPrefixList.Count)
+			storageTemp.SetCountNetboxPrefixes(count)
 
-			fmt.Println("Count short prefix list:", shortPrefixList.Count)
+			fmt.Println("Count short prefix list:", count)
+
+			for prefixInfo := range chunPrefixInfo {
+				shortPrefixList = append(shortPrefixList, prefixInfo...)
+
+				//отправка в apiserver
+			}
+
 		})
 		t.Run("Тест 2.8. Выполняем поиск ip адресов в префиксах полученных от Netbox", func(t *testing.T) {
 			synctest.Test(t, func(t *testing.T) {

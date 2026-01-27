@@ -3,7 +3,6 @@ package netboxapi
 import (
 	"net/http"
 	"net/netip"
-	"sync"
 )
 
 // Settings настройки для подключения к Netbox
@@ -19,17 +18,19 @@ type Client struct {
 	settings Settings
 }
 
-type ShortPrefixList struct {
-	mutex    sync.RWMutex
-	Prefixes []ShortPrefixInfo
-	Count    int
-}
+type ShortPrefixList []ShortPrefixInfo
+
+//type ShortPrefixList struct {
+//	mutex    sync.RWMutex
+//	Prefixes []ShortPrefixInfo
+//	Count    int
+//}
 
 type ShortPrefixInfo struct {
-	Status   string
 	Prefix   netip.Prefix
-	Id       int
+	Status   string
 	SensorId string
+	Id       int
 }
 
 type ListPrefixes struct {

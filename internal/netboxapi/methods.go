@@ -50,6 +50,54 @@ func (spl *ShortPrefixList) SearchIps(ips []netip.Addr) <-chan []ShortPrefixInfo
 
 			var spi []ShortPrefixInfo
 			for _, index := range indexes {
+				spi = append(spi, (*spl)[index])
+			}
+
+			chanPrefixInfo <- spi
+		}
+	}()
+
+	return chanPrefixInfo
+}
+
+// SearchIp поиск IP-адреса в списке префиксов
+func (spl *ShortPrefixList) SearchIp(ip netip.Addr) []int {
+	var indexes []int
+	left := 0
+	right := len(*spl) - 1
+
+	for left <= right {
+		if (*spl)[left].Prefix.Contains(ip) {
+			indexes = append(indexes, left)
+		}
+
+		if left != right && (*spl)[right].Prefix.Contains(ip) {
+			indexes = append(indexes, right)
+		}
+
+		left++
+		right--
+	}
+
+	return indexes
+}
+
+/*
+// SearchIps поиск IP-адресов в списке префиксов
+func (spl *ShortPrefixList) SearchIps(ips []netip.Addr) <-chan []ShortPrefixInfo {
+	chanPrefixInfo := make(chan []ShortPrefixInfo)
+
+	go func() {
+		defer close(chanPrefixInfo)
+
+		for _, ip := range ips {
+			indexes := spl.SearchIp(ip)
+			if len(indexes) == 0 {
+				continue
+			}
+
+			var spi []ShortPrefixInfo
+			for _, index := range indexes {
 				spi = append(spi, spl.Prefixes[index])
 			}
 
@@ -84,3 +132,4 @@ func (spl *ShortPrefixList) SearchIp(ip netip.Addr) []int {
 
 	return indexes
 }
+*/

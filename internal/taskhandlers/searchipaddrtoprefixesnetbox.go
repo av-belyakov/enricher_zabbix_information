@@ -14,7 +14,7 @@ import (
 func SearchIpaddrToPrefixesNetbox(
 	maxCountGoroutines int,
 	storageTemp *appstorage.SharedAppStorage,
-	shortPrefixList *netboxapi.ShortPrefixList,
+	shortPrefixList netboxapi.ShortPrefixList,
 	logging interfaces.Logger,
 ) {
 	goroutines := 3

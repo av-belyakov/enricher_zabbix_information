@@ -47,6 +47,7 @@ func (ths TaskHandlerSettings) Init(ctx context.Context) *TaskHandler {
 			select {
 			case <-ctx.Done():
 				close(chanSignal)
+				chanSignal = nil
 
 				return
 
@@ -106,6 +107,10 @@ func (th *TaskHandler) TaskHandlerInitiatedThroughChannel() error {
 					continue
 				}
 
+				if th.chanSignal == nil {
+					continue
+				}
+
 				th.chanSignal <- ChanSignalSettings{
 					ForWhom: "web",
 					Data:    b,
@@ -124,8 +129,13 @@ func (th *TaskHandler) TaskHandlerInitiatedThroughChannel() error {
 }
 
 func (th *TaskHandler) start() error {
+	//очищаем хранилище от предыдущих данных (что бы не смешивать старые и новые данные)
+	th.settings.storage.DeleteAll()
+
 	// устанавливаем дату начала выполнения задачи
 	th.settings.storage.SetStartDateExecution()
+	// меняем статус задачи на "выполняется"
+	th.settings.storage.SetProcessRunning()
 	// меняем статус задачи на "не выполняется"
 	defer th.settings.storage.SetProcessNotRunning()
 
@@ -184,9 +194,6 @@ func (th *TaskHandler) start() error {
 	// количество хостов по которым осуществляется мониторинг
 	th.settings.storage.SetCountMonitoringHosts(len(hostList.Result))
 
-	//очищаем хранилище от предыдущих данных (что бы не смешивать старые и новые данные)
-	th.settings.storage.DeleteAll()
-
 	// заполняем хранилище данными о хостах
 	for _, host := range hostList.Result {
 		if hostId, err := strconv.Atoi(host.HostId); err == nil {
@@ -202,9 +209,6 @@ func (th *TaskHandler) start() error {
 	if err != nil {
 		return err
 	}
-
-	// меняем статус задачи на "выполняется"
-	th.settings.storage.SetProcessRunning()
 
 	// запускаем поиск через DNS resolver
 	chInfo, err := dnsRes.Run(th.ctx, th.settings.storage.GetHosts())
@@ -253,13 +257,44 @@ func (th *TaskHandler) start() error {
 	}
 
 	// получаем префиксы из Netbox
-	shortPrefixList := GetNetboxPrefixes(th.ctx, th.settings.netboxClient, th.settings.logger)
-	if shortPrefixList.Count == 0 {
+	chunPrefixInfo, countPrefixes, err := NetboxPrefixes(th.ctx, th.settings.netboxClient, th.settings.logger)
+	if err != nil {
+		return err
+	}
+	if countPrefixes == 0 {
 		return errors.New("an empty list of prefixes (subnets) was received from the netbox")
 	}
 
 	// количество найденных префиксов в Netbox
-	th.settings.storage.SetCountNetboxPrefixes(shortPrefixList.Count)
+	th.settings.storage.SetCountNetboxPrefixes(countPrefixes)
+
+	/*
+		нужен ещё один параметр мтатистики - количество полученных (или
+		может быть обработанных) префиксов Netbox
+
+		тогда можно будет отслеживать ход получения информаии о префиксах
+		из Netbox, это самая затратная по времени операция
+	*/
+
+	shortPrefixList := netboxapi.ShortPrefixList{}
+	for prefixInfo := range chunPrefixInfo {
+		shortPrefixList = append(shortPrefixList, prefixInfo...)
+
+		if b, err := json.Marshal(ResponseTaskHandler{
+			Type: "ask_manually_task",
+			Data: supportingfunctions.CreateTaskStatistics(th.settings.storage),
+		}); err == nil {
+			th.chanSignal <- ChanSignalSettings{
+				ForWhom: "web",
+				Data:    b,
+			}
+		}
+	}
+
+	//shortPrefixList := GetNetboxPrefixes(th.ctx, th.settings.netboxClient, th.settings.logger)
+	//if shortPrefixList.Count == 0 {
+	//	return errors.New("an empty list of prefixes (subnets) was received from the netbox")
+	//}
 
 	// выполняем поиск ip адресов в префиксах полученных от Netbox
 	// в SearchIpaddrToPrefixesNetbox передаётся хранилище в котором выполняются
@@ -298,7 +333,7 @@ func (th *TaskHandler) start() error {
 	// количество обновленных хостов в Zabbix
 	th.settings.storage.SetCountUpdatedZabbixHosts(num)
 	// меняем статус задачи на "не выполняется"
-	defer th.settings.storage.SetProcessNotRunning()
+	th.settings.storage.SetProcessNotRunning()
 
 	b, err := json.Marshal(ResponseTaskHandler{
 		Type: "ask_manually_task",
