@@ -213,6 +213,12 @@ func TestTaskHandler(t *testing.T) {
 			for prefixInfo := range chunPrefixInfo {
 				shortPrefixList = append(shortPrefixList, prefixInfo...)
 
+				fmt.Printf("BEFORE storageTemp.GetCountNetboxPrefixesReceived()='%d', len(prefixInfo)='%d'\n", storageTemp.GetCountNetboxPrefixesReceived(), len(prefixInfo))
+
+				storageTemp.SetCountNetboxPrefixesReceived(int(storageTemp.GetCountNetboxPrefixesReceived()) + len(prefixInfo))
+
+				fmt.Printf("AFTER storageTemp.GetCountNetboxPrefixesReceived()='%d'\n", storageTemp.GetCountNetboxPrefixesReceived())
+
 				//отправка в apiserver
 			}
 

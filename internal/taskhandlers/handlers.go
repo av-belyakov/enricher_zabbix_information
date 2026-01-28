@@ -268,14 +268,6 @@ func (th *TaskHandler) start() error {
 	// количество найденных префиксов в Netbox
 	th.settings.storage.SetCountNetboxPrefixes(countPrefixes)
 
-	/*
-		нужен ещё один параметр мтатистики - количество полученных (или
-		может быть обработанных) префиксов Netbox
-
-		тогда можно будет отслеживать ход получения информаии о префиксах
-		из Netbox, это самая затратная по времени операция
-	*/
-
 	shortPrefixList := netboxapi.ShortPrefixList{}
 	for prefixInfo := range chunPrefixInfo {
 		shortPrefixList = append(shortPrefixList, prefixInfo...)
@@ -291,11 +283,6 @@ func (th *TaskHandler) start() error {
 			}
 		}
 	}
-
-	//shortPrefixList := GetNetboxPrefixes(th.ctx, th.settings.netboxClient, th.settings.logger)
-	//if shortPrefixList.Count == 0 {
-	//	return errors.New("an empty list of prefixes (subnets) was received from the netbox")
-	//}
 
 	// выполняем поиск ip адресов в префиксах полученных от Netbox
 	// в SearchIpaddrToPrefixesNetbox передаётся хранилище в котором выполняются

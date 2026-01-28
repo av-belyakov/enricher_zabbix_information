@@ -24,7 +24,7 @@ type TemplTaskCompletionsStatistics struct {
 	DiffTime                    string `json:"diff_time"`
 	ExecutionStatus             string `json:"execution_status"`
 	CountHostsError             int    `json:"count_hosts_error"`              // количество доменных имён обработанных с ошибкой
-	CountHostsIsProcessed       int    `json:"count_hosts_is_processed"`       // количество обработанных доменных имён
+	CountFoundIpToPrefix        int    `json:"count_found_ip_to_prefix"`       // количество ip адресов совпавших с префиксами Netbox
 	CountZabbixHostsGroup       int    `json:"count_zabbix_hosts_group"`       // количество групп хостов в Zabbix
 	CountZabbixHosts            int    `json:"count_zabbix_hosts"`             // общее количество хостов в Zabbix
 	CountMonitoringHostsGroup   int    `json:"count_monitoring_hosts_group"`   // количество групп хостов по которым осуществляется мониторинг

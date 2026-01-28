@@ -59,7 +59,7 @@ func CreateTaskStatistics(storage interfaces.StorageInformation) datamodels.Temp
 		DiffTime:                    diffTime,
 		ExecutionStatus:             taskStatus,
 		CountHostsError:             len(listHostsError),
-		CountHostsIsProcessed:       countHostIsProcessed,
+		CountFoundIpToPrefix:        countHostIsProcessed,
 		CountZabbixHostsGroup:       int(storage.GetCountZabbixHostsGroup()),
 		CountZabbixHosts:            int(storage.GetCountZabbixHosts()),
 		CountMonitoringHostsGroup:   int(storage.GetCountMonitoringHostsGroup()),

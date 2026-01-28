@@ -10,8 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 func BaseComponentScripts() templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_BaseComponentScripts_c4f7`,
-		Function: `function __templ_BaseComponentScripts_c4f7(){const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+		Name: `__templ_BaseComponentScripts_4863`,
+		Function: `function __templ_BaseComponentScripts_4863(){const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = ` + "`" + `${wsProtocol}//${window.location.host}/ws` + "`" + `;
     let arrLogs = [];
     let socket = new WebSocket(wsUrl);
@@ -101,7 +101,7 @@ func BaseComponentScripts() templ.ComponentScript {
 		            <div>Общее количество групп хостов в Zabbix: ${jsonObj.data.count_zabbix_hosts_group}</div>
 		            <div>Группы хостов по которым осуществляется мониторинг: ${jsonObj.data.count_monitoring_hosts_group}</div>
 		            <div>Хосты по которым осуществляется мониторинг: ${jsonObj.data.count_monitoring_hosts}</div>
-		            <div>Обработанные хосты: ${jsonObj.data.count_hosts_is_processed}</div>
+		            <div>Количество ip адресов совпавших с префиксами Netbox: ${jsonObj.data.count_found_ip_to_prefix}</div>
 		            <div>Всего в Netbox найдено префиксов: ${jsonObj.data.count_netbox_prefixes}</div>
 		            <div>Получено из Netbox префиксов: ${jsonObj.data.count_netbox_prefixes_received}</div>
                     <div>Обновленные хосты в Zabbix: ${jsonObj.data.count_updated_zabbix_hosts}</div>
@@ -257,8 +257,8 @@ func BaseComponentScripts() templ.ComponentScript {
     //обработчик на кнопку отправляющую токен на сервер
     setHandlerForButtonSendToken();
 }`,
-		Call:       templ.SafeScript(`__templ_BaseComponentScripts_c4f7`),
-		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_c4f7`),
+		Call:       templ.SafeScript(`__templ_BaseComponentScripts_4863`),
+		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_4863`),
 	}
 }
 

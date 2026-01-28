@@ -52,7 +52,7 @@ func NetboxPrefixes(ctx context.Context, client *netboxapi.Client, logger interf
 
 		// получаем полный список префиксов по частям
 		for i := 0; i < int(chunkCount); i++ {
-			prefixList := make([]netboxapi.ShortPrefixInfo, chunkSize)
+			prefixList := make([]netboxapi.ShortPrefixInfo, 0)
 
 			offset := i * chunkSize
 			res, statusCode, err := client.Get(ctx, fmt.Sprintf("/api/ipam/prefixes/?limit=%d&offset=%d", chunkSize, offset))
@@ -89,76 +89,6 @@ func NetboxPrefixes(ctx context.Context, client *netboxapi.Client, logger interf
 
 	return chOut, nbPrefixes.Count, nil
 }
-
-// GetNetboxPrefixes получить все nNetbox префиксы
-/*func GetNetboxPrefixes(ctx context.Context, client *netboxapi.Client, logger interfaces.Logger) *netboxapi.ShortPrefixList {
-	shortPrefixList := &netboxapi.ShortPrefixList{}
-
-	// выясняем сколько всего префиксов
-	res, statusCode, err := client.Get(ctx, "/api/ipam/prefixes/?limit=1")
-	if err != nil {
-		logger.Send("error", wrappers.WrapperError(err).Error())
-
-		return shortPrefixList
-	}
-
-	if statusCode != http.StatusOK {
-		logger.Send("error", wrappers.WrapperError(fmt.Errorf("status code %d was received", statusCode)).Error())
-
-		return shortPrefixList
-	}
-
-	var nbPrefixes netboxapi.ListPrefixes
-	err = json.Unmarshal(res, &nbPrefixes)
-	if err != nil {
-		logger.Send("error", wrappers.WrapperError(err).Error())
-
-		return shortPrefixList
-	}
-
-	shortPrefixList.Count = nbPrefixes.Count
-
-	chunkSize := 100
-	if nbPrefixes.Count > 1_000 {
-		chunkSize = 500
-	}
-
-	chunkCount := math.Ceil(float64(nbPrefixes.Count) / float64(chunkSize))
-
-	// получаем полный список префиксов по частям
-	for i := 0; i < int(chunkCount); i++ {
-		offset := i * chunkSize
-		res, statusCode, err := client.Get(ctx, fmt.Sprintf("/api/ipam/prefixes/?limit=%d&offset=%d", chunkSize, offset))
-		if err != nil {
-			logger.Send("error", wrappers.WrapperError(err).Error())
-
-			continue
-		}
-		if statusCode != http.StatusOK {
-			logger.Send("error", wrappers.WrapperError(fmt.Errorf("status code %d was received", statusCode)).Error())
-		}
-
-		nbPrefixes := netboxapi.ListPrefixes{}
-		err = sonic.Unmarshal(res, &nbPrefixes)
-		if err != nil {
-			logger.Send("error", wrappers.WrapperError(err).Error())
-
-			continue
-		}
-
-		for data := range getShortPrefixesInformation(nbPrefixes) {
-			if data.Error != nil {
-				logger.Send("error", wrappers.WrapperError(data.Error).Error())
-
-				continue
-			}
-
-			shortPrefixList.Prefixes = append(shortPrefixList.Prefixes, data.Information)
-		}
-	}
-
-	return shortPrefixList
-}*/
 
 func getShortPrefixesInformation(prefixes netboxapi.ListPrefixes) <-chan struct {
 	Information netboxapi.ShortPrefixInfo

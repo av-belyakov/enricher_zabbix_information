@@ -12,7 +12,7 @@ templ TemplateTaskCompletionStatistics(ttcs datamodels.TemplTaskCompletionsStati
 		<div>Общее количество групп хостов в Zabbix: {ttcs.CountZabbixHostsGroup}</div>
 		<div>Группы хостов по которым осуществляется мониторинг: {ttcs.CountMonitoringHostsGroup}</div>
 		<div>Хосты по которым осуществляется мониторинг: {ttcs.CountMonitoringHosts}</div>
-		<div>Обработанные хосты: {ttcs.CountHostsIsProcessed}</div>
+		<div>Количество ip адресов совпавших с префиксами Netbox: {ttcs.CountFoundIpToPrefix}</div>
 		<div>Всего в Netbox найдено префиксов: {ttcs.CountNetboxPrefixes}</div>
 		<div>Получено из Netbox префиксов: {ttcs.CountNetboxPrefixesReceived}</div>
 		<div>Обновленные хосты в Zabbix: {ttcs.CountUpdatedZabbixHosts}</div>
