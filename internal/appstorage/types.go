@@ -9,8 +9,9 @@ import (
 
 // SharedAppStorage общее хранилище приложения
 type SharedAppStorage struct {
-	statistics StatisticsApp
-	logs       LogsApp
+	statistics    StatisticsApp
+	logs          LogsApp
+	configuration AppShortConfiguration
 }
 
 type Options func(*SharedAppStorage) error
@@ -56,4 +57,19 @@ type LogInformation struct {
 	Date        string `json:"timestamp"`
 	Type        string `json:"level"`
 	Description string `json:"message"`
+}
+
+// AppShortConfiguration краткая конфигурация приложения
+type AppShortConfiguration struct {
+	taskSchedulerDailyJobs []string
+	netbox                 ShortParameters
+	zabbix                 ShortParameters
+	databaseLogging        ShortParameters
+	taskSchedulerTimerJob  int
+}
+
+type ShortParameters struct {
+	User string
+	Host string
+	Port int
 }

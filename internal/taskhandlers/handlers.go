@@ -268,7 +268,7 @@ func (th *TaskHandler) start() error {
 	// количество найденных префиксов в Netbox
 	th.settings.storage.SetCountNetboxPrefixes(countPrefixes)
 
-	shortPrefixList := netboxapi.ShortPrefixList{}
+	shortPrefixList := make(netboxapi.ShortPrefixList, 0, len(chunPrefixInfo))
 	for prefixInfo := range chunPrefixInfo {
 		shortPrefixList = append(shortPrefixList, prefixInfo...)
 
