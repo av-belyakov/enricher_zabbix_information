@@ -1,7 +1,7 @@
 variables:
   BRANCH_TEST: development
   BRANCH_MAJOR: master
-  APPLICATION_NAME: application_template
+  APPLICATION_NAME: enricher_zabbix_information
   RUNNER_TAG_BUILD: $APPLICATION_NAME.build
   RUNNER_TAG_DEPLOY_TEST: $APPLICATION_NAME.deploy-test
   RUNNER_TAG_DEPLOY_PROD: $APPLICATION_NAME.deploy-prod
@@ -49,6 +49,7 @@ stages:
       - config/config_dev.yml
       - config/config_prod.yml
       - config/config_test.yml
+      - config/dictionary.yml
     when: never
 
 # запретить выполнение если изменился какой либо docker-compose файл
