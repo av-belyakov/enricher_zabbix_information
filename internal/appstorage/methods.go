@@ -487,3 +487,55 @@ func (as *SharedAppStorage) GetLogs() []LogInformation {
 func (as *SharedAppStorage) LogMaxSize() int {
 	return as.logs.size
 }
+
+//********************* настройки приложения ***********************
+
+// GetTaskSchedulerDailyJobs рассписание времени выполнения задач
+func (as *SharedAppStorage) GetTaskSchedulerDailyJobs() []string {
+	return as.configuration.taskSchedulerDailyJobs
+}
+
+// SetTaskSchedulerDailyJobs рассписание времени выполнения задач
+func (as *SharedAppStorage) SetTaskSchedulerDailyJobs(v []string) {
+	as.configuration.taskSchedulerDailyJobs = v
+}
+
+// GetTaskSchedulerTimeJob интервал времени для выполнения задач
+func (as *SharedAppStorage) GetTaskSchedulerTimeJob() int {
+	return as.configuration.taskSchedulerTimerJob
+}
+
+// SetTaskSchedulerTimeJob интервал времени для выполнения задач
+func (as *SharedAppStorage) SetTaskSchedulerTimeJob(v int) {
+	as.configuration.taskSchedulerTimerJob = v
+}
+
+// GetNetbox настройки Netbox
+func (as *SharedAppStorage) GetNetbox() ShortParameters {
+	return as.configuration.netbox
+}
+
+// SetNetbox настройки Netbox
+func (as *SharedAppStorage) SetNetbox(v ShortParameters) {
+	as.configuration.netbox = v
+}
+
+// GetZabbix настройки Zabbix
+func (as *SharedAppStorage) GetZabbix() ShortParameters {
+	return as.configuration.zabbix
+}
+
+// SetZabbix настройки Zabbix
+func (as *SharedAppStorage) SetZabbix(v ShortParameters) {
+	as.configuration.zabbix = v
+}
+
+// GetDatabaseLogging настройки доступа к БД для логирования событий и ошибок
+func (as *SharedAppStorage) GetDatabaseLogging() ShortParameters {
+	return as.configuration.databaseLogging
+}
+
+// SetDatabaseLogging настройки доступа к БД для логирования событий и ошибок
+func (as *SharedAppStorage) SetDatabaseLogging(v ShortParameters) {
+	as.configuration.databaseLogging = v
+}

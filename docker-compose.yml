@@ -1,7 +1,7 @@
-# Что бы передать переменные при запуске docker-compose.yml файда нужно
+# Что бы передать переменные при запуске docker-compose.yml нужно
 # выполнить:
-# TYPE_IMAGE=latest \  
-# TYPE_EXECUTION=some_type_exec \ 
+# TYPE_IMAGE=latest \
+# TYPE_EXECUTION=some_type_exec \
 # APPLICATION_NAME=some_name \
 # docker-compose -f docker-compose.example.yml up -d
 
@@ -9,19 +9,19 @@ services:
   app:
     # меняем имя контейнера на имя будущего приложения
     container_name: ${APPLICATION_NAME:-application_template}.${TYPE_EXECUTION:-prod}
-    env_file:
-      .env
+    env_file: .env
     environment:
-      GO_APPLICATIONTEMPLATE_DBWLOGPASSWD: $GO_APPLICATIONTEMPLATE_DBWLOGPASSWD
-      GO_APPLICATIONTEMPLATE_PASSWD: $GO_APPLICATIONTEMPLATE_PASSWD
-      GO_APPLICATIONTEMPLATE_TOKEN: $GO_APPLICATIONTEMPLATE_TOKEN
+      GO_ENRICHERZI_ZPASSWD: $GO_ENRICHERZI_ZPASSWD
+      GO_ENRICHERZI_NBTOKEN: $GO_ENRICHERZI_NBTOKEN
+      GO_ENRICHERZI_DBWLOGPASSWD: $GO_ENRICHERZI_DBWLOGPASSWD
+      GO_ENRICHERZI_APISERVERTOKEN: $GO_ENRICHERZI_APISERVERTOKEN
     # меняем путь к образу на путь к образу будущего приложения
     image: gitlab.cloud.gcm:5050/a.belyakov/${APPLICATION_NAME:-application_template}:${TYPE_IMAGE:-latest}
     restart: unless-stopped
     # пробрасываем user ID для корректной записи в логов
     user: root
     command: chmod 777 /opt/${APPLICATION_NAME:-application_template}/logs && \
-             chown 1500:1500 /opt/${APPLICATION_NAME:-application_template}/logs
+      chown 1500:1500 /opt/${APPLICATION_NAME:-application_template}/logs
     volumes:
       - /var/log/${APPLICATION_NAME:-application_template}.${TYPE_EXECUTION:-prod}:/opt/${APPLICATION_NAME:-application_template}/logs:rw
       - ./config:/opt/${APPLICATION_NAME:-application_template}/config:rw
@@ -39,8 +39,8 @@ services:
 #    container_name: major-database
 #    restart: unless-stopped
 #    command: >
-#      здесь 
-#      перечень 
+#      здесь
+#      перечень
 #      выполняемых команд
 #    networks:
 #      - app-network
