@@ -1,8 +1,25 @@
 package components
 
-templ TemplateMainElement(appStatus, appTimeLive string){
+import "github.com/av-belyakov/enricher_zabbix_information/internal/appstorage"
+
+templ TemplateMainElement(appStatus, appTimeLive string, appSharedStorage *appstorage.SharedAppStorage){
     <div>
         <div>Приложение запущено в режиме '{appStatus}'.</div> 
-        <div>Время, прошедшее с момента запуска {appTimeLive}."</div>
+        <div>Время, прошедшее с момента запуска {appTimeLive}.</div>
+        <div>Cоединение с Netbox выполняется по {appSharedStorage.GetNetbox().Host}:{appSharedStorage.GetNetbox().Port}.</div>
+        <div>Cоединение с Zabbix выполняется по {appSharedStorage.GetZabbix().Host}:{appSharedStorage.GetZabbix().Port}, пользователь '{appSharedStorage.GetZabbix().User}'.</div>
+        <div>Соединение с сервером логирования по {appSharedStorage.GetDatabaseLogging().Host}:{appSharedStorage.GetDatabaseLogging().Port}, пользователь '{appSharedStorage.GetDatabaseLogging().User}'.</div>
+        if len(appSharedStorage.GetTaskSchedulerDailyJobs()) == 0 {
+            <div>Выбран <b>{appSharedStorage.GetTaskSchedulerTimeJob()}</b> временной интервал обработки задач</div>
+        } else {
+            <div>График выполнения задач:</div>
+            <div style="padding-left: 20px; margin: 10px 0px 10px 0px;">
+                <ol>
+                    for _, v := range appSharedStorage.GetTaskSchedulerDailyJobs() {
+                        <li>{v}</li>
+                    }
+                </ol>
+            </div>
+        }
     </div>
 }

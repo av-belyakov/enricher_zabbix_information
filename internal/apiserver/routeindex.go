@@ -26,7 +26,7 @@ func (is *InformationServer) RouteIndex(w http.ResponseWriter, r *http.Request) 
 	appTimeLive := time.Since(is.timeStart).String()
 
 	is.getBasePage(
-		components.TemplateMainElement(appStatus, appTimeLive),
+		components.TemplateMainElement(appStatus, appTimeLive, is.storage),
 		components.BaseComponentScripts(),
 	).Component.Render(r.Context(), w)
 }

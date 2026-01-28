@@ -124,6 +124,29 @@ func app(ctx context.Context) {
 	if err != nil {
 		log.Fatalf("error initializing the temporary storage: %v", err)
 	}
+	// заполняем хранилище информацией о конфигурации, нужно для того что бы apiserver
+	// мог отображать краткую информацию о настройках приложения
+	appStorage.SetTaskSchedulerTimeJob(conf.GetSchedule().TimerJob)
+	dailyJobs := conf.GetSchedule().DailyJob
+	taskSchedulerTimeJobs := make([]string, 0, len(dailyJobs))
+	for _, v := range dailyJobs {
+		taskSchedulerTimeJobs = append(taskSchedulerTimeJobs, v)
+	}
+	appStorage.SetTaskSchedulerDailyJobs(taskSchedulerTimeJobs)
+	appStorage.SetNetbox(appstorage.ShortParameters{
+		Host: conf.GetNetBox().Host,
+		Port: conf.GetNetBox().Port,
+	})
+	appStorage.SetZabbix(appstorage.ShortParameters{
+		User: conf.GetZabbix().User,
+		Host: conf.GetZabbix().Host,
+		Port: conf.GetZabbix().Port,
+	})
+	appStorage.SetDatabaseLogging(appstorage.ShortParameters{
+		User: conf.GetLogDB().User,
+		Host: conf.GetLogDB().Host,
+		Port: conf.GetLogDB().Port,
+	})
 
 	//*********************************************************************************
 	//***************** инициализация обработчика логирования данных ******************

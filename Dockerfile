@@ -1,5 +1,5 @@
 # Актуализировать версию образа golang (при необходимости)
-ARG BUILD_IMAGE_NAME=golang:1.25-alpine
+ARG BUILD_IMAGE_NAME=golang:1.25.6-alpine
 ARG DEPLOY_IMAGE_NAME=alpine
 
 # Образ с необходимыми пакетами
@@ -36,19 +36,20 @@ RUN echo -e "build_image" && \
 FROM ${DEPLOY_IMAGE_NAME}
 LABEL author="Artemij Belyakov"
 ARG APPLICATION_NAME=application_template
-# аргумент STATUS содержит режим запуска приложения prod или development
-# если значение содержит запись development, то в таком режиме и будет
+# аргумент STATUS содержит режим запуска приложения prod, development или test
+# если значение содержит запись development или test, то в таком режиме и будет
 # работать приложение, во всех остальных случаях режим работы prod
 ARG STATUS=prod
 ARG USER_NAME=dockeruser
+ARG USER_DIR=/opt/${APPLICATION_NAME}
 ARG LOGS_DIR=logs
 ARG VERSION=0.1.1
 #!!! здесь заменить переменную окружения на соответствующую имени приложения !!!
 ENV GO_APPLICATION_TEMPLATE_MAIN=${STATUS}
-WORKDIR /opt/${APPLICATION_NAME}
 RUN addgroup --g 1500 groupcontainer && \
-    adduser -u 1500 -G groupcontainer -D ${USERNAME} --home ${WORK_DIR}
+    adduser -u 1500 -G groupcontainer -D ${USER_NAME} --home ${USER_DIR}
 USER ${USER_NAME}
+WORKDIR ${USER_DIR}
 RUN mkdir ./${LOGS_DIR}
 COPY --from=build_image /go/src/${VERSION}/app ./
 COPY --from=build_image /go/src/${VERSION}/README.md ./
