@@ -19,6 +19,11 @@ type TemplTaskCompletionsStatistics struct {
 		Name  string `json:"name"`
 		Error string `json:"error"`
 	} `json:"hosts"`
+	ProcessedHosts []struct {
+		SensorsId    []string `json:"sensor_id"`     // id обслуживающего сенсора
+		OriginalHost string   `json:"original_host"` // исходное наименование хоста
+		HostId       int      `json:"host_id"`       // id хоста
+	} `json:"processed_hosts"`
 	DataStart                   string `json:"data_start"`
 	DataEnd                     string `json:"data_end"`
 	DiffTime                    string `json:"diff_time"`

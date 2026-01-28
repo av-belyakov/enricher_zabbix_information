@@ -25,10 +25,6 @@ func SearchIpaddrToPrefixesNetbox(
 	}
 
 	storageTempSetInfo := func(id int, info []netboxapi.ShortPrefixInfo, st *appstorage.SharedAppStorage) error {
-		if err := st.SetIsProcessed(id); err != nil {
-			return err
-		}
-
 		for _, msg := range info {
 			if msg.Status != "active" {
 				continue

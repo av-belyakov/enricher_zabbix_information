@@ -315,6 +315,10 @@ func (th *TaskHandler) start() error {
 			continue
 		}
 
+		if err := th.settings.storage.SetIsProcessed(v.HostId); err != nil {
+			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+		}
+
 		num++
 	}
 

@@ -1,6 +1,10 @@
 package components
 
-import "github.com/av-belyakov/enricher_zabbix_information/datamodels"
+import (
+	"strings"
+
+	"github.com/av-belyakov/enricher_zabbix_information/datamodels"
+)
 
 templ TemplateTaskCompletionStatistics(ttcs datamodels.TemplTaskCompletionsStatistics){
     <div>
@@ -17,13 +21,21 @@ templ TemplateTaskCompletionStatistics(ttcs datamodels.TemplTaskCompletionsStati
 		<div>Получено из Netbox префиксов: {ttcs.CountNetboxPrefixesReceived}</div>
 		<div>Обновленные хосты в Zabbix: {ttcs.CountUpdatedZabbixHosts}</div>
 		<div>Хосты обработанные с ошибкой: {ttcs.CountHostsError}</div>
-		<div>Список доменных имён хостов, при обработки которых возникли ошибки:</div>
-        <div style="padding-left: 20px; margin: 10px 0;">
+		<div style="margin-bottom: 10px;">Список доменных имён хостов, при обработки которых возникли ошибки:</div>
+        <div style="padding-left: 20px; margin: 10px 0px 10px 0px;">
 			<ol>
 				for _, v := range ttcs.Hosts {
 					<li><b>{v.Name}</b>, <span style="color:#f44336;">error</span>: {v.Error}</li>
 				}
 			</ol>
+		</div>
+		<div>Список хостов успешно обновлённых в Zabbix:</div>
+		<div style="padding-left: 20px; margin: 10px 0px 10px 0px;">
+			<ol>
+				for _, v := range ttcs.ProcessedHosts {
+					<li><b>{v.HostId}</b> {v.OriginalHost} sensors id:{strings.Join(v.SensorsId, ",")}</li>
+				}
+			</ol>				
 		</div>
     </div>
 }

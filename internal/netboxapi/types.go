@@ -20,12 +20,6 @@ type Client struct {
 
 type ShortPrefixList []ShortPrefixInfo
 
-//type ShortPrefixList struct {
-//	mutex    sync.RWMutex
-//	Prefixes []ShortPrefixInfo
-//	Count    int
-//}
-
 type ShortPrefixInfo struct {
 	Prefix   netip.Prefix
 	Status   string

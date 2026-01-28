@@ -77,6 +77,24 @@ func (as *SharedAppStorage) GetHosts() map[int]string {
 	return newList
 }
 
+// GetProcessedHosts список обработанных хостов
+func (as *SharedAppStorage) GetProcessedHosts() []HostDetailedInformation {
+	as.statistics.mutex.RLock()
+	defer as.statistics.mutex.RUnlock()
+
+	newList := []HostDetailedInformation{}
+
+	for _, v := range as.statistics.data {
+		if !v.IsProcessed {
+			continue
+		}
+
+		newList = append(newList, v)
+	}
+
+	return newList
+}
+
 // GetForHostId данные по id хоста (быстрый поиск)
 func (as *SharedAppStorage) GetForHostId(hostId int) (int, HostDetailedInformation, bool) {
 	as.statistics.mutex.RLock()

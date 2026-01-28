@@ -26,11 +26,28 @@ func CreateTaskStatistics(storage interfaces.StorageInformation) datamodels.Temp
 		Name  string `json:"name"`
 		Error string `json:"error"`
 	}{}
+
+	listProcessedHosts := []struct {
+		SensorsId    []string `json:"sensor_id"`     // id обслуживающего сенсора
+		OriginalHost string   `json:"original_host"` // исходное наименование хоста
+		HostId       int      `json:"host_id"`       // id хоста
+	}{}
+
 	hosts := storage.GetList()
-	var countHostIsProcessed int
+	var countFoundIpToPrefix int
 	for _, v := range hosts {
 		if v.IsProcessed {
-			countHostIsProcessed++
+			countFoundIpToPrefix++
+
+			listProcessedHosts = append(listProcessedHosts, struct {
+				SensorsId    []string `json:"sensor_id"`
+				OriginalHost string   `json:"original_host"`
+				HostId       int      `json:"host_id"`
+			}{
+				SensorsId:    v.SensorsId,
+				OriginalHost: v.OriginalHost,
+				HostId:       v.HostId,
+			})
 		}
 
 		if v.Error == nil {
@@ -59,7 +76,7 @@ func CreateTaskStatistics(storage interfaces.StorageInformation) datamodels.Temp
 		DiffTime:                    diffTime,
 		ExecutionStatus:             taskStatus,
 		CountHostsError:             len(listHostsError),
-		CountFoundIpToPrefix:        countHostIsProcessed,
+		CountFoundIpToPrefix:        countFoundIpToPrefix,
 		CountZabbixHostsGroup:       int(storage.GetCountZabbixHostsGroup()),
 		CountZabbixHosts:            int(storage.GetCountZabbixHosts()),
 		CountMonitoringHostsGroup:   int(storage.GetCountMonitoringHostsGroup()),
@@ -68,5 +85,6 @@ func CreateTaskStatistics(storage interfaces.StorageInformation) datamodels.Temp
 		CountNetboxPrefixesReceived: int(storage.GetCountNetboxPrefixesReceived()),
 		CountUpdatedZabbixHosts:     int(storage.GetCountUpdatedZabbixHosts()),
 		Hosts:                       listHostsError,
+		ProcessedHosts:              listProcessedHosts,
 	}
 }
