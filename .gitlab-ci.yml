@@ -119,7 +119,7 @@ deploy-prod-gcm:
     - docker rmi $CI_REGISTRY_IMAGE:latest || true
     #gitlab.cloud.gcm:5050/a.belyakov/enricher_sensor_information:latest || true
     - >
-      APPLICATION_NAME=$APPLICATION_NAME \
-      TYPE_EXECUTION=prod \
-      TYPE_IMAGE=latest \
+      APPLICATION_NAME=$APPLICATION_NAME
+      TYPE_EXECUTION=prod
+      TYPE_IMAGE=latest
       docker-compose -f $CI_PROJECT_DIR/docker-compose.yml up -d --force-recreate --build
