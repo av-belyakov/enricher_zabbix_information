@@ -2,9 +2,6 @@ variables:
   BRANCH_TEST: development
   BRANCH_MAJOR: master
   APPLICATION_NAME: enricher_zabbix_information
-  RUNNER_TAG_BUILD: $APPLICATION_NAME.build
-  RUNNER_TAG_DEPLOY_TEST: $APPLICATION_NAME.deploy-test
-  RUNNER_TAG_DEPLOY_PROD: $APPLICATION_NAME.deploy-prod
   LABEL_FOR_IMAGE: temporary
 
 stages:
@@ -14,17 +11,14 @@ stages:
 # сборка образа (ВМ с runner-ом ответственым за сборку образа)
 .build-runner-tags: &build-tags
   tags:
-    - $RUNNER_TAG_BUILD
-
-# разворачивание тестовой сборки (ВМ с runner-ом ответственым за развёртывание тестового образа)
-.deploy-test-runner-tags: &deploy-test-tags
-  tags:
-    - $RUNNER_TAG_DEPLOY_TEST
+    - $APPLICATION_NAME.build
+#    - $RUNNER_TAG_BUILD
 
 # разворачивание продуктовой сборки (ВМ с runner-ом ответственым за развёртывание продуктового образа)
 .deploy-prod-runner-tags: &deploy-prod-tags
   tags:
-    - RUNNER_TAG_DEPLOY_PROD
+    - $APPLICATION_NAME.deploy-prod
+#    - $RUNNER_TAG_DEPLOY_PROD
 
 # авторизация для docker
 .docker-login-script: &docker-login
@@ -56,7 +50,6 @@ stages:
 .change-docker-compose-never-commit: &docker-compose-no-commit
   - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_BRANCH == $BRANCH_TEST
     changes:
-      #- docker-compose*
       - docker-compose.yml
       - docker-compose.test.yml
     when: never
@@ -68,9 +61,6 @@ stages:
       - test/**/*
     when: never
 
-.is-branch-dev-test-commit: &dev-test-commit
-  - if: $CI_COMMIT_BRANCH == $BRANCH_TEST || $CI_COMMIT_REF_NAME == $BRANCH_TEST
-
 .is-branch-master-commit: &master-commit
   - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_REF_NAME == $BRANCH_MAJOR
 
@@ -81,34 +71,7 @@ get_version:
   script:
     - 'V=`awk ''/[0-9].[0-9].[0-9]/; {print $2}'' $CI_PROJECT_DIR/version`; echo "version $V"'
 
-# сборка тестового образа
-build-test:
-  stage: build
-  <<: *build-tags
-  rules:
-    - *readme-no-commit
-    - *configs-no-commit
-    - *test-files-no-commit
-    - *docker-compose-no-commit
-    - *dev-test-commit
-  script:
-    # удаление старого образа
-    - docker rmi $CI_REGISTRY_IMAGE:test || true
-    - >
-      docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA \
-       --build-arg VERSION=$CI_COMMIT_SHORT_SHA \
-       --build-arg USERNAME=$GITLAB_USER_NAME \
-       --build-arg USERPASSWD=$GITLAB_USER_PASSWD \
-       --build-arg BRANCH=$BRANCH_TEST \
-       --build-arg STATUS=development .
-    # удаление промежуточного образа с меткой temporary
-    - *docker-image-pure
-    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:test
-    - *docker-login
-    - docker push $CI_REGISTRY_IMAGE:test
-    - docker rmi $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA || true
-
-# сборка основного образа
+# сборка образа
 build-prod:
   stage: build
   <<: *build-tags
@@ -125,6 +88,7 @@ build-prod:
        --build-arg VERSION=$CI_COMMIT_SHORT_SHA \
        --build-arg USERNAME=$GITLAB_USER_NAME \
        --build-arg USERPASSWD=$GITLAB_USER_PASSWD \
+       --build-arg APPLICATION_NAME=$APPLICATION_NAME
        --build-arg BRANCH=$BRANCH_MAJOR .
     - *docker-image-pure
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:latest
@@ -132,34 +96,7 @@ build-prod:
     - docker push $CI_REGISTRY_IMAGE:latest
     - docker rmi $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA || true
 
-# развёртывание тестовой сборки
-deploy-test:
-  stage: deploy
-  <<: *deploy-test-tags
-  rules:
-    - *readme-no-commit
-    - *test-files-no-commit
-    - if: $CI_COMMIT_BRANCH == $BRANCH_TEST
-      changes:
-        - config/config_test.yml
-        - config/config_prod.yml
-      when: never
-    - if: $CI_COMMIT_BRANCH == $BRANCH_TEST || $CI_COMMIT_REF_NAME == $BRANCH_TEST
-      when: manual
-      allow_failure: true
-  before_script:
-    - echo "Start deploy $APPLICATION_NAME application for GCM.test"
-  script:
-    - *docker-login
-    - docker-compose -f $CI_PROJECT_DIR/docker-compose.test.yml down
-    - docker rmi gitlab.cloud.gcm:5050/a.belyakov/enricher_sensor_information:test || true
-    - >
-      APPLICATION_NAME=$APPLICATION_NAME \
-      TYPE_EXECUTION=test \
-      TYPE_IMAGE=test \
-      docker-compose -f $CI_PROJECT_DIR/docker-compose.yml up -d --force-recreate --build
-
-#развёртывание основной сборки (GCM)
+#развёртывание сборки
 deploy-prod-gcm:
   stage: deploy
   <<: *deploy-prod-tags
@@ -179,7 +116,8 @@ deploy-prod-gcm:
   script:
     - *docker-login
     - docker-compose -f $CI_PROJECT_DIR/docker-compose.yml down
-    - docker rmi gitlab.cloud.gcm:5050/a.belyakov/enricher_sensor_information:latest || true
+    - docker rmi $CI_REGISTRY_IMAGE:latest || true
+    #gitlab.cloud.gcm:5050/a.belyakov/enricher_sensor_information:latest || true
     - >
       APPLICATION_NAME=$APPLICATION_NAME \
       TYPE_EXECUTION=prod \
