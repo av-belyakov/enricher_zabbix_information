@@ -18,7 +18,7 @@ stages:
 # разворачивание продуктовой сборки (ВМ с runner-ом ответственым за развёртывание продуктового образа)
 .deploy-prod-runner-tags: &deploy-prod-tags
   tags:
-    - RUNNER_TAG_DEPLOY_PROD
+    - $RUNNER_TAG_DEPLOY_PROD
 
 # авторизация для docker
 .docker-login-script: &docker-login
@@ -50,7 +50,6 @@ stages:
 .change-docker-compose-never-commit: &docker-compose-no-commit
   - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_BRANCH == $BRANCH_TEST
     changes:
-      #- docker-compose*
       - docker-compose.yml
       - docker-compose.test.yml
     when: never
@@ -61,9 +60,6 @@ stages:
     changes:
       - test/**/*
     when: never
-
-.is-branch-dev-test-commit: &dev-test-commit
-  - if: $CI_COMMIT_BRANCH == $BRANCH_TEST || $CI_COMMIT_REF_NAME == $BRANCH_TEST
 
 .is-branch-master-commit: &master-commit
   - if: $CI_COMMIT_BRANCH == $BRANCH_MAJOR || $CI_COMMIT_REF_NAME == $BRANCH_MAJOR
@@ -119,7 +115,8 @@ deploy-prod-gcm:
   script:
     - *docker-login
     - docker-compose -f $CI_PROJECT_DIR/docker-compose.yml down
-    - docker rmi gitlab.cloud.gcm:5050/a.belyakov/enricher_sensor_information:latest || true
+    - docker rmi $CI_REGISTRY_IMAGE:latest || true
+    #gitlab.cloud.gcm:5050/a.belyakov/enricher_sensor_information:latest || true
     - >
       APPLICATION_NAME=$APPLICATION_NAME \
       TYPE_EXECUTION=prod \
