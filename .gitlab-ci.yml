@@ -117,7 +117,6 @@ deploy-prod-gcm:
     - *docker-login
     - docker-compose -f $CI_PROJECT_DIR/docker-compose.yml down
     - docker rmi $CI_REGISTRY_IMAGE:latest || true
-    #gitlab.cloud.gcm:5050/a.belyakov/enricher_sensor_information:latest || true
     - >
       APPLICATION_NAME=$APPLICATION_NAME
       TYPE_EXECUTION=prod

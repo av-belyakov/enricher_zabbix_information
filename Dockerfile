@@ -47,7 +47,7 @@ ARG USER_DIR=/opt/${APPLICATION_NAME}
 ARG LOGS_DIR=logs
 ARG VERSION=0.1.1
 #!!! здесь заменить переменную окружения на соответствующую имени приложения !!!
-ENV GO_APPLICATION_TEMPLATE_MAIN=${STATUS}
+ENV GO_ENRICHERZI_MAIN=${STATUS}
 RUN addgroup --g 1500 groupcontainer && \
     adduser -u 1500 -G groupcontainer -D ${USER_NAME} --home ${USER_DIR}
 USER ${USER_NAME}
@@ -56,6 +56,7 @@ RUN mkdir ./${LOGS_DIR}
 COPY --from=build_image /go/src/${VERSION}/app ./
 COPY --from=build_image /go/src/${VERSION}/README.md ./
 COPY --from=build_image /go/src/${VERSION}/version ./ 
+COPY --from=build_image /go/src/${VERSION}/static/* ./static/
 COPY config/* ./config/
 
 ENTRYPOINT [ "./app" ]

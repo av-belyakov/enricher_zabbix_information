@@ -21,8 +21,8 @@ InformationServerApi:
   port: 8989
 # Настройки подключения к БД для записи логов
 WriteLogDataBase:
-  host: database.cloud.example.prod
+  host: datahook.cloud.gcm
   port: 9200
-  user: log_writer.prod
+  user: log_writer
   namedb:
   storage_name_db: enricher_zabbix_information
