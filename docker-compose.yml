@@ -9,7 +9,7 @@ services:
   app:
     # меняем имя контейнера на имя будущего приложения
     container_name: ${APPLICATION_NAME:-application_template}.${TYPE_EXECUTION:-prod}
-    env_file: .env
+    #env_file: .env
     environment:
       GO_ENRICHERZI_ZPASSWD: $GO_ENRICHERZI_ZPASSWD
       GO_ENRICHERZI_NBTOKEN: $GO_ENRICHERZI_NBTOKEN
