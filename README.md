@@ -7,9 +7,9 @@
 
 ## Подробное описание работы сервиса
 
-После старта, сервис 'Enricher\*Zabbix_information' разворачивает простой http сервер по адресу и порту взятым из полей **InformationServerApi.host** и **InformationServerApi.port**. В нём можно посмотреть статистику и логи сервиса и запустить выполнения задачи в "ручном режиме", но это скорее исключительный случай.
+После старта, сервис 'Enricher_Zabbix_information' разворачивает простой http сервер по адресу и порту взятым из полей **InformationServerApi.host** и **InformationServerApi.port**. В нём можно посмотреть статистику и логи сервиса и запустить выполнения задачи в "ручном режиме", но это скорее исключительный случай.
 
-Для запуска выполнения задачи в "ручном режиме" нужно перейти по адресу http://any-host:any-port/manually*task_starting и ввести в поле ввода токен. Токен находится а http://gitlab.cloud.gcm/a.belyakov/enricher_zabbix_information/-/settings/ci_cd в пункте \_Variables* под именем **GO_ENRICHERZI_APISERVERTOKEN**.
+Для запуска выполнения задачи в "ручном режиме" нужно перейти по адресу http://any-host:any-port/manually_task_starting и ввести в поле ввода токен. Токен находится а http://gitlab.cloud.gcm/a.belyakov/enricher_zabbix_information/-/settings/ci_cd в пункте Variables под именем **GO_ENRICHERZI_APISERVERTOKEN**.
 
 Основной режим работы сервиса, это запуск задач в автоматическом режиме, его настройка задаётся в конфигурационном файле - значения **Schedule.dailyJob** (далее - Время запуска) или **Schedule.timerJob** (далее - Интервал запуска). При этом "Время запуска" приоритетнее чем "Интервал запуска". Если заданны обе эти величины, то "Интервал запуска" игнорируется.
 
