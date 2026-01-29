@@ -4,9 +4,7 @@ Schedule:
   dailyJob: # Время запуска задачи в формате HH:MM
     - 00:00:00
     - 06:00:00
-    - 12:00:00
-    - 15:59:00
-    - 21:00:00
+    - 18:00:00
 # Настройки подключения к Zabbix
 Zabbix:
   use_tls: true # Использовать TLS для подключения к Zabbix
@@ -19,7 +17,7 @@ NetBox:
   host: netbox.cloud.gcm
   port: 8005
 InformationServerApi:
-  host: localhost
+  host:
   port: 8080
 # Настройки подключения к БД для записи логов
 WriteLogDataBase:
