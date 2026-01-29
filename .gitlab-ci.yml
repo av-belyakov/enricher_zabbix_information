@@ -2,8 +2,8 @@ variables:
   BRANCH_TEST: development
   BRANCH_MAJOR: master
   APPLICATION_NAME: enricher_zabbix_information
-  RUNNER_TAG_BUILD: $APPLICATION_NAME.build
-  RUNNER_TAG_DEPLOY_PROD: $APPLICATION_NAME.deploy-prod
+  #  RUNNER_TAG_BUILD: $APPLICATION_NAME.build
+  #  RUNNER_TAG_DEPLOY_PROD: $APPLICATION_NAME.deploy-prod
   LABEL_FOR_IMAGE: temporary
 
 stages:
@@ -13,12 +13,14 @@ stages:
 # сборка образа (ВМ с runner-ом ответственым за сборку образа)
 .build-runner-tags: &build-tags
   tags:
-    - $RUNNER_TAG_BUILD
+    - $APPLICATION_NAME.build
+#    - $RUNNER_TAG_BUILD
 
 # разворачивание продуктовой сборки (ВМ с runner-ом ответственым за развёртывание продуктового образа)
 .deploy-prod-runner-tags: &deploy-prod-tags
   tags:
-    - $RUNNER_TAG_DEPLOY_PROD
+    - $APPLICATION_NAME.deploy-prod
+#    - $RUNNER_TAG_DEPLOY_PROD
 
 # авторизация для docker
 .docker-login-script: &docker-login
