@@ -18,7 +18,7 @@ NetBox:
   port: 8005
 InformationServerApi:
   host:
-  port: 8080
+  port: 8989
 # Настройки подключения к БД для записи логов
 WriteLogDataBase:
   host: database.cloud.example.prod
