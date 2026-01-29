@@ -17,7 +17,7 @@ NetBox:
   host: netbox.cloud.gcm
   port: 8005
 InformationServerApi:
-  host: localhost
+  host:
   port: 8080
 # Настройки подключения к БД для записи логов
 WriteLogDataBase:
