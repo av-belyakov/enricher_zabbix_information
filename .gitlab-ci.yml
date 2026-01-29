@@ -2,8 +2,6 @@ variables:
   BRANCH_TEST: development
   BRANCH_MAJOR: master
   APPLICATION_NAME: enricher_zabbix_information
-  #  RUNNER_TAG_BUILD: $APPLICATION_NAME.build
-  #  RUNNER_TAG_DEPLOY_PROD: $APPLICATION_NAME.deploy-prod
   LABEL_FOR_IMAGE: temporary
 
 stages:
@@ -90,6 +88,7 @@ build-prod:
        --build-arg VERSION=$CI_COMMIT_SHORT_SHA \
        --build-arg USERNAME=$GITLAB_USER_NAME \
        --build-arg USERPASSWD=$GITLAB_USER_PASSWD \
+       --build-arg APPLICATION_NAME=$APPLICATION_NAME
        --build-arg BRANCH=$BRANCH_MAJOR .
     - *docker-image-pure
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:latest
