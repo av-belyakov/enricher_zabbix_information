@@ -7,6 +7,8 @@ import (
 	"reflect"
 	"slices"
 	"time"
+
+	"github.com/av-belyakov/enricher_zabbix_information/internal/dnsresolver"
 )
 
 //********************* статистическая информация ***********************
@@ -64,14 +66,13 @@ func (as *SharedAppStorage) GetList() []HostDetailedInformation {
 }
 
 // GetHosts список всех хостов
-func (as *SharedAppStorage) GetHosts() map[int]string {
+func (as *SharedAppStorage) GetHosts() []dnsresolver.ShortInformationAboutHost {
 	as.statistics.mutex.RLock()
 	defer as.statistics.mutex.RUnlock()
 
-	newList := make(map[int]string, len(as.statistics.data))
-
+	newList := make([]dnsresolver.ShortInformationAboutHost, len(as.statistics.data))
 	for _, v := range as.statistics.data {
-		newList[v.HostId] = v.OriginalHost
+		newList = append(newList, &v)
 	}
 
 	return newList
@@ -405,6 +406,54 @@ func (as *SharedAppStorage) GetListErrors() []HostDetailedInformation {
 	}
 
 	return list
+}
+
+/*
+	Ips           []netip.Addr `json:"ips"`             // список ip адресов
+	SensorsId     []string     `json:"sensor_id"`       // id обслуживающего сенсора
+	NetboxHostsId []int        `json:"netbox_hosts_id"` // id хоста в netbox
+	OriginalHost  string       `json:"original_host"`   // исходное наименование хоста
+	DomainName    string       `json:"domain_name"`     // доменное имя
+	Error         error        `json:"error"`           // ошибка
+	HostId        int          `json:"host_id"`         // id хоста
+	IsActive      bool         `json:"is_active"`       // флаг активный ли хост
+	IsProcessed   bool         `json:"is_processed"`    // флаг обработан ли хост
+*/
+
+func (hdi *HostDetailedInformation) GetIps() []netip.Addr {
+	return hdi.Ips
+}
+
+func (hdi *HostDetailedInformation) GetSensorsId() []string {
+	return hdi.SensorsId
+}
+
+func (hdi *HostDetailedInformation) GetNetboxHostsId() []int {
+	return hdi.NetboxHostsId
+}
+
+func (hdi *HostDetailedInformation) GetOriginalHost() string {
+	return hdi.OriginalHost
+}
+
+func (hdi *HostDetailedInformation) GetDomainName() string {
+	return hdi.DomainName
+}
+
+func (hdi *HostDetailedInformation) GetError() error {
+	return hdi.Error
+}
+
+func (hdi *HostDetailedInformation) GetHostId() int {
+	return hdi.HostId
+}
+
+func (hdi *HostDetailedInformation) GetIsActive() bool {
+	return hdi.IsActive
+}
+
+func (hdi *HostDetailedInformation) GetIsProcessed() bool {
+	return hdi.IsProcessed
 }
 
 // sort сортировка

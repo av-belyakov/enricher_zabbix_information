@@ -12,7 +12,7 @@ import (
 )
 
 // Run запуск преобразования списка доменных имён в ip адреса
-func (s *Settings) Run(ctx context.Context, hosts map[int]string) (<-chan InfoFromDNSResolver, error) {
+func (s *Settings) Run(ctx context.Context, hosts []ShortInformationAboutHost) (<-chan InfoFromDNSResolver, error) {
 	chSendData := make(chan InfoFromDNSResolver)
 
 	if len(hosts) == 0 {
@@ -22,19 +22,19 @@ func (s *Settings) Run(ctx context.Context, hosts map[int]string) (<-chan InfoFr
 	go func() {
 		defer close(chSendData)
 
-		for hostId, originalHost := range hosts {
+		for _, v := range hosts {
 			idns := InfoFromDNSResolver{
-				HostId:       hostId,
-				OriginalHost: originalHost,
+				HostId:       v.GetHostId(),
+				OriginalHost: v.GetOriginalHost(),
 			}
 
-			if !strings.Contains(originalHost, "http://") {
-				originalHost = "http://" + originalHost
+			if !strings.Contains(v.GetOriginalHost(), "http://") {
+				idns.OriginalHost = "http://" + v.GetOriginalHost()
 			}
 
-			urlHost, err := url.Parse(originalHost)
+			urlHost, err := url.Parse(idns.OriginalHost)
 			if err != nil {
-				idns.Error = customerrors.NewErrorNoValidUrl(originalHost, err)
+				idns.Error = customerrors.NewErrorNoValidUrl(idns.OriginalHost, err)
 				chSendData <- idns
 
 				continue
@@ -45,14 +45,14 @@ func (s *Settings) Run(ctx context.Context, hosts map[int]string) (<-chan InfoFr
 			// DNS resolve
 			ips, err := s.resolver.LookupHost(ctx, urlHost.Host)
 			if err != nil {
-				idns.Error = customerrors.NewErrorUrlNotFound(originalHost, err)
+				idns.Error = customerrors.NewErrorUrlNotFound(idns.OriginalHost, err)
 				chSendData <- idns
 
 				continue
 			}
 
 			if len(ips) == 0 {
-				idns.Error = customerrors.NewErrorUrlNotFound(originalHost, err)
+				idns.Error = customerrors.NewErrorUrlNotFound(idns.OriginalHost, err)
 				chSendData <- idns
 
 				continue

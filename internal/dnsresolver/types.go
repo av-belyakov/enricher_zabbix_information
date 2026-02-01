@@ -4,14 +4,11 @@ import (
 	"net"
 	"net/netip"
 	"time"
-
-	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
 )
 
 // Settings настройки
 type Settings struct {
 	resolver *net.Resolver
-	storage  interfaces.StorageDNSResolver
 	timeout  time.Duration
 }
 

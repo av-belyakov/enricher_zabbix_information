@@ -29,10 +29,6 @@ type WriterLoggingData interface {
 }
 
 // ************** хранилище ***************
-type StorageDNSResolver interface {
-	GetHosts() map[int]string
-}
-
 type StorageInformation interface {
 	GetStatusProcessRunning() bool
 	GetDateExecution() (start, end time.Time)
