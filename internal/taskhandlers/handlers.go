@@ -266,20 +266,18 @@ func (th *TaskHandler) start() error {
 	for responseHost := range SearchIpToNetboxPrefixes(th.settings.storage.GetList(), chanPrefixInfo) {
 		if responseHost.SizeProcessedList > 0 {
 			th.settings.storage.SetCountNetboxPrefixesReceived(int(th.settings.storage.GetCountNetboxPrefixesReceived()) + responseHost.SizeProcessedList)
+		} else {
+			th.settings.storage.SetCountNetboxPrefixesProcessed(int(th.settings.storage.GetCountNetboxPrefixesProcessed()) + 1)
 
-			continue
-		}
-
-		th.settings.storage.SetCountNetboxPrefixesProcessed(int(th.settings.storage.GetCountNetboxPrefixesProcessed()) + 1)
-
-		if err := th.settings.storage.SetIsActive(responseHost.SearchDetailedInformation.HostId); err != nil {
-			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
-		}
-		if err = th.settings.storage.SetSensorId(responseHost.SearchDetailedInformation.HostId, responseHost.SearchDetailedInformation.SensorId); err != nil {
-			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
-		}
-		if err = th.settings.storage.SetNetboxHostId(responseHost.SearchDetailedInformation.HostId, responseHost.SearchDetailedInformation.NetboxId); err != nil {
-			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+			if err := th.settings.storage.SetIsActive(responseHost.SearchDetailedInformation.HostId); err != nil {
+				th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+			}
+			if err = th.settings.storage.SetSensorId(responseHost.SearchDetailedInformation.HostId, responseHost.SearchDetailedInformation.SensorId); err != nil {
+				th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+			}
+			if err = th.settings.storage.SetNetboxHostId(responseHost.SearchDetailedInformation.HostId, responseHost.SearchDetailedInformation.NetboxId); err != nil {
+				th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+			}
 		}
 
 		// для вывода актуальной информации на веб-странице
