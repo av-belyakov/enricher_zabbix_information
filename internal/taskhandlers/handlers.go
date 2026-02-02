@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"runtime"
 	"strconv"
 	"strings"
 
@@ -15,7 +14,6 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/apiserver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appstorage"
-	"github.com/av-belyakov/enricher_zabbix_information/internal/customerrors"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dnsresolver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/netboxapi"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
@@ -209,16 +207,18 @@ func (th *TaskHandler) start() error {
 	if err != nil {
 		return err
 	}
-
 	// запускаем поиск через DNS resolver
 	chInfo, err := dnsRes.Run(th.ctx, th.settings.storage.GetHosts())
 	if err != nil {
 		return err
 	}
-
+	// обрабатываем результат поиска через DNS resolver
 	for msg := range chInfo {
 		if msg.Error != nil {
-			if err := th.settings.storage.SetError(msg.HostId, customerrors.NewErrorNoValidUrl(msg.OriginalHost, err)); err != nil {
+			// логируем ошибки при выполнении DNS преобразования доменных имён в ip адреса
+			th.settings.logger.Send("warning", fmt.Sprintf("error DNS resolve '%s', description:'%s'", msg.OriginalHost, msg.Error.Error()))
+			// записываем ошибки в хранилище
+			if err := th.settings.storage.SetError(msg.HostId, msg.Error); err != nil {
 				th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
 			}
 
@@ -233,6 +233,7 @@ func (th *TaskHandler) start() error {
 			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
 		}
 
+		// формируем сообщение для веб-интерфейса
 		b, err := json.Marshal(ResponseTaskHandler{
 			Type: "ask_manually_task",
 			Data: supportingfunctions.CreateTaskStatistics(th.settings.storage),
@@ -250,29 +251,38 @@ func (th *TaskHandler) start() error {
 		}
 	}
 
-	// логируем ошибки при выполнении DNS преобразования доменных имён в ip адреса
-	errList := th.settings.storage.GetListErrors()
-	for _, v := range errList {
-		th.settings.logger.Send("warning", fmt.Sprintf("error DNS resolve '%s', description:'%s'", v.OriginalHost, v.Error.Error()))
-	}
-
 	// получаем префиксы из Netbox
-	chunPrefixInfo, countPrefixes, err := NetboxPrefixes(th.ctx, th.settings.netboxClient, th.settings.logger)
+	chanPrefixInfo, prefixesSize, err := NetboxPrefixes(th.ctx, th.settings.netboxClient, th.settings.logger)
 	if err != nil {
 		return err
 	}
-	if countPrefixes == 0 {
+	if prefixesSize == 0 {
 		return errors.New("an empty list of prefixes (subnets) was received from the netbox")
 	}
 
-	// количество найденных префиксов в Netbox
-	th.settings.storage.SetCountNetboxPrefixes(countPrefixes)
+	// общее количество найденных префиксов в Netbox
+	th.settings.storage.SetCountNetboxPrefixes(prefixesSize)
 
-	shortPrefixList := make(netboxapi.ShortPrefixList, 0, len(chunPrefixInfo))
-	for prefixInfo := range chunPrefixInfo {
-		shortPrefixList = append(shortPrefixList, prefixInfo...)
+	for responseHost := range SearchIpToNetboxPrefixes(th.settings.storage.GetList(), chanPrefixInfo) {
+		if responseHost.SizeProcessedList > 0 {
+			th.settings.storage.SetCountNetboxPrefixesReceived(int(th.settings.storage.GetCountNetboxPrefixesReceived()) + responseHost.SizeProcessedList)
 
-		th.settings.storage.SetCountNetboxPrefixesReceived(int(th.settings.storage.GetCountNetboxPrefixesReceived()) + len(prefixInfo))
+			continue
+		}
+
+		th.settings.storage.SetCountNetboxPrefixesProcessed(int(th.settings.storage.GetCountNetboxPrefixesProcessed()) + 1)
+
+		if err := th.settings.storage.SetIsActive(responseHost.SearchDetailedInformation.HostId); err != nil {
+			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+		}
+		if err = th.settings.storage.SetSensorId(responseHost.SearchDetailedInformation.HostId, responseHost.SearchDetailedInformation.SensorId); err != nil {
+			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+		}
+		if err = th.settings.storage.SetNetboxHostId(responseHost.SearchDetailedInformation.HostId, responseHost.SearchDetailedInformation.NetboxId); err != nil {
+			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+		}
+
+		// для вывода актуальной информации на веб-странице
 		if b, err := json.Marshal(ResponseTaskHandler{
 			Type: "ask_manually_task",
 			Data: supportingfunctions.CreateTaskStatistics(th.settings.storage),
@@ -283,11 +293,6 @@ func (th *TaskHandler) start() error {
 			}
 		}
 	}
-
-	// выполняем поиск ip адресов в префиксах полученных от Netbox
-	// в SearchIpaddrToPrefixesNetbox передаётся хранилище в котором выполняются
-	// все изменения произошедшие в результате поиска ip адресов в префиксах
-	SearchIpaddrToPrefixesNetbox(runtime.NumCPU(), th.settings.storage, shortPrefixList, th.settings.logger)
 
 	var num int
 	// добавляем или обновляем теги в Zabbix

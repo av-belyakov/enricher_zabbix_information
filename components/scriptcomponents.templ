@@ -93,7 +93,8 @@ script BaseComponentScripts(){
 		            <div>Хосты по которым осуществляется мониторинг: ${jsonObj.data.count_monitoring_hosts}</div>
 		            <div>Количество ip адресов совпавших с префиксами Netbox: ${jsonObj.data.count_found_ip_to_prefix}</div>
 		            <div>Всего в Netbox найдено префиксов: ${jsonObj.data.count_netbox_prefixes}</div>
-		            <div>Получено из Netbox префиксов: ${jsonObj.data.count_netbox_prefixes_received}</div>
+                    <div>Получено из Netbox префиксов: ${jsonObj.data.count_netbox_prefixes_received}</div>
+		            <div>Обработанно префиксов: ${jsonObj.data.count_netbox_prefixes_processed}</div>
                     <div>Обновленные хосты в Zabbix: ${jsonObj.data.count_updated_zabbix_hosts}</div>
 		            <div>Хосты обработанные с ошибкой: ${jsonObj.data.count_hosts_error}</div>
                     <div>Список доменных имён при обработки которых возникли ошибки:</div>

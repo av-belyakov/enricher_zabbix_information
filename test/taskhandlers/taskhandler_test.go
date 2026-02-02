@@ -12,7 +12,6 @@ import (
 	"strings"
 	"syscall"
 	"testing"
-	"testing/synctest"
 
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
@@ -112,11 +111,11 @@ func TestTaskHandler(t *testing.T) {
 
 	t.Run("Тест 2. Проверка шагов обработчика задач", func(t *testing.T) {
 		var (
-			res             []byte
-			listGroupsId    []string
-			hostGroupList   *connectionjsonrpc.ResponseHostGroupList
-			hostList        *connectionjsonrpc.ResponseHostList
-			shortPrefixList netboxapi.ShortPrefixList = netboxapi.ShortPrefixList{}
+			res           []byte
+			listGroupsId  []string
+			hostGroupList *connectionjsonrpc.ResponseHostGroupList
+			hostList      *connectionjsonrpc.ResponseHostList
+			//shortPrefixList netboxapi.ShortPrefixList = netboxapi.ShortPrefixList{}
 
 			errMsg *connectionjsonrpc.ResponseError
 			err    error
@@ -201,7 +200,7 @@ func TestTaskHandler(t *testing.T) {
 			}
 		})
 		t.Run("Тест 2.7. Получаем префиксы из Netbox", func(t *testing.T) {
-			chunPrefixInfo, count, err := taskhandlers.NetboxPrefixes(ctx, netboxClient, logging)
+			chanPrefixInfo, count, err := taskhandlers.NetboxPrefixes(ctx, netboxClient, logging)
 			assert.NoError(t, err)
 			assert.Greater(t, count, 0)
 
@@ -210,20 +209,51 @@ func TestTaskHandler(t *testing.T) {
 
 			fmt.Println("Count short prefix list:", count)
 
-			for prefixInfo := range chunPrefixInfo {
-				shortPrefixList = append(shortPrefixList, prefixInfo...)
+			var countPrefixes int
+			for responseHost := range taskhandlers.SearchIpToNetboxPrefixes(storageTemp.GetList(), chanPrefixInfo) {
+				countPrefixes++
 
-				fmt.Printf("BEFORE storageTemp.GetCountNetboxPrefixesReceived()='%d', len(prefixInfo)='%d'\n", storageTemp.GetCountNetboxPrefixesReceived(), len(prefixInfo))
-
-				storageTemp.SetCountNetboxPrefixesReceived(int(storageTemp.GetCountNetboxPrefixesReceived()) + len(prefixInfo))
-
-				fmt.Printf("AFTER storageTemp.GetCountNetboxPrefixesReceived()='%d'\n", storageTemp.GetCountNetboxPrefixesReceived())
-
-				//отправка в apiserver
+				err := storageTemp.SetIsActive(responseHost.SearchDetailedInformation.HostId)
+				assert.NoError(t, err)
+				err = storageTemp.SetSensorId(responseHost.SearchDetailedInformation.HostId, responseHost.SearchDetailedInformation.SensorId)
+				assert.NoError(t, err)
+				err = storageTemp.SetNetboxHostId(responseHost.SearchDetailedInformation.HostId, responseHost.SearchDetailedInformation.NetboxId)
+				assert.NoError(t, err)
 			}
+			storageTemp.SetCountNetboxPrefixesReceived(int(storageTemp.GetCountNetboxPrefixesReceived()) + countPrefixes)
 
+			listHostWithSensorId := storageTemp.GetHostsWithSensorId()
+			assert.Greater(t, len(listHostWithSensorId), 0)
+
+			fmt.Println("Hosts with sensor id:")
+			for k, v := range listHostWithSensorId {
+				fmt.Printf(
+					"%d. domain name:'%s', host id:%d, ips:'%v', sensors id:'%s', netbox hosts id:'%v', IsProcessed:'%t', error:'%v'\n",
+					k+1,
+					v.DomainName,
+					v.HostId,
+					v.Ips,
+					v.SensorsId,
+					v.NetboxHostsId,
+					v.IsProcessed,
+					v.Error,
+				)
+			}
+			/*
+				for prefixInfo := range chanPrefixInfo {
+					shortPrefixList = append(shortPrefixList, prefixInfo...)
+
+					fmt.Printf("BEFORE storageTemp.GetCountNetboxPrefixesReceived()='%d', len(prefixInfo)='%d'\n", storageTemp.GetCountNetboxPrefixesReceived(), len(prefixInfo))
+
+					storageTemp.SetCountNetboxPrefixesReceived(int(storageTemp.GetCountNetboxPrefixesReceived()) + len(prefixInfo))
+
+					fmt.Printf("AFTER storageTemp.GetCountNetboxPrefixesReceived()='%d'\n", storageTemp.GetCountNetboxPrefixesReceived())
+
+					//отправка в apiserver
+				}
+			*/
 		})
-		t.Run("Тест 2.8. Выполняем поиск ip адресов в префиксах полученных от Netbox", func(t *testing.T) {
+		/*t.Run("Тест 2.8. Выполняем поиск ip адресов в префиксах полученных от Netbox", func(t *testing.T) {
 			synctest.Test(t, func(t *testing.T) {
 				taskhandlers.SearchIpaddrToPrefixesNetbox(3, storageTemp, shortPrefixList, logging)
 			})
@@ -245,7 +275,7 @@ func TestTaskHandler(t *testing.T) {
 					v.Error,
 				)
 			}
-		})
+		})*/
 	})
 
 	t.Run("Тест 3. Добавляем или обновляем теги в тестовом Zabbix", func(t *testing.T) {

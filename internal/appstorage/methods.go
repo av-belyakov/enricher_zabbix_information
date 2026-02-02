@@ -70,7 +70,7 @@ func (as *SharedAppStorage) GetHosts() []dnsresolver.ShortInformationAboutHost {
 	as.statistics.mutex.RLock()
 	defer as.statistics.mutex.RUnlock()
 
-	newList := make([]dnsresolver.ShortInformationAboutHost, len(as.statistics.data))
+	newList := make([]dnsresolver.ShortInformationAboutHost, 0, len(as.statistics.data))
 	for _, v := range as.statistics.data {
 		newList = append(newList, &v)
 	}
@@ -344,6 +344,16 @@ func (as *SharedAppStorage) SetCountNetboxPrefixesReceived(v int) {
 // GetCountNetboxPrefixesReceived количество полученных из Netbox префиксов
 func (as *SharedAppStorage) GetCountNetboxPrefixesReceived() int32 {
 	return as.statistics.countNetboxPrefixesReceived.Load()
+}
+
+// SetCountNetboxPrefixesProcessed количество обработанных префиксов полученных от Netbox
+func (as *SharedAppStorage) SetCountNetboxPrefixesProcessed(v int) {
+	as.statistics.countNetboxPrefixesProcessed.Store(int32(v))
+}
+
+// GetCountNetboxPrefixesProcessed количество обработанных префиксов полученных от Netbox
+func (as *SharedAppStorage) GetCountNetboxPrefixesProcessed() int32 {
+	return as.statistics.countNetboxPrefixesProcessed.Load()
 }
 
 // SetCountUpdatedZabbixHosts количество обновленных хостов в Zabbix

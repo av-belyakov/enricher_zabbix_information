@@ -15,8 +15,8 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
 )
 
-func NetboxPrefixes(ctx context.Context, client *netboxapi.Client, logger interfaces.Logger) (<-chan []netboxapi.ShortPrefixInfo, int, error) {
-	chOut := make(chan []netboxapi.ShortPrefixInfo)
+func NetboxPrefixes(ctx context.Context, client *netboxapi.Client, logger interfaces.Logger) (<-chan netboxapi.ShortPrefixList /*[]netboxapi.ShortPrefixInfo*/, int, error) {
+	chOut := make(chan netboxapi.ShortPrefixList)
 
 	// выясняем сколько всего префиксов
 	res, statusCode, err := client.Get(ctx, "/api/ipam/prefixes/?limit=1")
@@ -32,8 +32,8 @@ func NetboxPrefixes(ctx context.Context, client *netboxapi.Client, logger interf
 		return chOut, 0, err
 	}
 
-	var nbPrefixes netboxapi.ListPrefixes
-	err = json.Unmarshal(res, &nbPrefixes)
+	var maxCountPrefixes netboxapi.ListPrefixes
+	err = json.Unmarshal(res, &maxCountPrefixes)
 	if err != nil {
 		logger.Send("error", wrappers.WrapperError(err).Error())
 
@@ -41,19 +41,20 @@ func NetboxPrefixes(ctx context.Context, client *netboxapi.Client, logger interf
 	}
 
 	chunkSize := 100
-	if nbPrefixes.Count > 1_000 {
+	if maxCountPrefixes.Count > 1_000 {
 		chunkSize = 500
 	}
+	if maxCountPrefixes.Count > 1_500 {
+		chunkSize = 750
+	}
 
-	chunkCount := math.Ceil(float64(nbPrefixes.Count) / float64(chunkSize))
+	chunkCount := math.Ceil(float64(maxCountPrefixes.Count) / float64(chunkSize))
 
 	go func() {
 		defer close(chOut)
 
 		// получаем полный список префиксов по частям
 		for i := 0; i < int(chunkCount); i++ {
-			prefixList := make([]netboxapi.ShortPrefixInfo, 0)
-
 			offset := i * chunkSize
 			res, statusCode, err := client.Get(ctx, fmt.Sprintf("/api/ipam/prefixes/?limit=%d&offset=%d", chunkSize, offset))
 			if err != nil {
@@ -65,29 +66,30 @@ func NetboxPrefixes(ctx context.Context, client *netboxapi.Client, logger interf
 				logger.Send("error", wrappers.WrapperError(fmt.Errorf("status code %d was received", statusCode)).Error())
 			}
 
-			nbPrefixes := netboxapi.ListPrefixes{}
-			err = sonic.Unmarshal(res, &nbPrefixes)
+			netboxPrefixes := netboxapi.ListPrefixes{}
+			err = sonic.Unmarshal(res, &netboxPrefixes)
 			if err != nil {
 				logger.Send("error", wrappers.WrapperError(err).Error())
 
 				continue
 			}
 
-			for data := range getShortPrefixesInformation(nbPrefixes) {
+			shortPrefixList := make(netboxapi.ShortPrefixList, 0, netboxPrefixes.Count)
+			for data := range getShortPrefixesInformation(netboxPrefixes) {
 				if data.Error != nil {
 					logger.Send("error", wrappers.WrapperError(data.Error).Error())
 
 					continue
 				}
 
-				prefixList = append(prefixList, data.Information)
+				shortPrefixList = append(shortPrefixList, data.Information)
 			}
 
-			chOut <- prefixList
+			chOut <- shortPrefixList
 		}
 	}()
 
-	return chOut, nbPrefixes.Count, nil
+	return chOut, maxCountPrefixes.Count, nil
 }
 
 func getShortPrefixesInformation(prefixes netboxapi.ListPrefixes) <-chan struct {

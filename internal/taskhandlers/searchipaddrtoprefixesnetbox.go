@@ -1,60 +1,47 @@
 package taskhandlers
 
 import (
-	"runtime"
+	"cmp"
 	"sync"
 
-	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appstorage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/netboxapi"
-	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
 )
 
-// SearchIpaddrToPrefixesNetbox поиск списка ip адресов в префиксах netbox
-func SearchIpaddrToPrefixesNetbox(
-	maxCountGoroutines int,
-	storageTemp *appstorage.SharedAppStorage,
-	shortPrefixList netboxapi.ShortPrefixList,
-	logging interfaces.Logger,
-) {
-	goroutines := 3
-	chQueue := make(chan appstorage.HostDetailedInformation, maxCountGoroutines)
+// SearchIpToNetboxPrefixes поиск списка ip адресов в префиксах netbox
+func SearchIpToNetboxPrefixes(hosts []appstorage.HostDetailedInformation, chanInput <-chan netboxapi.ShortPrefixList) chan SearchResponse {
+	chanOutput := make(chan SearchResponse)
 
-	if maxCountGoroutines >= 1 && maxCountGoroutines <= runtime.NumCPU() {
-		maxCountGoroutines = goroutines
-	}
+	go func() {
+		var wg sync.WaitGroup
 
-	storageTempSetInfo := func(id int, info []netboxapi.ShortPrefixInfo, st *appstorage.SharedAppStorage) error {
-		for _, msg := range info {
-			if msg.Status != "active" {
-				continue
+		for v := range chanInput {
+			// это нужно что бы передать количество принятых из Netbox перфиксов
+			chanOutput <- SearchResponse{
+				SizeProcessedList: v.Len(),
 			}
 
-			st.SetIsActive(id)
-			st.SetSensorId(id, msg.SensorId)
-			st.SetNetboxHostId(id, msg.Id)
-		}
-
-		return nil
-	}
-
-	var wg sync.WaitGroup
-	for range goroutines {
-		wg.Go(func() {
-			for hostInfo := range chQueue {
-				for msgList := range shortPrefixList.SearchIps(hostInfo.Ips) {
-					if err := storageTempSetInfo(hostInfo.HostId, msgList, storageTemp); err != nil {
-						logging.Send("error", wrappers.WrapperError(err).Error())
+			wg.Go(func() {
+				for _, host := range hosts {
+					for msg := range v.SearchIps(host.Ips) {
+						for _, item := range msg {
+							chanOutput <- SearchResponse{
+								SearchDetailedInformation: DetailedInformation{
+									HostId:   host.HostId,
+									NetboxId: item.Id,
+									SensorId: item.SensorId,
+									IsActive: cmp.Or(item.Status == "active", true, false),
+								},
+							}
+						}
 					}
 				}
-			}
-		})
-	}
+			})
+		}
 
-	for _, v := range storageTemp.GetList() {
-		chQueue <- v
-	}
+		wg.Wait()
+		close(chanOutput)
+	}()
 
-	close(chQueue)
-	wg.Wait()
+	return chanOutput
 }

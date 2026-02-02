@@ -34,7 +34,7 @@ func (s *Settings) Run(ctx context.Context, hosts []ShortInformationAboutHost) (
 
 			urlHost, err := url.Parse(idns.OriginalHost)
 			if err != nil {
-				idns.Error = customerrors.NewErrorNoValidUrl(idns.OriginalHost, err)
+				idns.Error = customerrors.NewErrorNoValidUrl(idns.OriginalHost, err.Error())
 				chSendData <- idns
 
 				continue
@@ -45,14 +45,14 @@ func (s *Settings) Run(ctx context.Context, hosts []ShortInformationAboutHost) (
 			// DNS resolve
 			ips, err := s.resolver.LookupHost(ctx, urlHost.Host)
 			if err != nil {
-				idns.Error = customerrors.NewErrorUrlNotFound(idns.OriginalHost, err)
+				idns.Error = customerrors.NewErrorUrlNotFound(idns.OriginalHost, err.Error())
 				chSendData <- idns
 
 				continue
 			}
 
 			if len(ips) == 0 {
-				idns.Error = customerrors.NewErrorUrlNotFound(idns.OriginalHost, err)
+				idns.Error = customerrors.NewErrorUrlNotFound(idns.OriginalHost, "")
 				chSendData <- idns
 
 				continue
@@ -62,7 +62,7 @@ func (s *Settings) Run(ctx context.Context, hosts []ShortInformationAboutHost) (
 			for _, ip := range ips {
 				ipaddr, err := netip.ParseAddr(ip)
 				if err != nil {
-					idns.Error = customerrors.NewErrorIpInvalid(ip, err)
+					idns.Error = customerrors.NewErrorIpInvalid(ip, err.Error())
 					chSendData <- idns
 
 					continue

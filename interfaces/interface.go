@@ -44,6 +44,7 @@ type StorageCounter interface {
 	GetCountUpdatedZabbixHosts() int32
 	GetCountMonitoringHostsGroup() int32
 	GetCountNetboxPrefixesReceived() int32
+	GetCountNetboxPrefixesProcessed() int32
 }
 
 // ************** передача данных ***************

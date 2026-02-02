@@ -35,6 +35,11 @@ func (api *Client) Get(ctx context.Context, query string) ([]byte, int, error) {
 	return resBody, res.StatusCode, nil
 }
 
+// Len длина списка
+func (spl *ShortPrefixList) Len() int {
+	return len(*spl)
+}
+
 // SearchIps поиск IP-адресов в списке префиксов
 func (spl *ShortPrefixList) SearchIps(ips []netip.Addr) <-chan []ShortPrefixInfo {
 	chanPrefixInfo := make(chan []ShortPrefixInfo)
@@ -43,17 +48,12 @@ func (spl *ShortPrefixList) SearchIps(ips []netip.Addr) <-chan []ShortPrefixInfo
 		defer close(chanPrefixInfo)
 
 		for _, ip := range ips {
-			indexes := spl.SearchIp(ip)
-			if len(indexes) == 0 {
+			list := spl.SearchIp(ip)
+			if len(list) == 0 {
 				continue
 			}
 
-			var spi []ShortPrefixInfo
-			for _, index := range indexes {
-				spi = append(spi, (*spl)[index])
-			}
-
-			chanPrefixInfo <- spi
+			chanPrefixInfo <- list
 		}
 	}()
 
@@ -61,75 +61,23 @@ func (spl *ShortPrefixList) SearchIps(ips []netip.Addr) <-chan []ShortPrefixInfo
 }
 
 // SearchIp поиск IP-адреса в списке префиксов
-func (spl *ShortPrefixList) SearchIp(ip netip.Addr) []int {
-	var indexes []int
+func (spl *ShortPrefixList) SearchIp(ip netip.Addr) []ShortPrefixInfo {
+	var list []ShortPrefixInfo
 	left := 0
 	right := len(*spl) - 1
 
 	for left <= right {
 		if (*spl)[left].Prefix.Contains(ip) {
-			indexes = append(indexes, left)
+			list = append(list, (*spl)[left])
 		}
 
 		if left != right && (*spl)[right].Prefix.Contains(ip) {
-			indexes = append(indexes, right)
+			list = append(list, (*spl)[right])
 		}
 
 		left++
 		right--
 	}
 
-	return indexes
+	return list
 }
-
-/*
-// SearchIps поиск IP-адресов в списке префиксов
-func (spl *ShortPrefixList) SearchIps(ips []netip.Addr) <-chan []ShortPrefixInfo {
-	chanPrefixInfo := make(chan []ShortPrefixInfo)
-
-	go func() {
-		defer close(chanPrefixInfo)
-
-		for _, ip := range ips {
-			indexes := spl.SearchIp(ip)
-			if len(indexes) == 0 {
-				continue
-			}
-
-			var spi []ShortPrefixInfo
-			for _, index := range indexes {
-				spi = append(spi, spl.Prefixes[index])
-			}
-
-			chanPrefixInfo <- spi
-		}
-	}()
-
-	return chanPrefixInfo
-}
-
-// SearchIp поиск IP-адреса в списке префиксов
-func (spl *ShortPrefixList) SearchIp(ip netip.Addr) []int {
-	var indexes []int
-	left := 0
-	right := len(spl.Prefixes) - 1
-
-	spl.mutex.RLock()
-	defer spl.mutex.RUnlock()
-
-	for left <= right {
-		if spl.Prefixes[left].Prefix.Contains(ip) {
-			indexes = append(indexes, left)
-		}
-
-		if left != right && spl.Prefixes[right].Prefix.Contains(ip) {
-			indexes = append(indexes, right)
-		}
-
-		left++
-		right--
-	}
-
-	return indexes
-}
-*/

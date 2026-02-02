@@ -13,7 +13,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appstorage"
-	"github.com/av-belyakov/enricher_zabbix_information/internal/customerrors"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dnsresolver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
 	"github.com/av-belyakov/enricher_zabbix_information/test/helpers"
@@ -97,7 +96,7 @@ func TestDnsResolver(t *testing.T) {
 			}
 
 			if msg.Error != nil {
-				if err := as.SetError(msg.HostId, customerrors.NewErrorNoValidUrl(msg.OriginalHost, err)); err != nil {
+				if err := as.SetError(msg.HostId, msg.Error); err != nil {
 					logging.Send("error", wrappers.WrapperError(err).Error())
 				}
 

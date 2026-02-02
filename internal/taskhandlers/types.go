@@ -37,3 +37,15 @@ type ResponseTaskHandler struct {
 	Type string `json:"type"`
 	Data any    `json:"data"`
 }
+
+type SearchResponse struct {
+	SearchDetailedInformation DetailedInformation
+	SizeProcessedList         int
+}
+
+type DetailedInformation struct {
+	SensorId string
+	HostId   int
+	NetboxId int
+	IsActive bool
+}

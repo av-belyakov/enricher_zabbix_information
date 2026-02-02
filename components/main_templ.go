@@ -220,46 +220,4 @@ func TemplateMainElement(appStatus, appTimeLive string, appSharedStorage *appsto
 	})
 }
 
-/*
-	fmt.Printf(
-		"%vConnect to NetBox with address %v%s:%d%v\n",
-		constants.Ansi_Dark_Gray,
-		constants.Ansi_Bright_Magenta,
-		conf.GetNetBox().Host,
-		conf.GetNetBox().Port,
-		constants.Ansi_Reset,
-	)
-	fmt.Printf(
-		"%vConnect to Zabbix v%s with address %v%s:%d%v user '%v%s%v'%v\n",
-		constants.Ansi_Dark_Gray,
-		cmp.Or(zabbixVersion, "0.0.0"),
-		constants.Ansi_Bright_Magenta,
-		conf.GetZabbix().Host,
-		conf.GetZabbix().Port,
-		constants.Ansi_Dark_Gray,
-		constants.Ansi_Bright_Magenta,
-		conf.GetZabbix().User,
-		constants.Ansi_Dark_Gray,
-		constants.Ansi_Reset,
-	)
-	fmt.Printf(
-		"%vConnect to write log data base with address %v%s:%d%v user '%v%s%v'%v\n",
-		constants.Ansi_Dark_Gray,
-		constants.Ansi_Bright_Magenta,
-		conf.GetLogDB().Host,
-		conf.GetLogDB().Port,
-		constants.Ansi_Dark_Gray,
-		constants.Ansi_Bright_Magenta,
-		conf.GetLogDB().User,
-		constants.Ansi_Dark_Gray,
-		constants.Ansi_Reset,
-	)
-	fmt.Printf(
-		"%vTask completion schedule. %v%s\n",
-		constants.Ansi_Dark_Gray,
-		constants.Ansi_Reset,
-		getSchedule(conf.GetSchedule()),
-	)
-*/
-
 var _ = templruntime.GeneratedTemplate
