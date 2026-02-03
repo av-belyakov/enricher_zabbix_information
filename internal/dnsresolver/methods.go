@@ -28,7 +28,7 @@ func (s *Settings) Run(ctx context.Context, hosts []ShortInformationAboutHost) (
 				OriginalHost: v.GetOriginalHost(),
 			}
 
-			if !strings.Contains(v.GetOriginalHost(), "http://") {
+			if !strings.HasPrefix(v.GetOriginalHost(), "http") {
 				idns.OriginalHost = "http://" + v.GetOriginalHost()
 			}
 

@@ -23,12 +23,13 @@ func TestGetFullHostGroup(t *testing.T) {
 	var (
 		res           []byte
 		hostGroupList *connectionjsonrpc.ResponseHostGroupList
+		zabbixConn    *connectionjsonrpc.ZabbixConnectionJsonRPC
 
 		errMsg *connectionjsonrpc.ResponseError
 		err    error
 	)
 
-	os.Setenv("GO_ENRICHERZI_MAIN", "production")
+	os.Setenv("GO_ENRICHERZI_MAIN", "test")
 
 	if err := godotenv.Load("../../.env"); err != nil {
 		t.Fatal(err)
@@ -61,28 +62,38 @@ func TestGetFullHostGroup(t *testing.T) {
 
 	fmt.Printf("zabbix config user:'%s', passwd:'%s'\n", conf.GetZabbix().User, conf.GetAuthenticationData().ZabbixPasswd)
 
-	zabbixConn, err := connectionjsonrpc.NewConnect(
-		connectionjsonrpc.WithTLS(),
-		connectionjsonrpc.WithInsecureSkipVerify(),
-		connectionjsonrpc.WithHost(conf.GetZabbix().Host),
-		connectionjsonrpc.WithPort(conf.GetZabbix().Port),
-		connectionjsonrpc.WithLogin(conf.GetZabbix().User),
-		connectionjsonrpc.WithPasswd(conf.GetAuthenticationData().ZabbixPasswd),
-		connectionjsonrpc.WithConnectionTimeout(cmp.Or(conf.GetZabbix().Timeout, 10)),
-	)
+	if conf.GetZabbix().UseTLS {
+		zabbixConn, err = connectionjsonrpc.NewConnect(
+			connectionjsonrpc.WithTLS(),
+			connectionjsonrpc.WithInsecureSkipVerify(),
+			connectionjsonrpc.WithHost(conf.GetZabbix().Host),
+			connectionjsonrpc.WithPort(conf.GetZabbix().Port),
+			connectionjsonrpc.WithLogin(conf.GetZabbix().User),
+			connectionjsonrpc.WithPasswd(conf.GetAuthenticationData().ZabbixPasswd),
+			connectionjsonrpc.WithConnectionTimeout(cmp.Or(conf.GetZabbix().Timeout, 10)),
+		)
+	} else {
+		zabbixConn, err = connectionjsonrpc.NewConnect(
+			connectionjsonrpc.WithHost(conf.GetZabbix().Host),
+			connectionjsonrpc.WithPort(conf.GetZabbix().Port),
+			connectionjsonrpc.WithLogin(conf.GetZabbix().User),
+			connectionjsonrpc.WithPasswd(conf.GetAuthenticationData().ZabbixPasswd),
+			connectionjsonrpc.WithConnectionTimeout(cmp.Or(conf.GetZabbix().Timeout, 10)),
+		)
+	}
 	if err != nil {
 		t.Fatalf("error zabbix connection: %v", err)
 	}
 
-	t.Run("Тест 1. Авторизация и аутентификация в Zabbix", func(t *testing.T) {
-		assert.NoError(t, zabbixConn.AuthorizationStart(ctx))
-	})
+	if err := zabbixConn.AuthorizationStart(ctx); err != nil {
+		t.Fatalf("error zabbix aythorization: %v", err)
+	}
 
-	t.Run("Тест 2.1. Получаем полный список групп хостов Zabbix", func(t *testing.T) {
+	t.Run("Тест 1.1. Получаем полный список групп хостов Zabbix", func(t *testing.T) {
 		res, err = zabbixConn.GetFullHostGroupList(ctx)
 		assert.NoError(t, err)
 	})
-	t.Run("Тест 2.2. Преобразуем список групп хостов Zabbix из бинарного вида в JSON", func(t *testing.T) {
+	t.Run("Тест 1.2. Преобразуем список групп хостов Zabbix из бинарного вида в JSON", func(t *testing.T) {
 		hostGroupList, errMsg, err = connectionjsonrpc.NewResponseGetHostGroupList().Get(res)
 		assert.NoError(t, err)
 		assert.Equal(t, errMsg.Error.Code, 0)

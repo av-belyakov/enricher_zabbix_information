@@ -192,14 +192,30 @@ func (th *TaskHandler) start() error {
 	// количество хостов по которым осуществляется мониторинг
 	th.settings.storage.SetCountMonitoringHosts(len(hostList.Result))
 
-	// заполняем хранилище данными о хостах
+	// заполняем хранилище данными о хостах, доменное имя хоста берём из макроса
 	for _, host := range hostList.Result {
-		if hostId, err := strconv.Atoi(host.HostId); err == nil {
-			th.settings.storage.AddElement(appstorage.HostDetailedInformation{
-				HostId:       hostId,
-				OriginalHost: host.Host,
-			})
+		hostId, err := strconv.Atoi(host.HostId)
+		if err != nil {
+			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
 		}
+
+		var originalHost string
+		if len(host.Macros) == 0 {
+			originalHost = host.Host
+		} else {
+			for _, macros := range host.Macros {
+				if macros.Macro == "{$URL}" {
+					originalHost = macros.Value
+
+					break
+				}
+			}
+		}
+
+		th.settings.storage.AddElement(appstorage.HostDetailedInformation{
+			HostId:       hostId,
+			OriginalHost: originalHost,
+		})
 	}
 
 	// инициализируем поиск ip адресов через DNS resolver

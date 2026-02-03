@@ -169,14 +169,29 @@ func TestTaskHandler(t *testing.T) {
 			// устанавливаем дату начала выполнения задачи
 			storageTemp.SetStartDateExecution()
 
-			// заполняем хранилище данными о хостах
 			for _, host := range hostList.Result {
-				if hostId, err := strconv.Atoi(host.HostId); err == nil {
-					storageTemp.AddElement(appstorage.HostDetailedInformation{
-						HostId:       hostId,
-						OriginalHost: host.Host,
-					})
+				hostId, err := strconv.Atoi(host.HostId)
+				assert.NoError(t, err)
+
+				fmt.Println("Marcros list:", host.Macros)
+
+				var originalHost string
+				if len(host.Macros) == 0 {
+					originalHost = host.Host
+				} else {
+					for _, macros := range host.Macros {
+						if macros.Macro == "{$URL}" {
+							originalHost = macros.Value
+
+							break
+						}
+					}
 				}
+
+				storageTemp.AddElement(appstorage.HostDetailedInformation{
+					HostId:       hostId,
+					OriginalHost: originalHost,
+				})
 			}
 
 			// инициализируем поиск ip адресов через DNS resolver
@@ -187,10 +202,10 @@ func TestTaskHandler(t *testing.T) {
 			chInfo, err := dnsRes.Run(ctx, storageTemp.GetHosts())
 			assert.NoError(t, err)
 
-			//var num int
+			var num int
 			for msg := range chInfo {
-				//num++
-				//fmt.Printf("%d. Chun. Original host:'%s', ips:'%+v', error:'%v'\n", num, msg.OriginalHost, msg.Ips, msg.Error)
+				num++
+				fmt.Printf("%d. Chun. Original host:'%s', ips:'%+v', error:'%v'\n", num, msg.OriginalHost, msg.Ips, msg.Error)
 
 				err = storageTemp.SetDomainName(msg.HostId, msg.DomainName)
 				assert.NoError(t, err)
