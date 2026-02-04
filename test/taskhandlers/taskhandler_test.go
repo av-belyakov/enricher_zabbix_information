@@ -9,7 +9,6 @@ import (
 	"os/signal"
 	"runtime/pprof"
 	"strconv"
-	"strings"
 	"syscall"
 	"testing"
 
@@ -205,7 +204,7 @@ func TestTaskHandler(t *testing.T) {
 			var num int
 			for msg := range chInfo {
 				num++
-				fmt.Printf("%d. Chun. Original host:'%s', ips:'%+v', error:'%v'\n", num, msg.OriginalHost, msg.Ips, msg.Error)
+				//fmt.Printf("%d.\n\tOriginal host:'%s', parse host:'%s', ips:'%+v', error:'%v'\n", num, msg.OriginalHost, msg.DomainName, msg.Ips, msg.Error)
 
 				err = storageTemp.SetDomainName(msg.HostId, msg.DomainName)
 				assert.NoError(t, err)
@@ -228,13 +227,35 @@ func TestTaskHandler(t *testing.T) {
 			for responseHost := range taskhandlers.SearchIpToNetboxPrefixes(storageTemp.GetList(), chanPrefixInfo) {
 				countPrefixes++
 
-				err := storageTemp.SetIsActive(responseHost.SearchDetailedInformation.HostId)
-				assert.NoError(t, err)
-				err = storageTemp.SetSensorId(responseHost.SearchDetailedInformation.HostId, responseHost.SearchDetailedInformation.SensorId)
-				assert.NoError(t, err)
-				err = storageTemp.SetNetboxHostId(responseHost.SearchDetailedInformation.HostId, responseHost.SearchDetailedInformation.NetboxId)
-				assert.NoError(t, err)
+				if countPrefixes >= 20 && countPrefixes <= 70 {
+					fmt.Printf("response:'%+v'\n", responseHost)
+				}
+
+				if responseHost.SizeProcessedList > 0 {
+					storageTemp.SetCountNetboxPrefixesReceived(int(storageTemp.GetCountNetboxPrefixesReceived()) + responseHost.SizeProcessedList)
+				} else {
+					storageTemp.SetCountNetboxPrefixesMatches(int(storageTemp.GetCountNetboxPrefixesMatches()) + 1)
+
+					err := storageTemp.SetIsActive(responseHost.SearchDetailedInformation.HostId)
+					assert.NoError(t, err)
+					err = storageTemp.SetSensorId(responseHost.SearchDetailedInformation.HostId, responseHost.SearchDetailedInformation.SensorId)
+					assert.NoError(t, err)
+					err = storageTemp.SetNetboxHostId(responseHost.SearchDetailedInformation.HostId, responseHost.SearchDetailedInformation.NetboxId)
+					assert.NoError(t, err)
+				}
+
+				/*
+					err := storageTemp.SetIsActive(responseHost.SearchDetailedInformation.HostId)
+					assert.NoError(t, err)
+					err = storageTemp.SetSensorId(responseHost.SearchDetailedInformation.HostId, responseHost.SearchDetailedInformation.SensorId)
+					assert.NoError(t, err)
+					err = storageTemp.SetNetboxHostId(responseHost.SearchDetailedInformation.HostId, responseHost.SearchDetailedInformation.NetboxId)
+					assert.NoError(t, err)
+					err = storageTemp.SetIsProcessed(responseHost.SearchDetailedInformation.HostId)
+					assert.NoError(t, err)
+				*/
 			}
+
 			storageTemp.SetCountNetboxPrefixesReceived(int(storageTemp.GetCountNetboxPrefixesReceived()) + countPrefixes)
 
 			listHostWithSensorId := storageTemp.GetHostsWithSensorId()
@@ -294,39 +315,46 @@ func TestTaskHandler(t *testing.T) {
 	})
 
 	t.Run("Тест 3. Добавляем или обновляем теги в тестовом Zabbix", func(t *testing.T) {
-		listHostWithSensorId := storageTemp.GetHostsWithSensorId()
-		assert.Greater(t, len(listHostWithSensorId), 0)
+		//listHostWithSensorId := storageTemp.GetHostsWithSensorId()
+		listDetailedInformation := storageTemp.GetList()
+		assert.Greater(t, len(listDetailedInformation), 0)
 
 		var num int
 		fmt.Println("Insert tags to Zabbix. Print first 10 items.")
-		for _, v := range listHostWithSensorId {
-			if num <= 10 {
-				hostId := fmt.Sprint(v.HostId)
-				fmt.Println("___ fmt.Sprint(v.HostId):", hostId)
-			}
-
+		for _, v := range listDetailedInformation {
+			//if num <= 10 {
+			//	hostId := fmt.Sprint(v.HostId)
+			//	fmt.Println("___ fmt.Sprint(v.HostId):", hostId)
+			//}
 			num++
+			tags := connectionjsonrpc.Tags{Tag: []connectionjsonrpc.Tag{{Tag: "HomeNet", Value: "yes"}}}
 
-			//!!! Раскомментировать для изменения тегов в тестовом Zabbix !!!
-			//-------------
-			var sensorsId string
-			if len(v.SensorsId) == 0 {
+			if len(v.NetboxHostsId) == 0 {
+				tags.Tag[0].Value = "no"
+
+				_, err := testZabbixConn.UpdateHostParameterTags(ctx, fmt.Sprint(v.HostId), tags)
+				assert.NoError(t, err)
+
 				continue
-			} else if len(v.SensorsId) == 1 {
-				sensorsId = v.SensorsId[0]
-			} else {
-				sensorsId = strings.Join(v.SensorsId, ",")
 			}
 
-			_, err := testZabbixConn.UpdateHostParameterTags(
-				ctx,
-				fmt.Sprint(v.HostId),
-				connectionjsonrpc.Tags{
-					Tag: []connectionjsonrpc.Tag{
-						{Tag: "СОА-ТЕСТ", Value: sensorsId},
-					},
-				},
-			)
+			// проверяем наличие списка id сенсоров
+			if sensorsId := supportingfunctions.CreateStringWithComma(v.GetSensorsId()); sensorsId != "" {
+				tags.Tag = append(tags.Tag, connectionjsonrpc.Tag{
+					Tag:   "COA-T",
+					Value: sensorsId,
+				})
+			}
+
+			// проверяем наличие списка ips хостов
+			if ips := supportingfunctions.CreateStringWithCommaFromIps(v.GetIps()); ips != "" {
+				tags.Tag = append(tags.Tag, connectionjsonrpc.Tag{
+					Tag:   "IP",
+					Value: ips,
+				})
+			}
+
+			_, err := testZabbixConn.UpdateHostParameterTags(ctx, fmt.Sprint(v.HostId), tags)
 			assert.NoError(t, err)
 
 			//fmt.Printf("Response UpdateHostParameterTags: '%s'\n", string(b))

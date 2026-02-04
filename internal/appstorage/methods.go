@@ -238,6 +238,10 @@ func (as *SharedAppStorage) SetSensorId(hostId int, sensorsId ...string) error {
 	defer as.statistics.mutex.Unlock()
 
 	for _, sensorId := range sensorsId {
+		if sensorId == "" {
+			continue
+		}
+
 		if !slices.Contains(elem.SensorsId, sensorId) {
 			elem.SensorsId = append(elem.SensorsId, sensorId)
 		}
@@ -276,6 +280,10 @@ func (as *SharedAppStorage) SetNetboxHostId(hostId int, netboxHostsId ...int) er
 	defer as.statistics.mutex.Unlock()
 
 	for _, netboxHostId := range netboxHostsId {
+		if netboxHostId == 0 {
+			continue
+		}
+
 		if !slices.Contains(elem.NetboxHostsId, netboxHostId) {
 			elem.NetboxHostsId = append(elem.NetboxHostsId, netboxHostId)
 		}
@@ -346,14 +354,14 @@ func (as *SharedAppStorage) GetCountNetboxPrefixesReceived() int32 {
 	return as.statistics.countNetboxPrefixesReceived.Load()
 }
 
-// SetCountNetboxPrefixesProcessed количество обработанных префиксов полученных от Netbox
-func (as *SharedAppStorage) SetCountNetboxPrefixesProcessed(v int) {
-	as.statistics.countNetboxPrefixesProcessed.Store(int32(v))
+// SetCountNetboxPrefixesMatches количество префиксов Netbox с совпадениями ip адресов
+func (as *SharedAppStorage) SetCountNetboxPrefixesMatches(v int) {
+	as.statistics.countNetboxPrefixesMatches.Store(int32(v))
 }
 
-// GetCountNetboxPrefixesProcessed количество обработанных префиксов полученных от Netbox
-func (as *SharedAppStorage) GetCountNetboxPrefixesProcessed() int32 {
-	return as.statistics.countNetboxPrefixesProcessed.Load()
+// GetCountNetboxPrefixesMatches количество префиксов Netbox с совпадениями ip адресов
+func (as *SharedAppStorage) GetCountNetboxPrefixesMatches() int32 {
+	return as.statistics.countNetboxPrefixesMatches.Load()
 }
 
 // SetCountUpdatedZabbixHosts количество обновленных хостов в Zabbix

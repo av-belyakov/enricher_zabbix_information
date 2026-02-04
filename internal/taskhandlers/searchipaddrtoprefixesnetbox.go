@@ -23,8 +23,8 @@ func SearchIpToNetboxPrefixes(hosts []appstorage.HostDetailedInformation, chanIn
 
 			wg.Go(func() {
 				for _, host := range hosts {
-					for msg := range v.SearchIps(host.Ips) {
-						for _, item := range msg {
+					for foundInfo := range v.SearchIps(host.Ips) {
+						for _, item := range foundInfo {
 							chanOutput <- SearchResponse{
 								SearchDetailedInformation: DetailedInformation{
 									HostId:   host.HostId,

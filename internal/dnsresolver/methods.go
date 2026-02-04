@@ -9,6 +9,7 @@ import (
 
 	"github.com/av-belyakov/enricher_zabbix_information/internal/customerrors"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
+	"golang.org/x/net/idna"
 )
 
 // Run запуск преобразования списка доменных имён в ip адреса
@@ -29,10 +30,11 @@ func (s *Settings) Run(ctx context.Context, hosts []ShortInformationAboutHost) (
 			}
 
 			if !strings.HasPrefix(v.GetOriginalHost(), "http") {
+				idns.Error = customerrors.NewErrorNoValidUrl(idns.OriginalHost, "the http prefix is missing")
 				idns.OriginalHost = "http://" + v.GetOriginalHost()
 			}
 
-			urlHost, err := url.Parse(idns.OriginalHost)
+			urlHost, err := url.ParseRequestURI(idns.OriginalHost)
 			if err != nil {
 				idns.Error = customerrors.NewErrorNoValidUrl(idns.OriginalHost, err.Error())
 				chSendData <- idns
@@ -40,10 +42,18 @@ func (s *Settings) Run(ctx context.Context, hosts []ShortInformationAboutHost) (
 				continue
 			}
 
-			idns.DomainName = urlHost.Host
+			asciiDomain, err := idna.ToASCII(urlHost.Hostname())
+			if err != nil {
+				idns.Error = customerrors.NewErrorNoValidUrl(idns.OriginalHost, err.Error())
+				chSendData <- idns
+
+				continue
+			}
+
+			idns.DomainName = asciiDomain
 
 			// DNS resolve
-			ips, err := s.resolver.LookupHost(ctx, urlHost.Host)
+			ips, err := s.resolver.LookupHost(ctx, idns.DomainName)
 			if err != nil {
 				idns.Error = customerrors.NewErrorUrlNotFound(idns.OriginalHost, err.Error())
 				chSendData <- idns

@@ -18,19 +18,19 @@ type Options func(*SharedAppStorage) error
 
 // Statistics статистическая информация приложения
 type StatisticsApp struct {
-	mutex                        sync.RWMutex
-	data                         []HostDetailedInformation
-	startDateExecution           time.Time
-	endDateExecution             time.Time
-	countZabbixHostsGroup        atomic.Int32 // количество групп хостов в Zabbix
-	countZabbixHosts             atomic.Int32 // общее количество хостов в Zabbix
-	countMonitoringHostsGroup    atomic.Int32 // количество групп хостов по которым осуществляется мониторинг
-	countMonitoringHosts         atomic.Int32 // количество хостов по которым осуществляется мониторинг
-	countNetboxPrefixes          atomic.Int32 // количество найденных префиксов в Netbox
-	countNetboxPrefixesReceived  atomic.Int32 // количество полученных из Netbox префиксов
-	countNetboxPrefixesProcessed atomic.Int32 // количество обработанных префиксов полученных от Netbox
-	countUpdatedZabbixHosts      atomic.Int32 // количество обновленных хостов в Zabbix
-	isExecution                  atomic.Bool
+	mutex                       sync.RWMutex
+	data                        []HostDetailedInformation
+	startDateExecution          time.Time
+	endDateExecution            time.Time
+	countZabbixHostsGroup       atomic.Int32 // количество групп хостов в Zabbix
+	countZabbixHosts            atomic.Int32 // общее количество хостов в Zabbix
+	countMonitoringHostsGroup   atomic.Int32 // количество групп хостов по которым осуществляется мониторинг
+	countMonitoringHosts        atomic.Int32 // количество хостов по которым осуществляется мониторинг
+	countNetboxPrefixes         atomic.Int32 // количество найденных префиксов в Netbox
+	countNetboxPrefixesReceived atomic.Int32 // количество полученных из Netbox префиксов
+	countNetboxPrefixesMatches  atomic.Int32 // количество префиксов Netbox с совпадениями ip адресов
+	countUpdatedZabbixHosts     atomic.Int32 // количество обновленных хостов в Zabbix
+	isExecution                 atomic.Bool
 }
 
 // HostDetailedInformation детальная информация о хосте

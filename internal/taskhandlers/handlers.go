@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/av-belyakov/zabbixapicommunicator/v2/cmd/connectionjsonrpc"
 
@@ -183,7 +182,7 @@ func (th *TaskHandler) start() error {
 		return err
 	}
 
-	// преобразуем список хостов Zabbix из бинарного вида в JSON
+	// преобразуем список хостов Zabbix из бинарного вида в соответствующую структуру
 	hostList, errMsg, err := connectionjsonrpc.NewResponseGetHostList().Get(res)
 	if err != nil {
 		return err
@@ -193,6 +192,7 @@ func (th *TaskHandler) start() error {
 	th.settings.storage.SetCountMonitoringHosts(len(hostList.Result))
 
 	// заполняем хранилище данными о хостах, доменное имя хоста берём из макроса
+	// если в макросе нет доменного имени, берём его из имени хоста (но это не желательно)
 	for _, host := range hostList.Result {
 		hostId, err := strconv.Atoi(host.HostId)
 		if err != nil {
@@ -228,7 +228,7 @@ func (th *TaskHandler) start() error {
 	if err != nil {
 		return err
 	}
-	// обрабатываем результат поиска через DNS resolver
+	// обрабатываем результат поиска
 	for msg := range chInfo {
 		if msg.Error != nil {
 			// логируем ошибки при выполнении DNS преобразования доменных имён в ip адреса
@@ -283,7 +283,7 @@ func (th *TaskHandler) start() error {
 		if responseHost.SizeProcessedList > 0 {
 			th.settings.storage.SetCountNetboxPrefixesReceived(int(th.settings.storage.GetCountNetboxPrefixesReceived()) + responseHost.SizeProcessedList)
 		} else {
-			th.settings.storage.SetCountNetboxPrefixesProcessed(int(th.settings.storage.GetCountNetboxPrefixesProcessed()) + 1)
+			th.settings.storage.SetCountNetboxPrefixesMatches(int(th.settings.storage.GetCountNetboxPrefixesMatches()) + 1)
 
 			if err := th.settings.storage.SetIsActive(responseHost.SearchDetailedInformation.HostId); err != nil {
 				th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
@@ -310,25 +310,33 @@ func (th *TaskHandler) start() error {
 
 	var num int
 	// добавляем или обновляем теги в Zabbix
-	for _, v := range th.settings.storage.GetHostsWithSensorId() {
-		var sensorsId string
-		if len(v.SensorsId) == 0 {
-			continue
-		} else if len(v.SensorsId) == 1 {
-			sensorsId = v.SensorsId[0]
+	for _, v := range th.settings.storage.GetList() {
+		num++
+
+		tags := connectionjsonrpc.Tags{Tag: []connectionjsonrpc.Tag{{Tag: "HomeNet", Value: "yes"}}}
+
+		if len(v.NetboxHostsId) == 0 {
+			tags.Tag[0].Value = "no"
 		} else {
-			sensorsId = strings.Join(v.SensorsId, ",")
+			// проверяем наличие списка id сенсоров
+			if sensorsId := supportingfunctions.CreateStringWithComma(v.GetSensorsId()); sensorsId != "" {
+				tags.Tag = append(tags.Tag, connectionjsonrpc.Tag{
+					Tag:   "COA",
+					Value: sensorsId,
+				})
+			}
+
+			// проверяем наличие списка ips хостов
+			if ips := supportingfunctions.CreateStringWithCommaFromIps(v.GetIps()); ips != "" {
+				tags.Tag = append(tags.Tag, connectionjsonrpc.Tag{
+					Tag:   "IP",
+					Value: ips,
+				})
+			}
 		}
 
-		if _, err := th.settings.zabbixConn.UpdateHostParameterTags(
-			th.ctx,
-			fmt.Sprint(v.HostId),
-			connectionjsonrpc.Tags{
-				Tag: []connectionjsonrpc.Tag{
-					{Tag: "СОА", Value: sensorsId},
-				},
-			},
-		); err != nil {
+		_, err := th.settings.zabbixConn.UpdateHostParameterTags(th.ctx, fmt.Sprint(v.HostId), tags)
+		if err != nil {
 			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
 
 			continue
@@ -337,8 +345,6 @@ func (th *TaskHandler) start() error {
 		if err := th.settings.storage.SetIsProcessed(v.HostId); err != nil {
 			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
 		}
-
-		num++
 	}
 
 	// количество обновленных хостов в Zabbix
