@@ -18,7 +18,6 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/internal/apiserver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appstorage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appversion"
-	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
 	"github.com/av-belyakov/enricher_zabbix_information/test/helpers"
 )
 
@@ -224,7 +223,7 @@ func TestApiServer(t *testing.T) {
 					Data any    `json:"data,omitempty"`
 				}{
 					Type: "ask_manually_task",
-					Data: supportingfunctions.CreateTaskStatistics(appStorage),
+					Data: apiserver.CreateTaskStatistics(appStorage),
 				})
 				assert.NoError(t, err)
 
