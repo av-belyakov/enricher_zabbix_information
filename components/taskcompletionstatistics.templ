@@ -1,8 +1,6 @@
 package components
 
 import (
-	"strings"
-
 	"github.com/av-belyakov/enricher_zabbix_information/datamodels"
 )
 
@@ -21,22 +19,56 @@ templ TemplateTaskCompletionStatistics(ttcs datamodels.TemplTaskCompletionsStati
 		<div>Получено из Netbox префиксов: {ttcs.CountNetboxPrefixesReceived}</div>
 		<div>Префиксы в которых найдено совпадение: {ttcs.CountNetboxPrefixesMatches}</div>
 		<div>Обновленные хосты в Zabbix: {ttcs.CountUpdatedZabbixHosts}</div>
-		<div>Хосты обработанные с ошибкой: {ttcs.CountHostsError}</div>
-		<div style="margin-bottom: 10px;">Список доменных имён хостов, при обработки которых возникли ошибки:</div>
-        <div style="padding-left: 20px; margin: 10px 0px 10px 0px;">
-			<ol>
-				for _, v := range ttcs.Hosts {
-					<li><b>{v.Name}</b>, <span style="color:#f44336;">error</span>: {v.Error}</li>
-				}
-			</ol>
-		</div>
-		<div>Список хостов успешно обновлённых в Zabbix:</div>
-		<div style="padding-left: 20px; margin: 10px 0px 10px 0px;">
-			<ol>
-				for _, v := range ttcs.ProcessedHosts {
-					<li><b>{v.HostId}</b> {v.OriginalHost} sensors id:{strings.Join(v.SensorsId, ",")}</li>
-				}
-			</ol>				
-		</div>
+		if len(ttcs.Hosts) > 0 {
+			<div>Хосты обработанные с ошибкой: {ttcs.CountHostsError}</div>
+			<div style="margin-bottom: 10px;">Список доменных имён хостов, при обработки которых возникли ошибки:</div>
+        	<div style="padding-left: 20px; margin: 10px 0px 10px 0px;">
+				<table class="table">
+					<thead>
+						<tr>
+							<th scope="col">№</th>
+							<th scope="col">Имя</th>
+							<th scope="col">Описание ошибки</th>
+						</tr>
+					</thead>
+					<tbody>
+					for k, v := range ttcs.Hosts {
+						<tr>
+							<td>{k+1}</td>
+							<th scope="col">{v.Name}</th>
+							<td>{v.Error}</td>
+						</tr>
+					}
+					</tbody>
+				</table>
+			</div>
+		}
+		if len(ttcs.ProcessedHosts) > 0 {
+			<div>Список хостов успешно обновлённых в Zabbix:</div>
+			<div style="padding-left: 20px; margin: 10px 0px 10px 0px;">
+				<table class="table">
+					<thead>
+						<tr>
+							<th scope="col">№</th>
+							<th scope="col">Хост id</th>
+							<th scope="col">Оригинальное имя</th>
+							<th scope="col">Id сенсоров</th>
+							<th scope="col">IP адреса</th>
+						</tr>
+					</thead>
+					<tbody>
+					for k, v := range ttcs.ProcessedHosts {
+						<tr>
+							<td>{k+1}</td>
+							<th scope="col">{v.HostId}</th>
+							<td>{v.OriginalHost}</td>
+							<td>{v.SensorsId}</td>
+							<td>{v.Ips}</td>
+						</tr>
+					}
+					</tbody>
+				</table>
+			</div>
+		}
     </div>
 }

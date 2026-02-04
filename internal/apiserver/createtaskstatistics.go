@@ -1,8 +1,9 @@
-package supportingfunctions
+package apiserver
 
 import (
 	"github.com/av-belyakov/enricher_zabbix_information/datamodels"
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
 )
 
 const Zero_Pattern = "00:00:00 0001-01-01"
@@ -28,9 +29,10 @@ func CreateTaskStatistics(storage interfaces.StorageInformation) datamodels.Temp
 	}{}
 
 	listProcessedHosts := []struct {
-		SensorsId    []string `json:"sensor_id"`     // id обслуживающего сенсора
-		OriginalHost string   `json:"original_host"` // исходное наименование хоста
-		HostId       int      `json:"host_id"`       // id хоста
+		SensorsId    string `json:"sensors_id"`    // список id обслуживающих сенсоров
+		OriginalHost string `json:"original_host"` // исходное наименование хоста
+		HostId       int    `json:"host_id"`       // id хоста
+		Ips          string `json:"ips"`           // список ip адресов
 	}{}
 
 	hosts := storage.GetList()
@@ -40,11 +42,13 @@ func CreateTaskStatistics(storage interfaces.StorageInformation) datamodels.Temp
 			countFoundIpToPrefix++
 
 			listProcessedHosts = append(listProcessedHosts, struct {
-				SensorsId    []string `json:"sensor_id"`
-				OriginalHost string   `json:"original_host"`
-				HostId       int      `json:"host_id"`
+				SensorsId    string `json:"sensors_id"`
+				OriginalHost string `json:"original_host"`
+				HostId       int    `json:"host_id"`
+				Ips          string `json:"ips"`
 			}{
-				SensorsId:    v.SensorsId,
+				Ips:          supportingfunctions.CreateStringWithCommaFromIps(v.Ips),
+				SensorsId:    supportingfunctions.CreateStringWithComma(v.SensorsId),
 				OriginalHost: v.OriginalHost,
 				HostId:       v.HostId,
 			})

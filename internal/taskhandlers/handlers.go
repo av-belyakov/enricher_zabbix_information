@@ -252,7 +252,7 @@ func (th *TaskHandler) start() error {
 		// формируем сообщение для веб-интерфейса
 		b, err := json.Marshal(ResponseTaskHandler{
 			Type: "ask_manually_task",
-			Data: supportingfunctions.CreateTaskStatistics(th.settings.storage),
+			Data: apiserver.CreateTaskStatistics(th.settings.storage),
 		})
 		if err != nil {
 			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
@@ -299,7 +299,7 @@ func (th *TaskHandler) start() error {
 		// для вывода актуальной информации на веб-странице
 		if b, err := json.Marshal(ResponseTaskHandler{
 			Type: "ask_manually_task",
-			Data: supportingfunctions.CreateTaskStatistics(th.settings.storage),
+			Data: apiserver.CreateTaskStatistics(th.settings.storage),
 		}); err == nil {
 			th.chanSignal <- ChanSignalSettings{
 				ForWhom: "web",
@@ -354,7 +354,7 @@ func (th *TaskHandler) start() error {
 
 	b, err := json.Marshal(ResponseTaskHandler{
 		Type: "ask_manually_task",
-		Data: supportingfunctions.CreateTaskStatistics(th.settings.storage),
+		Data: apiserver.CreateTaskStatistics(th.settings.storage),
 	})
 	if err != nil {
 		return err

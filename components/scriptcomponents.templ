@@ -99,16 +99,26 @@ script BaseComponentScripts(){
 		            <div>Хосты обработанные с ошибкой: ${jsonObj.data.count_hosts_error}</div>
                     <div>Список доменных имён при обработки которых возникли ошибки:</div>
                     <div style="padding-left: 20px; margin: 10px 0;">
-                        <ol id="listDomainName"></ol>
+                        <table class="table">
+				            <thead>
+					            <tr>
+						            <th scope="col">№</th>
+						            <th scope="col">Имя</th>
+						            <th scope="col">Описание ошибки</th>
+					            </tr>
+				            </thead>
+				            <tbody id="table_body"></tbody>
+                        </table>
                     </div>
                 </div>
             `
-
-            let listDomainName = document.getElementById("listDomainName");     
-            jsonObj.data.hosts.forEach(host => {
-                let elemLi = document.createElement("li");
-                elemLi.innerHTML = `<b>${host.name}</b>, error: ${host.error}`; 
-                listDomainName.appendChild(elemLi);
+            let tableBody = document.getElementById("table_body");
+            jsonObj.data.hosts.forEach((host, index) => {
+                let elemTr = document.createElement("tr");
+                elemTr.innerHTML = `<td>${index+1}</td>
+                                    <th scope="col">${host.name}</th>
+                                    <td>${host.error}</td>`; 
+                tableBody.appendChild(elemTr);
             });
         }
     }
