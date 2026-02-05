@@ -1,17 +1,20 @@
 package components
 
-import "github.com/av-belyakov/enricher_zabbix_information/internal/memorystatistics"
+import (
+    "github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
+    "github.com/av-belyakov/enricher_zabbix_information/internal/memorystatistics"
+)
 
 templ TemplateMemoryStats(memStats memorystatistics.MemoryStatsCache){
     <div>
         <p>Статистика расходования памяти:</p>
-        <div>Allocated Memory: {memStats.Alloc.Current} bytes {memStats.Alloc.PointerUpOrDown}</div>
-        <div>Total Allocated Memory: {memStats.TotalAlloc.Current} bytes {memStats.TotalAlloc.PointerUpOrDown}</div>
-        <div>Heap Alloc Memory: {memStats.HeapAlloc.Current} bytes {memStats.HeapAlloc.PointerUpOrDown}</div>
-        <div>Heap System Memory: {memStats.HeapSys.Current} bytes {memStats.HeapSys.PointerUpOrDown}</div>
-        <div>The number of allocated heap objects: {memStats.HeapObjects.Current} bytes {memStats.HeapObjects.PointerUpOrDown}</div>
-        <div>The number of live objects: {memStats.NumberLiveObjects.Current} bytes {memStats.NumberLiveObjects.PointerUpOrDown}</div>
-        <div>Count memory that could be returned to the OS: {memStats.CountMemoryReturned.Current} bytes {memStats.CountMemoryReturned.PointerUpOrDown}</div>
-        <div>Garbage Collector Memory: {memStats.GarbagecollectorMemory.Current} bytes {memStats.GarbagecollectorMemory.PointerUpOrDown}</div>
+        <div>Allocated Memory: {supportingfunctions.ByteCountSI(int64(memStats.Alloc.Current))} {memStats.Alloc.PointerUpOrDown}</div>
+        <div>Total Allocated Memory: {supportingfunctions.ByteCountSI(int64(memStats.TotalAlloc.Current))} {memStats.TotalAlloc.PointerUpOrDown}</div>
+        <div>Heap Alloc Memory: {supportingfunctions.ByteCountSI(int64(memStats.HeapAlloc.Current))} {memStats.HeapAlloc.PointerUpOrDown}</div>
+        <div>Heap System Memory: {supportingfunctions.ByteCountSI(int64(memStats.HeapSys.Current))} {memStats.HeapSys.PointerUpOrDown}</div>
+        <div>The number of allocated heap objects: {supportingfunctions.ByteCountSI(int64(memStats.HeapObjects.Current))} {memStats.HeapObjects.PointerUpOrDown}</div>
+        <div>The number of live objects: {supportingfunctions.ByteCountSI(int64(memStats.NumberLiveObjects.Current))} {memStats.NumberLiveObjects.PointerUpOrDown}</div>
+        <div>Count memory that could be returned to the OS: {supportingfunctions.ByteCountSI(int64(memStats.CountMemoryReturned.Current))} {memStats.CountMemoryReturned.PointerUpOrDown}</div>
+        <div>Garbage Collector Memory: {supportingfunctions.ByteCountSI(int64(memStats.GarbagecollectorMemory.Current))} {memStats.GarbagecollectorMemory.PointerUpOrDown}</div>
     </div>
 }
