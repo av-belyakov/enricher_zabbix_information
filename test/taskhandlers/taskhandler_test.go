@@ -260,33 +260,33 @@ func TestTaskHandler(t *testing.T) {
 
 			listHostWithSensorId := storageTemp.GetHostsWithSensorId()
 			assert.Greater(t, len(listHostWithSensorId), 0)
-
-			fmt.Println("Hosts with sensor id:")
-			for k, v := range listHostWithSensorId {
-				fmt.Printf(
-					"%d. domain name:'%s', host id:%d, ips:'%v', sensors id:'%s', netbox hosts id:'%v', IsProcessed:'%t', error:'%v'\n",
-					k+1,
-					v.DomainName,
-					v.HostId,
-					v.Ips,
-					v.SensorsId,
-					v.NetboxHostsId,
-					v.IsProcessed,
-					v.Error,
-				)
-			}
 			/*
-				for prefixInfo := range chanPrefixInfo {
-					shortPrefixList = append(shortPrefixList, prefixInfo...)
-
-					fmt.Printf("BEFORE storageTemp.GetCountNetboxPrefixesReceived()='%d', len(prefixInfo)='%d'\n", storageTemp.GetCountNetboxPrefixesReceived(), len(prefixInfo))
-
-					storageTemp.SetCountNetboxPrefixesReceived(int(storageTemp.GetCountNetboxPrefixesReceived()) + len(prefixInfo))
-
-					fmt.Printf("AFTER storageTemp.GetCountNetboxPrefixesReceived()='%d'\n", storageTemp.GetCountNetboxPrefixesReceived())
-
-					//отправка в apiserver
+				fmt.Println("Hosts with sensor id:")
+				for k, v := range listHostWithSensorId {
+					fmt.Printf(
+						"%d. domain name:'%s', host id:%d, ips:'%v', sensors id:'%s', netbox hosts id:'%v', IsProcessed:'%t', error:'%v'\n",
+						k+1,
+						v.DomainName,
+						v.HostId,
+						v.Ips,
+						v.SensorsId,
+						v.NetboxHostsId,
+						v.IsProcessed,
+						v.Error,
+					)
 				}
+				/*
+					for prefixInfo := range chanPrefixInfo {
+						shortPrefixList = append(shortPrefixList, prefixInfo...)
+
+						fmt.Printf("BEFORE storageTemp.GetCountNetboxPrefixesReceived()='%d', len(prefixInfo)='%d'\n", storageTemp.GetCountNetboxPrefixesReceived(), len(prefixInfo))
+
+						storageTemp.SetCountNetboxPrefixesReceived(int(storageTemp.GetCountNetboxPrefixesReceived()) + len(prefixInfo))
+
+						fmt.Printf("AFTER storageTemp.GetCountNetboxPrefixesReceived()='%d'\n", storageTemp.GetCountNetboxPrefixesReceived())
+
+						//отправка в apiserver
+					}
 			*/
 		})
 		/*t.Run("Тест 2.8. Выполняем поиск ip адресов в префиксах полученных от Netbox", func(t *testing.T) {

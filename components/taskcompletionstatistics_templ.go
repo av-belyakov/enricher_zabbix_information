@@ -207,7 +207,7 @@ func TemplateTaskCompletionStatistics(ttcs datamodels.TemplTaskCompletionsStatis
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div style=\"margin-bottom: 10px;\">Список доменных имён хостов, при обработки которых возникли ошибки:</div><div style=\"padding-left: 20px; margin: 10px 0px 10px 0px;\"><table class=\"table\"><thead><tr><th scope=\"col\">№</th><th scope=\"col\">Имя</th><th scope=\"col\">Описание ошибки</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div><div style=\"margin-bottom: 10px;\">Список доменных имён хостов, при обработки которых возникли ошибки:</div><div style=\"padding-left: 20px; margin: 10px 0px 10px 0px;\"><table class=\"table\"><thead><tr><th scope=\"col\">№</th><th scope=\"col\">Доменное имя</th><th scope=\"col\">Описание ошибки</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -262,7 +262,7 @@ func TemplateTaskCompletionStatistics(ttcs datamodels.TemplTaskCompletionsStatis
 			}
 		}
 		if len(ttcs.ProcessedHosts) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div>Список хостов успешно обновлённых в Zabbix:</div><div style=\"padding-left: 20px; margin: 10px 0px 10px 0px;\"><table class=\"table\"><thead><tr><th scope=\"col\">№</th><th scope=\"col\">Хост id</th><th scope=\"col\">Оригинальное имя</th><th scope=\"col\">Id сенсоров</th><th scope=\"col\">IP адреса</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div>Список хостов успешно обновлённых в Zabbix:</div><div style=\"padding-left: 20px; margin: 10px 0px 10px 0px;\"><table class=\"table\"><thead><tr><th scope=\"col\">№</th><th scope=\"col\">Хост ID</th><th scope=\"col\">Оригинальное доменное имя</th><th scope=\"col\">ID сенсоров</th><th scope=\"col\">IP адреса</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -293,14 +293,14 @@ func TemplateTaskCompletionStatistics(ttcs datamodels.TemplTaskCompletionsStatis
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</th><td>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</th><td scope=\"col\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var20 string
 				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(v.OriginalHost)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/taskcompletionstatistics.templ`, Line: 64, Col: 26}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/taskcompletionstatistics.templ`, Line: 64, Col: 38}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 				if templ_7745c5c3_Err != nil {

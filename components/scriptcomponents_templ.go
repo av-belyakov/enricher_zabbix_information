@@ -10,8 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 func BaseComponentScripts() templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_BaseComponentScripts_f949`,
-		Function: `function __templ_BaseComponentScripts_f949(){const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+		Name: `__templ_BaseComponentScripts_0f5b`,
+		Function: `function __templ_BaseComponentScripts_0f5b(){const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = ` + "`" + `${wsProtocol}//${window.location.host}/ws` + "`" + `;
     let arrLogs = [];
     let socket = new WebSocket(wsUrl);
@@ -113,7 +113,7 @@ func BaseComponentScripts() templ.ComponentScript {
 				            <thead>
 					            <tr>
 						            <th scope="col">№</th>
-						            <th scope="col">Имя</th>
+						            <th scope="col">Доменное имя</th>
 						            <th scope="col">Описание ошибки</th>
 					            </tr>
 				            </thead>
@@ -268,8 +268,8 @@ func BaseComponentScripts() templ.ComponentScript {
     //обработчик на кнопку отправляющую токен на сервер
     setHandlerForButtonSendToken();
 }`,
-		Call:       templ.SafeScript(`__templ_BaseComponentScripts_f949`),
-		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_f949`),
+		Call:       templ.SafeScript(`__templ_BaseComponentScripts_0f5b`),
+		CallInline: templ.SafeScriptInline(`__templ_BaseComponentScripts_0f5b`),
 	}
 }
 
