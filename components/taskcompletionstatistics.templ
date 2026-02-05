@@ -27,7 +27,7 @@ templ TemplateTaskCompletionStatistics(ttcs datamodels.TemplTaskCompletionsStati
 					<thead>
 						<tr>
 							<th scope="col">№</th>
-							<th scope="col">Имя</th>
+							<th scope="col">Доменное имя</th>
 							<th scope="col">Описание ошибки</th>
 						</tr>
 					</thead>
@@ -50,9 +50,9 @@ templ TemplateTaskCompletionStatistics(ttcs datamodels.TemplTaskCompletionsStati
 					<thead>
 						<tr>
 							<th scope="col">№</th>
-							<th scope="col">Хост id</th>
-							<th scope="col">Оригинальное имя</th>
-							<th scope="col">Id сенсоров</th>
+							<th scope="col">Хост ID</th>
+							<th scope="col">Оригинальное доменное имя</th>
+							<th scope="col">ID сенсоров</th>
 							<th scope="col">IP адреса</th>
 						</tr>
 					</thead>
@@ -61,7 +61,7 @@ templ TemplateTaskCompletionStatistics(ttcs datamodels.TemplTaskCompletionsStati
 						<tr>
 							<td>{k+1}</td>
 							<th scope="col">{v.HostId}</th>
-							<td>{v.OriginalHost}</td>
+							<td scope="col">{v.OriginalHost}</td>
 							<td>{v.SensorsId}</td>
 							<td>{v.Ips}</td>
 						</tr>
