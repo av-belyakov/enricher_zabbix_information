@@ -329,6 +329,14 @@ func TestTaskHandler(t *testing.T) {
 			num++
 			tags := connectionjsonrpc.Tags{Tag: []connectionjsonrpc.Tag{{Tag: "HomeNet", Value: "yes"}}}
 
+			// проверяем наличие списка ips хостов
+			if ips := supportingfunctions.CreateStringWithCommaFromIps(v.GetIps()); ips != "" {
+				tags.Tag = append(tags.Tag, connectionjsonrpc.Tag{
+					Tag:   "IP",
+					Value: ips,
+				})
+			}
+
 			if len(v.NetboxHostsId) == 0 {
 				tags.Tag[0].Value = "no"
 
@@ -343,14 +351,6 @@ func TestTaskHandler(t *testing.T) {
 				tags.Tag = append(tags.Tag, connectionjsonrpc.Tag{
 					Tag:   "COA-T",
 					Value: sensorsId,
-				})
-			}
-
-			// проверяем наличие списка ips хостов
-			if ips := supportingfunctions.CreateStringWithCommaFromIps(v.GetIps()); ips != "" {
-				tags.Tag = append(tags.Tag, connectionjsonrpc.Tag{
-					Tag:   "IP",
-					Value: ips,
 				})
 			}
 
