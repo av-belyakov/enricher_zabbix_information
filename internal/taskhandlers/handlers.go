@@ -237,8 +237,6 @@ func (th *TaskHandler) start() error {
 			if err := th.settings.storage.SetError(msg.HostId, msg.Error); err != nil {
 				th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
 			}
-
-			continue
 		}
 
 		if err := th.settings.storage.SetDomainName(msg.HostId, msg.DomainName); err != nil {
