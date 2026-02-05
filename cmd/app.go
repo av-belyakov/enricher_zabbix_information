@@ -120,7 +120,7 @@ func app(ctx context.Context) {
 
 	//*********************************************************************************
 	//********************** инициализация временного хранилища ***********************
-	appStorage, err := appstorage.New(appstorage.WithSizeLogs(30))
+	appStorage, err := appstorage.New(appstorage.WithSizeLogs(100))
 	if err != nil {
 		log.Fatalf("error initializing the temporary storage: %v", err)
 	}

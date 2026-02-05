@@ -8,7 +8,10 @@ package components
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/av-belyakov/enricher_zabbix_information/internal/memorystatistics"
+import (
+	"github.com/av-belyakov/enricher_zabbix_information/internal/memorystatistics"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
+)
 
 func TemplateMemoryStats(memStats memorystatistics.MemoryStatsCache) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -36,22 +39,22 @@ func TemplateMemoryStats(memStats memorystatistics.MemoryStatsCache) templ.Compo
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(memStats.Alloc.Current)
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(supportingfunctions.ByteCountSI(int64(memStats.Alloc.Current)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 8, Col: 54}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 11, Col: 94}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " bytes ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(memStats.Alloc.PointerUpOrDown)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 8, Col: 93}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 11, Col: 127}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -62,22 +65,22 @@ func TemplateMemoryStats(memStats memorystatistics.MemoryStatsCache) templ.Compo
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(memStats.TotalAlloc.Current)
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(supportingfunctions.ByteCountSI(int64(memStats.TotalAlloc.Current)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 9, Col: 65}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 12, Col: 105}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, " bytes ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, " ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(memStats.TotalAlloc.PointerUpOrDown)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 9, Col: 109}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 12, Col: 143}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -88,22 +91,22 @@ func TemplateMemoryStats(memStats memorystatistics.MemoryStatsCache) templ.Compo
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var6 string
-		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(memStats.HeapAlloc.Current)
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(supportingfunctions.ByteCountSI(int64(memStats.HeapAlloc.Current)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 10, Col: 59}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 13, Col: 99}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " bytes ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(memStats.HeapAlloc.PointerUpOrDown)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 10, Col: 102}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 13, Col: 136}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -114,22 +117,22 @@ func TemplateMemoryStats(memStats memorystatistics.MemoryStatsCache) templ.Compo
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var8 string
-		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(memStats.HeapSys.Current)
+		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(supportingfunctions.ByteCountSI(int64(memStats.HeapSys.Current)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 11, Col: 58}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 14, Col: 98}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, " bytes ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, " ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(memStats.HeapSys.PointerUpOrDown)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 11, Col: 99}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 14, Col: 133}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -140,22 +143,22 @@ func TemplateMemoryStats(memStats memorystatistics.MemoryStatsCache) templ.Compo
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var10 string
-		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(memStats.HeapObjects.Current)
+		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(supportingfunctions.ByteCountSI(int64(memStats.HeapObjects.Current)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 12, Col: 80}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 15, Col: 120}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, " bytes ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, " ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(memStats.HeapObjects.PointerUpOrDown)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 12, Col: 125}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 15, Col: 159}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
@@ -166,22 +169,22 @@ func TemplateMemoryStats(memStats memorystatistics.MemoryStatsCache) templ.Compo
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var12 string
-		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(memStats.NumberLiveObjects.Current)
+		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(supportingfunctions.ByteCountSI(int64(memStats.NumberLiveObjects.Current)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 13, Col: 76}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 16, Col: 116}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, " bytes ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, " ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(memStats.NumberLiveObjects.PointerUpOrDown)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 13, Col: 127}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 16, Col: 161}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -192,22 +195,22 @@ func TemplateMemoryStats(memStats memorystatistics.MemoryStatsCache) templ.Compo
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var14 string
-		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(memStats.CountMemoryReturned.Current)
+		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(supportingfunctions.ByteCountSI(int64(memStats.CountMemoryReturned.Current)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 14, Col: 97}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 17, Col: 137}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " bytes ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var15 string
 		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(memStats.CountMemoryReturned.PointerUpOrDown)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 14, Col: 150}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 17, Col: 184}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
@@ -218,22 +221,22 @@ func TemplateMemoryStats(memStats memorystatistics.MemoryStatsCache) templ.Compo
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var16 string
-		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(memStats.GarbagecollectorMemory.Current)
+		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(supportingfunctions.ByteCountSI(int64(memStats.GarbagecollectorMemory.Current)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 15, Col: 79}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 18, Col: 119}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, " bytes ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, " ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(memStats.GarbagecollectorMemory.PointerUpOrDown)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 15, Col: 135}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/memorystats.templ`, Line: 18, Col: 169}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
