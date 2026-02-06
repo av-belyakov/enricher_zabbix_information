@@ -11,6 +11,7 @@ import (
 
 	"github.com/av-belyakov/enricher_zabbix_information/constants"
 	"github.com/av-belyakov/enricher_zabbix_information/interfaces"
+	"github.com/av-belyakov/enricher_zabbix_information/internal/adapters"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/apiserver"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/appstorage"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/dnsresolver"
@@ -141,7 +142,6 @@ func (th *TaskHandler) start() error {
 	if err != nil {
 		return err
 	}
-
 	// преобразуем список групп хостов Zabbix из бинарного вида в соответствующую структуру
 	hostGroupList, errMsg, err := connectionjsonrpc.NewResponseGetHostGroupList().Get(res)
 	if err != nil {
@@ -181,7 +181,6 @@ func (th *TaskHandler) start() error {
 	if err != nil {
 		return err
 	}
-
 	// преобразуем список хостов Zabbix из бинарного вида в соответствующую структуру
 	hostList, errMsg, err := connectionjsonrpc.NewResponseGetHostList().Get(res)
 	if err != nil {
@@ -215,6 +214,7 @@ func (th *TaskHandler) start() error {
 		th.settings.storage.AddElement(appstorage.HostDetailedInformation{
 			HostId:       hostId,
 			OriginalHost: originalHost,
+			Tags:         adapters.ConvertTagsBetweenPackages(connectionjsonrpc.Tags{Tag: host.Tags}),
 		})
 	}
 
@@ -333,16 +333,25 @@ func (th *TaskHandler) start() error {
 			}
 		}
 
-		_, err := th.settings.zabbixConn.UpdateHostParameterTags(th.ctx, fmt.Sprint(v.HostId), tags)
-		if err != nil {
-			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
-
-			continue
-		}
-
 		if err := th.settings.storage.SetIsProcessed(v.HostId); err != nil {
 			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
 		}
+
+		// проверяем изменились ли теги, запрос в Zabbix выполняется только если
+		// были какие то изменения в тегах, то есть списки тегов не равны
+		isCompare, err := th.settings.storage.IsTagComparison(v.HostId, adapters.ConvertTagsBetweenPackages(tags))
+		if err != nil {
+			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+		}
+
+		if isCompare {
+			continue
+		}
+		_, err = th.settings.zabbixConn.UpdateHostParameterTags(th.ctx, fmt.Sprint(v.HostId), tags)
+		if err != nil {
+			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+		}
+
 	}
 
 	// количество обновленных хостов в Zabbix
