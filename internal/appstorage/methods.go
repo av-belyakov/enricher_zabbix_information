@@ -305,6 +305,10 @@ func (as *SharedAppStorage) IsTagComparison(hostId int, tags []Tag) (bool, error
 		return false, nil
 	}
 
+	if len(elem.Tags) != len(tags) {
+		return false, nil
+	}
+
 	as.statistics.mutex.RLock()
 	defer as.statistics.mutex.RUnlock()
 
