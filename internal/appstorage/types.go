@@ -36,6 +36,7 @@ type StatisticsApp struct {
 // HostDetailedInformation детальная информация о хосте
 type HostDetailedInformation struct {
 	Ips           []netip.Addr `json:"ips"`             // список ip адресов
+	Tags          []Tag        `json:"tags"`            // список тегов
 	SensorsId     []string     `json:"sensor_id"`       // id обслуживающего сенсора
 	NetboxHostsId []int        `json:"netbox_hosts_id"` // id хоста в netbox
 	OriginalHost  string       `json:"original_host"`   // исходное наименование хоста
@@ -44,6 +45,12 @@ type HostDetailedInformation struct {
 	HostId        int          `json:"host_id"`         // id хоста
 	IsActive      bool         `json:"is_active"`       // флаг активный ли хост
 	IsProcessed   bool         `json:"is_processed"`    // флаг обработан ли хост
+}
+
+// Tag опции тега
+type Tag struct {
+	Tag   string `json:"tag"`
+	Value string `json:"value"`
 }
 
 // LogsApp логи приложения

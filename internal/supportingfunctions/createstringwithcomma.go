@@ -15,7 +15,7 @@ func CreateStringWithComma(list []string) string {
 		return list[0]
 	}
 
-	return strings.Join(list, ",")
+	return strings.Join(list, ", ")
 }
 
 // CreateStringWithCommaFromIps создание строки с разделителем запятая из IP-адресов
@@ -33,5 +33,5 @@ func CreateStringWithCommaFromIps(ips []netip.Addr) string {
 		list = append(list, ip.String())
 	}
 
-	return strings.Join(list, ",")
+	return strings.Join(list, ", ")
 }

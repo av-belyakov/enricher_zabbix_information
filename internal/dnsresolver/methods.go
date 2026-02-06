@@ -7,9 +7,10 @@ import (
 	"net/url"
 	"strings"
 
+	"golang.org/x/net/idna"
+
 	"github.com/av-belyakov/enricher_zabbix_information/internal/customerrors"
 	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
-	"golang.org/x/net/idna"
 )
 
 // Run запуск преобразования списка доменных имён в ip адреса
