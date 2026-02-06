@@ -4,7 +4,7 @@ import "fmt"
 
 // ByteCountSI представление числа человекочитаемом виде
 func ByteCountSI(b int64) string {
-	const unit = 1000
+	const unit = 1_000
 	if b < unit {
 		return fmt.Sprintf("%d B", b)
 	}
