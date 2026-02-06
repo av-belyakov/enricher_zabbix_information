@@ -294,6 +294,31 @@ func (as *SharedAppStorage) SetNetboxHostId(hostId int, netboxHostsId ...int) er
 	return nil
 }
 
+// IsTagComparison сравнение списка тегов, true если списки равны
+func (as *SharedAppStorage) IsTagComparison(hostId int, tags []Tag) (bool, error) {
+	_, elem, ok := as.GetForHostId(hostId)
+	if !ok {
+		return false, fmt.Errorf("the element with hostId '%d' was not found", hostId)
+	}
+
+	if len(elem.Tags) == 0 {
+		return false, nil
+	}
+
+	as.statistics.mutex.RLock()
+	defer as.statistics.mutex.RUnlock()
+
+	for _, v := range tags {
+		if !slices.ContainsFunc(elem.Tags, func(tag Tag) bool {
+			return v.Tag == tag.Tag && v.Value == tag.Value
+		}) {
+			return false, nil
+		}
+	}
+
+	return true, nil
+}
+
 // SetCountZabbixHostsGroup количество групп хостов в Zabbix
 func (as *SharedAppStorage) SetCountZabbixHostsGroup(v int) {
 	as.statistics.countZabbixHostsGroup.Store(int32(v))
@@ -398,6 +423,7 @@ func (as *SharedAppStorage) DeleteAll() {
 	as.statistics.countMonitoringHostsGroup.Store(0)
 	as.statistics.countMonitoringHosts.Store(0)
 	as.statistics.countNetboxPrefixes.Store(0)
+	as.statistics.countNetboxPrefixesMatches.Store(0)
 	as.statistics.countNetboxPrefixesReceived.Store(0)
 	as.statistics.countUpdatedZabbixHosts.Store(0)
 
@@ -425,18 +451,6 @@ func (as *SharedAppStorage) GetListErrors() []HostDetailedInformation {
 
 	return list
 }
-
-/*
-	Ips           []netip.Addr `json:"ips"`             // список ip адресов
-	SensorsId     []string     `json:"sensor_id"`       // id обслуживающего сенсора
-	NetboxHostsId []int        `json:"netbox_hosts_id"` // id хоста в netbox
-	OriginalHost  string       `json:"original_host"`   // исходное наименование хоста
-	DomainName    string       `json:"domain_name"`     // доменное имя
-	Error         error        `json:"error"`           // ошибка
-	HostId        int          `json:"host_id"`         // id хоста
-	IsActive      bool         `json:"is_active"`       // флаг активный ли хост
-	IsProcessed   bool         `json:"is_processed"`    // флаг обработан ли хост
-*/
 
 func (hdi *HostDetailedInformation) GetIps() []netip.Addr {
 	return hdi.Ips
