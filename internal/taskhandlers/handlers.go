@@ -306,11 +306,8 @@ func (th *TaskHandler) start() error {
 		}
 	}
 
-	var num int
 	// добавляем или обновляем теги в Zabbix
 	for _, v := range th.settings.storage.GetList() {
-		num++
-
 		tags := connectionjsonrpc.Tags{Tag: []connectionjsonrpc.Tag{{Tag: "HomeNet", Value: "yes"}}}
 
 		// проверяем наличие списка ips хостов
@@ -347,15 +344,18 @@ func (th *TaskHandler) start() error {
 		if isCompare {
 			continue
 		}
+
 		_, err = th.settings.zabbixConn.UpdateHostParameterTags(th.ctx, fmt.Sprint(v.HostId), tags)
 		if err != nil {
 			th.settings.logger.Send("error", wrappers.WrapperError(err).Error())
+
+			continue
 		}
 
+		// количество обновленных хостов в Zabbix
+		th.settings.storage.SetCountUpdatedZabbixHosts(int(th.settings.storage.GetCountUpdatedZabbixHosts()) + 1)
 	}
 
-	// количество обновленных хостов в Zabbix
-	th.settings.storage.SetCountUpdatedZabbixHosts(num)
 	// меняем статус задачи на "не выполняется"
 	th.settings.storage.SetProcessNotRunning()
 
