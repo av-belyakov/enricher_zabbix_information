@@ -6,13 +6,15 @@ import (
 	"io"
 	"net/http"
 	"net/netip"
+	"time"
 
 	"github.com/av-belyakov/enricher_zabbix_information/internal/supportingfunctions"
 )
 
 // Get реализация HTTP GET запроса
 func (api *Client) Get(ctx context.Context, query string) ([]byte, int, error) {
-	//ctx, cancel := context.WithTimeout(ctx, api.settings.timeout)
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(api.settings.timeout)*time.Second)
+	defer cancel()
 
 	url := fmt.Sprintf("http://%s:%d%s", api.settings.host, api.settings.port, query)
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
