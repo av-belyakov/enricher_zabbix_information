@@ -120,6 +120,9 @@ func New(rootDir string) (*ConfigApp, error) {
 		if viper.IsSet("NetBox.port") {
 			conf.NetBox.Port = viper.GetInt("NetBox.port")
 		}
+		if viper.IsSet("NetBox.timeout") {
+			conf.NetBox.Timeout = viper.GetInt("NetBox.timeout")
+		}
 
 		// Настройки для модуля API сервера информации
 		if viper.IsSet("InformationServerApi.host") {

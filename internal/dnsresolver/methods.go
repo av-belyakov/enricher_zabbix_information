@@ -15,14 +15,18 @@ import (
 
 // Run запуск преобразования списка доменных имён в ip адреса
 func (s *Settings) Run(ctx context.Context, hosts []ShortInformationAboutHost) (<-chan InfoFromDNSResolver, error) {
-	chSendData := make(chan InfoFromDNSResolver)
-
 	if len(hosts) == 0 {
 		return nil, wrappers.WrapperError(errors.New("the list of domain names intended for searching ip addresses should not be empty"))
 	}
 
+	ctx, cancel := context.WithTimeout(ctx, s.timeout)
+	chSendData := make(chan InfoFromDNSResolver)
+
 	go func() {
-		defer close(chSendData)
+		defer func() {
+			cancel()
+			close(chSendData)
+		}()
 
 		for _, v := range hosts {
 			idns := InfoFromDNSResolver{

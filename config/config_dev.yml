@@ -14,11 +14,12 @@ Zabbix:
   host: 192.168.9.45
   port: 443
   user: 803.a.belyakov@avz-center.ru
-  timeout: 30
+  timeout: 15
 # Настройки подключения к NetBox
 NetBox:
   host: localhost
   port: 4455
+  timeout: 15
 InformationServerApi:
   host: localhost
   port: 8080

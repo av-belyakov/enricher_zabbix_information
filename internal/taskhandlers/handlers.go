@@ -73,8 +73,8 @@ func (th *TaskHandler) SimpleTaskHandler() error {
 	return nil
 }
 
-// TaskHandlerInitiatedThroughChannel обработчик задач, задачи запускаются
-// при их инициализации через веб-интерфейс
+// TaskHandlerInitiatedThroughChannel обработчик задач
+// запуск задач выполняется через веб-интерфейс
 func (th *TaskHandler) TaskHandlerInitiatedThroughChannel() error {
 	go func() {
 		for msg := range th.settings.apiServer.GetChannelOutgoingData() {
@@ -126,6 +126,7 @@ func (th *TaskHandler) TaskHandlerInitiatedThroughChannel() error {
 	return nil
 }
 
+// start запуск задачи
 func (th *TaskHandler) start() error {
 	//очищаем хранилище от предыдущих данных (что бы не смешивать старые и новые данные)
 	th.settings.storage.DeleteAll()
@@ -228,7 +229,7 @@ func (th *TaskHandler) start() error {
 	if err != nil {
 		return err
 	}
-	// обрабатываем результат поиска
+	// обрабатываем результат поиска через DNS resolver
 	for msg := range chInfo {
 		if msg.Error != nil {
 			// логируем ошибки при выполнении DNS преобразования доменных имён в ip адреса

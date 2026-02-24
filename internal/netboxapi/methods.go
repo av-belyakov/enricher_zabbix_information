@@ -12,6 +12,8 @@ import (
 
 // Get реализация HTTP GET запроса
 func (api *Client) Get(ctx context.Context, query string) ([]byte, int, error) {
+	//ctx, cancel := context.WithTimeout(ctx, api.settings.timeout)
+
 	url := fmt.Sprintf("http://%s:%d%s", api.settings.host, api.settings.port, query)
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
