@@ -31,7 +31,12 @@ func TestGetPrefixes(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	client, err := netboxapi.New(host, port, os.Getenv("GO_ENRICHERZI_NBTOKEN"))
+	client, err := netboxapi.New(
+		os.Getenv("GO_ENRICHERZI_NBTOKEN"),
+		netboxapi.WithHost(host),
+		netboxapi.WithPort(port),
+		netboxapi.WithTimeout(10),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
