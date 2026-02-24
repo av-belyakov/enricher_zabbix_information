@@ -6,7 +6,7 @@ require (
 	github.com/a-h/templ v0.3.960
 	github.com/av-belyakov/simplelogger v0.0.0-20250924090323-6ab0607b4a4b
 	github.com/av-belyakov/zabbixapicommunicator/v2 v2.4.6
-	github.com/bytedance/sonic v1.14.2
+	github.com/bytedance/sonic v1.15.0
 	github.com/elastic/go-elasticsearch/v8 v8.19.0
 	github.com/go-co-op/gocron/v2 v2.19.0
 	github.com/go-playground/validator/v10 v10.28.0
@@ -24,7 +24,7 @@ require (
 	github.com/a-h/parse v0.0.0-20250122154542-74294addb73e // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/bytedance/gopkg v0.1.3 // indirect
-	github.com/bytedance/sonic/loader v0.4.0 // indirect
+	github.com/bytedance/sonic/loader v0.5.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cli/browser v1.3.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect

@@ -63,7 +63,7 @@ func TestTaskHandler(t *testing.T) {
 		t.Fatalf("Не удалось получить корневую директорию: %v", err)
 	}
 
-	conf, err := confighandler.New(rootPath)
+	cfg, err := confighandler.New(rootPath)
 	if err != nil {
 		t.Fatalf("Не удалось прочитать конфигурационный файл: %v", err)
 	}
@@ -91,9 +91,10 @@ func TestTaskHandler(t *testing.T) {
 
 	// соединение с Netbox
 	netboxClient, err := netboxapi.New(
-		conf.NetBox.Host,
-		conf.NetBox.Port,
-		conf.AuthenticationData.NetBoxToken,
+		cfg.AuthenticationData.NetBoxToken,
+		netboxapi.WithHost(cfg.NetBox.Host),
+		netboxapi.WithPort(cfg.NetBox.Port),
+		netboxapi.WithTimeout(cfg.NetBox.Timeout),
 	)
 	if err != nil {
 		log.Fatalf("error initializing the Netbox client: %v", err)

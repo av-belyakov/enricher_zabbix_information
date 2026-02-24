@@ -54,7 +54,7 @@ func app(ctx context.Context) {
 
 	// ****************************************************************************
 	// *********** инициализируем модуль чтения конфигурационного файла ***********
-	conf, err := confighandler.New(rootPath)
+	cfg, err := confighandler.New(rootPath)
 	if err != nil {
 		log.Fatalf("error module 'confighandler': %v", err)
 	}
@@ -62,7 +62,7 @@ func app(ctx context.Context) {
 	// ****************************************************************************
 	// ********************* инициализация модуля логирования *********************
 	var listLog []simplelogger.OptionsManager
-	for _, v := range conf.GetListLogs() {
+	for _, v := range cfg.GetListLogs() {
 		listLog = append(listLog, v)
 	}
 	opts := simplelogger.CreateOptions(listLog...)
@@ -73,13 +73,13 @@ func app(ctx context.Context) {
 
 	//*********************************************************************************
 	//********** инициализация модуля взаимодействия с БД для передачи логов **********
-	confDB := conf.GetLogDB()
+	cfgDB := cfg.GetLogDB()
 	if esc, err := elasticsearchapi.NewElasticsearchConnect(elasticsearchapi.Settings{
-		Port:               confDB.Port,
-		Host:               confDB.Host,
-		User:               confDB.User,
-		Passwd:             conf.GetAuthenticationData().WriteLogBDPasswd,
-		IndexDB:            confDB.StorageNameDB,
+		Port:               cfgDB.Port,
+		Host:               cfgDB.Host,
+		User:               cfgDB.User,
+		Passwd:             cfg.GetAuthenticationData().WriteLogBDPasswd,
+		IndexDB:            cfgDB.StorageNameDB,
 		NameRegionalObject: nameRegionalObject,
 	}); err != nil {
 		_ = simpleLogger.Write("error", wrappers.WrapperError(err).Error())
@@ -90,23 +90,23 @@ func app(ctx context.Context) {
 
 	//*********************************************************************************
 	//***************** инициализация модуля-обёртки соединения с Zabbix **************
-	if conf.GetZabbix().UseTLS {
+	if cfg.GetZabbix().UseTLS {
 		zabbixConn, err = connectionjsonrpc.NewConnect(
 			connectionjsonrpc.WithTLS(),
 			connectionjsonrpc.WithInsecureSkipVerify(),
-			connectionjsonrpc.WithHost(conf.GetZabbix().Host),
-			connectionjsonrpc.WithPort(conf.GetZabbix().Port),
-			connectionjsonrpc.WithLogin(conf.GetZabbix().User),
-			connectionjsonrpc.WithPasswd(conf.GetAuthenticationData().ZabbixPasswd),
-			connectionjsonrpc.WithConnectionTimeout(cmp.Or(conf.GetZabbix().Timeout, 10)),
+			connectionjsonrpc.WithHost(cfg.GetZabbix().Host),
+			connectionjsonrpc.WithPort(cfg.GetZabbix().Port),
+			connectionjsonrpc.WithLogin(cfg.GetZabbix().User),
+			connectionjsonrpc.WithPasswd(cfg.GetAuthenticationData().ZabbixPasswd),
+			connectionjsonrpc.WithConnectionTimeout(cmp.Or(cfg.GetZabbix().Timeout, 10)),
 		)
 	} else {
 		zabbixConn, err = connectionjsonrpc.NewConnect(
-			connectionjsonrpc.WithHost(conf.GetZabbix().Host),
-			connectionjsonrpc.WithPort(conf.GetZabbix().Port),
-			connectionjsonrpc.WithLogin(conf.GetZabbix().User),
-			connectionjsonrpc.WithPasswd(conf.GetAuthenticationData().ZabbixPasswd),
-			connectionjsonrpc.WithConnectionTimeout(cmp.Or(conf.GetZabbix().Timeout, 10)),
+			connectionjsonrpc.WithHost(cfg.GetZabbix().Host),
+			connectionjsonrpc.WithPort(cfg.GetZabbix().Port),
+			connectionjsonrpc.WithLogin(cfg.GetZabbix().User),
+			connectionjsonrpc.WithPasswd(cfg.GetAuthenticationData().ZabbixPasswd),
+			connectionjsonrpc.WithConnectionTimeout(cmp.Or(cfg.GetZabbix().Timeout, 10)),
 		)
 	}
 	if err != nil {
@@ -126,26 +126,26 @@ func app(ctx context.Context) {
 	}
 	// заполняем хранилище информацией о конфигурации, нужно для того что бы apiserver
 	// мог отображать краткую информацию о настройках приложения
-	appStorage.SetTaskSchedulerTimeJob(conf.GetSchedule().TimerJob)
-	dailyJobs := conf.GetSchedule().DailyJob
+	appStorage.SetTaskSchedulerTimeJob(cfg.GetSchedule().TimerJob)
+	dailyJobs := cfg.GetSchedule().DailyJob
 	taskSchedulerTimeJobs := make([]string, 0, len(dailyJobs))
 	for _, v := range dailyJobs {
 		taskSchedulerTimeJobs = append(taskSchedulerTimeJobs, v)
 	}
 	appStorage.SetTaskSchedulerDailyJobs(taskSchedulerTimeJobs)
 	appStorage.SetNetbox(appstorage.ShortParameters{
-		Host: conf.GetNetBox().Host,
-		Port: conf.GetNetBox().Port,
+		Host: cfg.GetNetBox().Host,
+		Port: cfg.GetNetBox().Port,
 	})
 	appStorage.SetZabbix(appstorage.ShortParameters{
-		User: conf.GetZabbix().User,
-		Host: conf.GetZabbix().Host,
-		Port: conf.GetZabbix().Port,
+		User: cfg.GetZabbix().User,
+		Host: cfg.GetZabbix().Host,
+		Port: cfg.GetZabbix().Port,
 	})
 	appStorage.SetDatabaseLogging(appstorage.ShortParameters{
-		User: conf.GetLogDB().User,
-		Host: conf.GetLogDB().Host,
-		Port: conf.GetLogDB().Port,
+		User: cfg.GetLogDB().User,
+		Host: cfg.GetLogDB().Host,
+		Port: cfg.GetLogDB().Port,
 	})
 
 	//*********************************************************************************
@@ -158,9 +158,9 @@ func app(ctx context.Context) {
 	apiServer, err := apiserver.New(
 		logging,
 		appStorage,
-		apiserver.WithHost(conf.GetInformationServerApi().Host),
-		apiserver.WithPort(conf.GetInformationServerApi().Port),
-		apiserver.WithAuthToken(conf.GetAuthenticationData().APIServerToken),
+		apiserver.WithHost(cfg.GetInformationServerApi().Host),
+		apiserver.WithPort(cfg.GetInformationServerApi().Port),
+		apiserver.WithAuthToken(cfg.GetAuthenticationData().APIServerToken),
 		apiserver.WithVersion(versionApp),
 	)
 	if err != nil {
@@ -189,8 +189,17 @@ func app(ctx context.Context) {
 
 	//********************************************************************************
 	//************************ инициализация клиента Netbox **************************
-	nbConf := conf.GetNetBox()
-	nbClient, err := netboxapi.New(nbConf.Host, nbConf.Port, conf.AuthenticationData.NetBoxToken)
+	nbCfg := cfg.GetNetBox()
+	nbClient, err := netboxapi.New(
+		cfg.AuthenticationData.NetBoxToken,
+		netboxapi.WithHost(nbCfg.Host),
+		netboxapi.WithPort(nbCfg.Port),
+		netboxapi.WithTimeout(nbCfg.Timeout),
+	)
+	if err != nil {
+		log.Fatalf("error initializing the netbox client: %v", err)
+	}
+
 	if err != nil {
 		log.Fatalf("error initializing the Netbox client: %v", err)
 	}
@@ -204,8 +213,8 @@ func app(ctx context.Context) {
 	//********************************************************************************
 	//******************** инициализация обработчика расписаний **********************
 	sw, err := schedulehandler.NewScheduleHandler(
-		schedulehandler.WithTimerJob(conf.Schedule.TimerJob),
-		schedulehandler.WithDailyJob(conf.Schedule.DailyJob),
+		schedulehandler.WithTimerJob(cfg.Schedule.TimerJob),
+		schedulehandler.WithDailyJob(cfg.Schedule.DailyJob),
 	)
 	if err != nil {
 		log.Fatalf("error module 'schedulehandler': '%v'", err)
@@ -239,7 +248,7 @@ func app(ctx context.Context) {
 	}
 
 	//вывод информационного сообщения
-	msg := getInformationMessage(conf, zabbixApiInfo.Result)
+	msg := getInformationMessage(cfg, zabbixApiInfo.Result)
 	_ = simpleLogger.Write("info", msg)
 
 	<-ctx.Done()
