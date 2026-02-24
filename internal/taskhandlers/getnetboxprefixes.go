@@ -15,8 +15,10 @@ import (
 	"github.com/av-belyakov/enricher_zabbix_information/internal/wrappers"
 )
 
-func NetboxPrefixes(ctx context.Context, client *netboxapi.Client, logger interfaces.Logger) (<-chan netboxapi.ShortPrefixList /*[]netboxapi.ShortPrefixInfo*/, int, error) {
+func NetboxPrefixes(ctx context.Context, client *netboxapi.Client, logger interfaces.Logger) (<-chan netboxapi.ShortPrefixList, int, error) {
 	chOut := make(chan netboxapi.ShortPrefixList)
+
+	//	ctx, cancel := context.WithTimeout(ctx, constants.Timeout_For_Request)
 
 	// выясняем сколько всего префиксов
 	res, statusCode, err := client.Get(ctx, "/api/ipam/prefixes/?limit=1")
@@ -51,7 +53,10 @@ func NetboxPrefixes(ctx context.Context, client *netboxapi.Client, logger interf
 	chunkCount := math.Ceil(float64(maxCountPrefixes.Count) / float64(chunkSize))
 
 	go func() {
-		defer close(chOut)
+		defer func() {
+			//			cancel()
+			close(chOut)
+		}()
 
 		// получаем полный список префиксов по частям
 		for i := 0; i < int(chunkCount); i++ {

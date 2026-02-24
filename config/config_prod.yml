@@ -11,11 +11,12 @@ Zabbix:
   host: 192.168.9.45
   port: 443
   user: 803.a.belyakov@avz-center.ru
-  timeout: 30
+  timeout: 15
 # Настройки подключения к NetBox
 NetBox:
   host: netbox.cloud.gcm
   port: 8005
+  timeout: 15
 InformationServerApi:
   host:
   port: 8989

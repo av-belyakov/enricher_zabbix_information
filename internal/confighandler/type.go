@@ -49,8 +49,9 @@ type CfgWriteLogDB struct {
 
 // CfgNetBox настройки доступа к некоторому сервису
 type CfgNetBox struct {
-	Host string `validate:"required" yaml:"host"`
-	Port int    `validate:"gt=0,lte=65535" yaml:"port"`
+	Host    string `validate:"required" yaml:"host"`
+	Port    int    `validate:"gt=0,lte=65535" yaml:"port"`
+	Timeout int    `validate:"gte=1,lte=6000" yaml:"timeout"`
 }
 
 // CfgZabbix настройки доступа к некоторому сервису
@@ -58,7 +59,7 @@ type CfgZabbix struct {
 	Host    string `validate:"required" yaml:"host"`
 	User    string `validate:"required" yaml:"user"`
 	Port    int    `validate:"gt=0,lte=65535" yaml:"port"`
-	Timeout int    `validate:"gte=0,lte=6000" yaml:"timeout"`
+	Timeout int    `validate:"gte=1,lte=6000" yaml:"timeout"`
 	UseTLS  bool   `yaml:"use_tls"`
 }
 

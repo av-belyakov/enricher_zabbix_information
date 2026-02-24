@@ -49,15 +49,14 @@ func TestReadConfigHandler(t *testing.T) {
 
 		t.Run("Тест 2. Проверка настроек расписания работы сервиса", func(t *testing.T) {
 			assert.Equal(t, conf.GetSchedule().TimerJob, 1)
-			assert.Equal(t, len(conf.GetSchedule().DailyJob), 6)
+			assert.Equal(t, len(conf.GetSchedule().DailyJob), 5)
 
 			listTime := []string{
 				"00:00:00",
-				"06:45:00",
+				"06:00:00",
 				"12:01:23",
-				"19:59:03",
-				"21:13:13",
-				"22:47:03",
+				"16:05:03",
+				"17:59:03",
 			}
 			for _, v := range conf.GetSchedule().DailyJob {
 				assert.True(t, slices.Contains(listTime, v))
@@ -67,6 +66,7 @@ func TestReadConfigHandler(t *testing.T) {
 		t.Run("Тест 3. Проверка настройки NetBox", func(t *testing.T) {
 			assert.Equal(t, conf.GetNetBox().Host, "localhost")
 			assert.Equal(t, conf.GetNetBox().Port, 4455)
+			assert.Equal(t, conf.GetNetBox().Timeout, 30)
 		})
 
 		t.Run("Тест 4. Проверка настройки Zabbix", func(t *testing.T) {
