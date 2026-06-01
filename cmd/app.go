@@ -197,10 +197,6 @@ func app(ctx context.Context) {
 		netboxapi.WithTimeout(nbCfg.Timeout),
 	)
 	if err != nil {
-		log.Fatalf("error initializing the netbox client: %v", err)
-	}
-
-	if err != nil {
 		log.Fatalf("error initializing the Netbox client: %v", err)
 	}
 
