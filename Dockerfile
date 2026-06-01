@@ -1,5 +1,5 @@
 # Актуализировать версию образа golang (при необходимости)
-ARG BUILD_IMAGE_NAME=golang:1.25.7-alpine
+ARG BUILD_IMAGE_NAME=golang:1.26.3-alpine
 ARG DEPLOY_IMAGE_NAME=alpine
 
 # Образ с необходимыми пакетами
