@@ -1,6 +1,6 @@
 # Enricher_Zabbix_information
 
-[![Go Version](https://img.shields.io/badge/Go-1.25.6+-00ADD8?style=flat&logo=go)](https://golang.org/)
+[![Go Version](https://img.shields.io/badge/Go-1.26.3+-00ADD8?style=flat&logo=go)](https://golang.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat&logo=docker)](https://www.docker.com/)
 
 Сервис 'Enricher_Zabbix_information' выполняет изменение или обогащение информации хранящейся в Zabbix. Информация, необходимая для обогащения данных Zabbix, запрашивается из Netbox.
